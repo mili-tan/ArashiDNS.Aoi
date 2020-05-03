@@ -14,10 +14,7 @@ namespace Arashi.Kestrel
         public static List<DomainName> ChinaList = File.ReadAllLines(SetupBasePath + "china_whitelist.list")
             .ToList().ConvertAll(DomainName.Parse);
 
-        public static bool IsChinaName(DomainName name)
-        {
-            return ChinaList.Any(name.IsEqualOrSubDomainOf);
-        }
+        public static bool IsChinaName(DomainName name) => ChinaList.Any(name.IsEqualOrSubDomainOf);
 
         public static DnsMessage ResolveOverHttpDns(DnsMessage dnsMessage)
         {
