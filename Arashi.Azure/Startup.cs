@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,6 +18,11 @@ namespace Arashi.Azure
 {
     public class Startup
     {
+        private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+        private static string IndexStr = File.Exists(SetupBasePath + "index.html")
+            ? File.ReadAllText(SetupBasePath + "index.html")
+            : "Welcome to ArashiDNS.P ONE Azure";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -38,8 +44,8 @@ namespace Arashi.Azure
             {
                 endpoints.MapGet("/", async context =>
                 {
-                    context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync("Welcome to ArashiDNS.P ONE Azure");
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync(IndexStr);
                 });
             }).UseEndpoints(DnsQueryRoute);
         }
@@ -56,8 +62,8 @@ namespace Arashi.Azure
                     ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context)));
                 else
                 {
-                    context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync("Invalid query parameter");
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync(IndexStr);
                 }
             });
         }
