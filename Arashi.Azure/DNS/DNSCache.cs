@@ -32,7 +32,12 @@ namespace Arashi
 
         public static DnsMessage Get(DnsMessage dnsQMessage)
         {
-            var dCacheMsg = new DnsMessage();
+            var dCacheMsg = new DnsMessage
+            {
+                IsRecursionAllowed = true,
+                IsRecursionDesired = true,
+                TransactionID = dnsQMessage.TransactionID
+            };
             dCacheMsg.AnswerRecords.AddRange(
                 (List<DnsRecordBase>) MemoryCache.Default.Get(
                     $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}") ??
