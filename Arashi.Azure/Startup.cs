@@ -119,15 +119,20 @@ namespace Arashi.Azure
                 Console.WriteLine(e);
             }
 
-            var client = new DnsClient(IPAddress.Parse("8.8.8.8"), 500);
+            return DnsQuery(IPAddress.Parse("8.8.8.8"), dnsMessage);
+        }
+
+        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage)
+        {
+            var client = new DnsClient(ipAddress, 500);
             for (var i = 0; i < 3; i++)
             {
                 var aMessage = client.SendMessage(dnsMessage);
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(IPAddress.Parse("8.8.8.8"), 1000)
-                { IsTcpEnabled = true, IsUdpEnabled = false }.SendMessage(dnsMessage);
+            return new DnsClient(ipAddress, 1000)
+                {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 
         public static void WriteLogCache(DnsMessage dnsMessage)
