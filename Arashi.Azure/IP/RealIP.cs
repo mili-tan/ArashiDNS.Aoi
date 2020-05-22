@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
 
 namespace Arashi.Kestrel
@@ -26,6 +27,18 @@ namespace Arashi.Kestrel
                 Console.WriteLine(e);
                 return context.Connection.RemoteIpAddress.ToString();
             }
+        }
+
+        public static string GetFromDns(DnsMessage dnsMsg, HttpContext context)
+        {
+            if (!dnsMsg.IsEDnsEnabled) return Get(context);
+            foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+            {
+                if (eDnsOptionBase is ClientSubnetOption option)
+                    return option.Address.ToString();
+            }
+
+            return Get(context);
         }
     }
 }

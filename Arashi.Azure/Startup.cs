@@ -131,7 +131,7 @@ namespace Arashi.Azure
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, 1000)
+            return new DnsClient(ipAddress, 500)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 
