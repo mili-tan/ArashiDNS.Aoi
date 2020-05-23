@@ -75,6 +75,13 @@ namespace Arashi.Azure
                         current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
                         Environment.NewLine));
             });
+            endpoints.Map("/rm-cache", async context =>
+            {
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
+                context.Response.ContentType = "text/plain";
+                MemoryCache.Default.Trim(100);
+                await context.Response.WriteAsync("OK");
+            });
         }
 
         public static async void ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg)
