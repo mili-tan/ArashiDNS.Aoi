@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
+using Arashi.Kestrel;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
+using Microsoft.AspNetCore.Http;
 
 namespace Arashi
 {
@@ -15,22 +17,42 @@ namespace Arashi
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
             var cacheItem = new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                 dnsMessage.AnswerRecords.ToList());
+            Add(cacheItem, dnsRecordBase.TimeToLive);
+        }
+
+        public static void Add(DnsMessage dnsMessage, HttpContext context)
+        {
+            if (dnsMessage.AnswerRecords.Count <= 0) return;
+            var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
+            var cacheItem = new CacheItem(
+                $"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}" + ":" +
+                GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context)),
+                dnsMessage.AnswerRecords.ToList());
+            Add(cacheItem, dnsRecordBase.TimeToLive);
+        }
+
+        public static void Add(CacheItem cacheItem, int ttl)
+        {
             if (!MemoryCache.Default.Contains(cacheItem.Key))
                 MemoryCache.Default.Add(cacheItem,
                     new CacheItemPolicy
                     {
                         AbsoluteExpiration =
-                            DateTimeOffset.Now + TimeSpan.FromSeconds(dnsRecordBase.TimeToLive)
+                            DateTimeOffset.Now + TimeSpan.FromSeconds(ttl)
                     });
         }
 
-        public static bool Contains(DnsMessage dnsQMsg)
+        public static bool Contains(DnsMessage dnsQMsg, HttpContext context = null)
         {
-            return MemoryCache.Default.Contains(
-                $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}");
+            return context == null
+                ? MemoryCache.Default.Contains(
+                    $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}")
+                : MemoryCache.Default.Contains(
+                    $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}" +
+                    ":" + GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context)));
         }
 
-        public static DnsMessage Get(DnsMessage dnsQMessage)
+        public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null)
         {
             var dCacheMsg = new DnsMessage
             {
@@ -38,14 +60,23 @@ namespace Arashi
                 IsRecursionDesired = true,
                 TransactionID = dnsQMessage.TransactionID
             };
-            dCacheMsg.AnswerRecords.AddRange(
-                (List<DnsRecordBase>) MemoryCache.Default.Get(
-                    $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}") ??
-                throw new InvalidOperationException());
+            if (context != null)
+                dCacheMsg.AnswerRecords.AddRange(Get(
+                    $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}" +
+                    ":" + GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))));
+            else
+                dCacheMsg.AnswerRecords.AddRange(Get(
+                    $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.doh.pp.ua"), 0,
                 "ArashiDNS.P Cached"));
             return dCacheMsg;
+        }
+
+        public static List<DnsRecordBase> Get(string key)
+        {
+            return (List<DnsRecordBase>) MemoryCache.Default.Get(key) ??
+                   throw new InvalidOperationException();
         }
     }
 }

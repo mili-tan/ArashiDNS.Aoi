@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Responses;
@@ -48,11 +47,11 @@ namespace Arashi
             return string.Empty;
         }
 
-        public static string GetGeoStr(IPAddress ipAddress)
+        public static string GetGeoStr(string ipAddress)
         {
             try
             {
-                var i = GetAsnCityValueTuple(ipAddress.ToString());
+                var i = GetAsnCityValueTuple(ipAddress);
                 var cnisp = GetCnISP(i.Item1, i.Item2);
                 if (!string.IsNullOrEmpty(cnisp))
                     return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:{cnisp}";

@@ -54,9 +54,10 @@ namespace Arashi.Azure
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
                 var queryDictionary = context.Request.Query;
                 if (queryDictionary.ContainsKey("dns"))
-                    ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(queryDictionary["dns"].ToString())));
+                    ReturnContext(context, true,
+                        DnsQuery(DNSGet.FromWebBase64(queryDictionary["dns"].ToString()), context));
                 else if (queryDictionary.ContainsKey("name"))
-                    ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context)));
+                    ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
                 else
                 {
                     context.Response.ContentType = "text/html";
@@ -103,14 +104,17 @@ namespace Arashi.Azure
                 }
             }
 
-            WriteLogCache(dnsMsg);
+            WriteLogCache(dnsMsg, context);
         }
 
-        public static DnsMessage DnsQuery(DnsMessage dnsMessage)
+        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null)
         {
             try
             {
-                if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                if (context != null && DnsCache.Contains(dnsMessage, context))
+                    return DnsCache.Get(dnsMessage, context);
+                else if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                
                 if (DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name))
                     return DNSChina.ResolveOverHttpDns(dnsMessage);
             }
@@ -135,9 +139,14 @@ namespace Arashi.Azure
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 
-        public static void WriteLogCache(DnsMessage dnsMessage)
+
+        public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
         {
-            Task.Run(() => DnsCache.Add(dnsMessage));
+            Task.Run(() =>
+            {
+                if (context != null) DnsCache.Add(dnsMessage, context);
+                else DnsCache.Add(dnsMessage);
+            });
         }
     }
 }
