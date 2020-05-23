@@ -50,11 +50,24 @@ namespace Arashi
 
         public static string GetGeoStr(IPAddress ipAddress)
         {
-            var i = GetAsnCityValueTuple(ipAddress.ToString());
-            var cnisp = GetCnISP(i.Item1, i.Item2);
-            return string.IsNullOrEmpty(cnisp)
-                ? $"{i.Item2.Country.IsoCode}:{i.Item1.AutonomousSystemNumber}"
-                : $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:{cnisp}";
+            try
+            {
+                var i = GetAsnCityValueTuple(ipAddress.ToString());
+                var cnisp = GetCnISP(i.Item1, i.Item2);
+                if (!string.IsNullOrEmpty(cnisp))
+                    return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:{cnisp}";
+                if (!string.IsNullOrWhiteSpace(i.Item2.MostSpecificSubdivision.IsoCode)
+                    && i.Item2.Country.IsoCode != "HK" && i.Item2.Country.IsoCode != "SG")
+                    return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:" +
+                           $"{i.Item1.AutonomousSystemNumber}";
+
+                return $"{i.Item2.Country.IsoCode}:{i.Item1.AutonomousSystemNumber}";
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return string.Empty;
+            }
         }
     }
 }
