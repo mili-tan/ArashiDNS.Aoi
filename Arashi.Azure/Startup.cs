@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using Arashi.Kestrel;
 using Arashi.Kestrel.DNS;
@@ -63,6 +65,15 @@ namespace Arashi.Azure
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync(IndexStr);
                 }
+            });
+            endpoints.Map("/ls-cache", async context =>
+            {
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
+                    (current, item) =>
+                        current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
+                        Environment.NewLine));
             });
         }
 

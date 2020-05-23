@@ -25,8 +25,7 @@ namespace Arashi
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
             var cacheItem = new CacheItem(
-                $"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}" + ":" +
-                GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context)),
+                $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context))}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                 dnsMessage.AnswerRecords.ToList());
             Add(cacheItem, dnsRecordBase.TimeToLive);
         }
@@ -48,8 +47,7 @@ namespace Arashi
                 ? MemoryCache.Default.Contains(
                     $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}")
                 : MemoryCache.Default.Contains(
-                    $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}" +
-                    ":" + GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context)));
+                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}");
         }
 
         public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null)
@@ -62,8 +60,7 @@ namespace Arashi
             };
             if (context != null)
                 dCacheMsg.AnswerRecords.AddRange(Get(
-                    $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}" +
-                    ":" + GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))));
+                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
             else
                 dCacheMsg.AnswerRecords.AddRange(Get(
                     $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
