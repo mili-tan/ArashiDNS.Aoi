@@ -11,8 +11,12 @@ namespace Arashi.Kestrel
     class DNSChina
     {
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-        public static List<DomainName> ChinaList = File.ReadAllLines(SetupBasePath + "china_whitelist.list")
-            .ToList().ConvertAll(DomainName.Parse);
+        public static string ChinaListPath = SetupBasePath + "china_whitelist.list";
+
+        public static List<DomainName> ChinaList = File.Exists(ChinaListPath)
+            ? File.ReadAllLines(ChinaListPath)
+                .ToList().ConvertAll(DomainName.Parse)
+            : new List<DomainName>();
 
         public static bool IsChinaName(DomainName name) => ChinaList.Any(name.IsEqualOrSubDomainOf);
 

@@ -157,7 +157,6 @@ namespace Arashi.Azure
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 
-
         public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
         {
             Task.Run(() =>

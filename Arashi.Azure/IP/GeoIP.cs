@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Responses;
@@ -51,6 +52,7 @@ namespace Arashi
         {
             try
             {
+                if (!IPAddress.TryParse(ipAddress, out var ip) || IPAddress.IsLoopback(ip)) return string.Empty;
                 var i = GetAsnCityValueTuple(ipAddress);
                 var cnisp = GetCnISP(i.Item1, i.Item2);
                 if (!string.IsNullOrEmpty(cnisp))
