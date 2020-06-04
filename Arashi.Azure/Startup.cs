@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Arashi.Azure
 {
@@ -46,7 +47,7 @@ namespace Arashi.Azure
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync(IndexStr);
                 });
-            }).UseEndpoints(DnsQueryRoute);
+            }).UseEndpoints(DnsQueryRoute).UseEndpoints(GeoIPRoute);
         }
 
         private static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
@@ -123,6 +124,53 @@ namespace Arashi.Azure
             }
 
             WriteLogCache(dnsMsg, context);
+        }
+
+        private static void GeoIPRoute(IEndpointRouteBuilder endpoints)
+        {
+            endpoints.Map("/ip", async context =>
+            {
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(RealIP.Get(context).ToString());
+            });
+            endpoints.Map("/ip/source", async context =>
+            {
+                var jObject = new JObject {{"IP", RealIP.Get(context)}, {"UserHostAddress",
+                    context.Connection.RemoteIpAddress.ToString()}};
+                if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
+                    jObject.Add("X-Forwarded-For", context.Request.Headers["X-Forwarded-For"].ToString());
+                if (context.Request.Headers.ContainsKey("CF-Connecting-IP"))
+                    jObject.Add("CF-Connecting-IP", context.Request.Headers["CF-Connecting-IP"].ToString());
+                if (context.Request.Headers.ContainsKey("X-Real-IP"))
+                    jObject.Add("X-Real-IP", context.Request.Headers["X-Real-IP"].ToString());
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(jObject.ToString());
+            });
+            endpoints.Map("/ip/json", async context =>
+            {
+                var jObject = new JObject();
+                var asnCity = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
+                    ? context.Request.Query["ip"].ToString()
+                    : RealIP.Get(context));
+                var responseAsn = asnCity.Item1;
+                var responseCity = asnCity.Item2;
+                jObject.Add("IP", responseAsn.IPAddress);
+                jObject.Add("ASN", responseAsn.AutonomousSystemNumber);
+                jObject.Add("Organization", responseAsn.AutonomousSystemOrganization);
+                jObject.Add("CountryCode", responseCity.Country.IsoCode);
+                jObject.Add("Country", responseCity.Country.Name);
+                if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.IsoCode))
+                    jObject.Add("ProvinceCode", responseCity.MostSpecificSubdivision.IsoCode);
+                if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.Name))
+                    jObject.Add("Province", responseCity.MostSpecificSubdivision.Name);
+                if (!string.IsNullOrWhiteSpace(responseCity.City.Name))
+                    jObject.Add("City", responseCity.City.Name);
+                var cnIsp = GeoIP.GetCnISP(responseAsn, responseCity);
+                if (!string.IsNullOrWhiteSpace(cnIsp)) jObject.Add("ISP", cnIsp);
+
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(jObject.ToString());
+            });
         }
 
         public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null)
