@@ -33,14 +33,8 @@ namespace Arashi.Azure
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
+            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            app.UseRouting().UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/", async context =>
                 {
