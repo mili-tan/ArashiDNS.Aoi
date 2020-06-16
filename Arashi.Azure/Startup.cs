@@ -180,8 +180,9 @@ namespace Arashi.Azure
                 if (context != null && DnsCache.Contains(dnsMessage, context))
                     return DnsCache.Get(dnsMessage, context);
                 else if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
-                
-                if (DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name))
+
+                if (DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
+                    dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return DNSChina.ResolveOverHttpDns(dnsMessage);
             }
             catch (Exception e)
