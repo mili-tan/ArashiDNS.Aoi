@@ -15,9 +15,8 @@ namespace Arashi
         {
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            var cacheItem = new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
-                dnsMessage.AnswerRecords.ToList());
-            Add(cacheItem, dnsRecordBase.TimeToLive);
+            Add(new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
         }
 
         public static void Add(DnsMessage dnsMessage, HttpContext context)
