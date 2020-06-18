@@ -24,10 +24,13 @@ namespace Arashi
         {
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            var cacheItem = new CacheItem(
-                $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context))}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
-                dnsMessage.AnswerRecords.ToList());
-            Add(cacheItem, dnsRecordBase.TimeToLive);
+            if (dnsMessage.IsEDnsEnabled)
+                Add(new CacheItem(
+                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context))}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                    dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
+            else
+                Add(new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                    dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
         }
 
         public static void Add(CacheItem cacheItem, int ttl)
