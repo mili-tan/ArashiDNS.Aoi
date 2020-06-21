@@ -23,9 +23,9 @@ namespace Arashi
         {
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            if (dnsMessage.IsEDnsEnabled)
+            if (RealIP.TryGetFromDns(dnsMessage,out var ipAddress))
                 Add(new CacheItem(
-                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsMessage, context))}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                    $"{GeoIP.GetGeoStr(ipAddress)}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                     dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
             else
                 Add(new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",

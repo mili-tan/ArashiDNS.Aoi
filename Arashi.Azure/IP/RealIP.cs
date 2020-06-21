@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
 
@@ -39,6 +40,20 @@ namespace Arashi.Kestrel
             }
 
             return Get(context);
+        }
+
+        public static bool TryGetFromDns(DnsMessage dnsMsg,out string ipAddress)
+        {
+            ipAddress = IPAddress.Any.ToString();
+            if (!dnsMsg.IsEDnsEnabled) return false;
+            foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+            {
+                if (!(eDnsOptionBase is ClientSubnetOption option)) continue;
+                ipAddress = option.Address.ToString();
+                return true;
+            }
+
+            return false;
         }
     }
 }
