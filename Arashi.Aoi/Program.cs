@@ -2,6 +2,7 @@
 using System.Net;
 using Arashi.Azure;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ namespace Arashi.Aoi
 
             cmd.OnExecute(() =>
             {
+                Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
                     : new IPEndPoint(IPAddress.Loopback, 2020);
@@ -32,10 +34,8 @@ namespace Arashi.Aoi
                     .ConfigureKestrel(options =>
                     {
                         options.Limits.MaxRequestBodySize = 1024;
-                        options.Listen(ipEndPoint, listenOptions =>
-                        {
-                            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-                        });
+                        options.Listen(ipEndPoint,
+                            listenOptions => listenOptions.Protocols = HttpProtocols.Http1AndHttp2);
                     })
                     .UseStartup<Startup>()
                     .Build();
