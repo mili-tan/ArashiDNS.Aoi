@@ -46,7 +46,7 @@ namespace Arashi.Azure
 
         private static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
         {
-            endpoints.Map("/dns-query", async context =>
+            endpoints.Map(Config.QueryPerfix, async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
                 var queryDictionary = context.Request.Query;
@@ -61,7 +61,7 @@ namespace Arashi.Azure
                     await context.Response.WriteAsync(IndexStr);
                 }
             });
-            endpoints.Map("/ls-cache", async context =>
+            endpoints.Map(Config.CachePerfix + "/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
                 context.Response.ContentType = "text/plain";
@@ -70,7 +70,7 @@ namespace Arashi.Azure
                         current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
                         Environment.NewLine));
             });
-            endpoints.Map("/rm-cache", async context =>
+            endpoints.Map(Config.CachePerfix + "/rm", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
                 context.Response.ContentType = "text/plain";
@@ -122,15 +122,21 @@ namespace Arashi.Azure
 
         private static void GeoIPRoute(IEndpointRouteBuilder endpoints)
         {
-            endpoints.Map("/ip", async context =>
+            endpoints.Map(Config.IpPerfix, async context =>
             {
                 context.Response.ContentType = "text/plain";
                 await context.Response.WriteAsync(RealIP.Get(context).ToString());
             });
-            endpoints.Map("/ip/source", async context =>
+            endpoints.Map(Config.IpPerfix + "/source", async context =>
             {
-                var jObject = new JObject {{"IP", RealIP.Get(context)}, {"UserHostAddress",
-                    context.Connection.RemoteIpAddress.ToString()}};
+                var jObject = new JObject
+                {
+                    {"IP", RealIP.Get(context)},
+                    {
+                        "UserHostAddress",
+                        context.Connection.RemoteIpAddress.ToString()
+                    }
+                };
                 if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
                     jObject.Add("X-Forwarded-For", context.Request.Headers["X-Forwarded-For"].ToString());
                 if (context.Request.Headers.ContainsKey("CF-Connecting-IP"))
@@ -140,7 +146,7 @@ namespace Arashi.Azure
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsync(jObject.ToString());
             });
-            endpoints.Map("/ip/json", async context =>
+            endpoints.Map(Config.IpPerfix + "/json", async context =>
             {
                 var jObject = new JObject();
                 var asnCity = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
@@ -184,19 +190,19 @@ namespace Arashi.Azure
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(IPAddress.Parse("8.8.8.8"), dnsMessage);
+            return DnsQuery(Config.UpStream, dnsMessage);
         }
 
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage)
         {
-            var client = new DnsClient(ipAddress, 500);
-            for (var i = 0; i < 3; i++)
+            var client = new DnsClient(ipAddress, Config.TimeOut);
+            for (var i = 0; i < Config.Tries; i++)
             {
                 var aMessage = client.SendMessage(dnsMessage);
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, 500)
+            return new DnsClient(ipAddress, Config.TimeOut)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 

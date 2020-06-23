@@ -2,7 +2,6 @@
 using System.Net;
 using Arashi.Azure;
 using McMaster.Extensions.CommandLineUtils;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +13,7 @@ namespace Arashi.Aoi
         static void Main(string[] args)
         {
             var cmd = new CommandLineApplication
-                {Name = "Arashi.Aoi", Description = "ArashiDNS.Aoi - Simple Lightweight DNS over HTTPS Server "};
+                {Name = "Arashi.Aoi", Description = "ArashiDNS.Aoi - Simple Lightweight DNS over HTTPS Server"};
 
             cmd.HelpOption("-?|-h|--help");
             var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set listen address and port",
