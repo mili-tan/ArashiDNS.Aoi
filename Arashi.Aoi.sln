@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arashi.Azure", "Arashi.Azure\Arashi.Azure.csproj", "{9BA3A887-3921-4CEE-91F6-8C902C46DEA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arashi.Shinbashi", "Arashi.Shinbashi\Arashi.Shinbashi.csproj", "{5EA0F2EC-4E7E-4C4B-B2B1-F351DC7440F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arashi.Aoi", "Arashi.Aoi\Arashi.Aoi.csproj", "{5EA0F2EC-4E7E-4C4B-B2B1-F351DC7440F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

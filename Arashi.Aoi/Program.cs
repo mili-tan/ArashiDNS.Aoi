@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Arashi.Shinbashi
+namespace Arashi.Aoi
 {
     class Program
     {
