@@ -10,5 +10,8 @@ namespace Arashi.Azure
         public static string IpPerfix = "/ip";
         public static int Tries = 4;
         public static int TimeOut = 500;
+        public static bool CacheEnable = true;
+        public static bool LogEnable = false;
+        public static bool ChinaListEnable = true;
     }
 }

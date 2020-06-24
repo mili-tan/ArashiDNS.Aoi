@@ -177,11 +177,14 @@ namespace Arashi.Azure
         {
             try
             {
-                if (context != null && DnsCache.Contains(dnsMessage, context))
-                    return DnsCache.Get(dnsMessage, context);
-                else if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                if (Config.CacheEnable)
+                {
+                    if (context != null && DnsCache.Contains(dnsMessage, context))
+                        return DnsCache.Get(dnsMessage, context);
+                    if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                }
 
-                if (DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
+                if (Config.ChinaListEnable && DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return DNSChina.ResolveOverHttpDns(dnsMessage);
             }
@@ -208,11 +211,12 @@ namespace Arashi.Azure
 
         public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
         {
-            Task.Run(() =>
-            {
-                if (context != null) DnsCache.Add(dnsMessage, context);
-                else DnsCache.Add(dnsMessage);
-            });
+            if (Config.CacheEnable)
+                Task.Run(() =>
+                {
+                    if (context != null) DnsCache.Add(dnsMessage, context);
+                    else DnsCache.Add(dnsMessage);
+                });
         }
     }
 }
