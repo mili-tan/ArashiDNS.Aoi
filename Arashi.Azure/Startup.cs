@@ -217,6 +217,15 @@ namespace Arashi.Azure
                     if (context != null) DnsCache.Add(dnsMessage, context);
                     else DnsCache.Add(dnsMessage);
                 });
+
+            if (Config.LogEnable)
+                Task.Run(() =>
+                {
+                    var ip = RealIP.GetFromDns(dnsMessage, context);
+                    dnsMessage.Questions.ForEach(o => Console.WriteLine(ip + ":Question:" + o));
+                    dnsMessage.AnswerRecords.ForEach(o => Console.WriteLine(ip + ":Answer:" + o));
+                    dnsMessage.AuthorityRecords.ForEach(o => Console.WriteLine(ip + ":Authority:" + o));
+                });
         }
     }
 }
