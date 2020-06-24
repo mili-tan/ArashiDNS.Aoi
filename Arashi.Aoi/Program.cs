@@ -20,9 +20,12 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var upOption = cmd.Option<string>("-up|--upstream <IPAddress>", "Set upstream ip address <8.8.8.8>",
                 CommandOptionType.SingleValue);
+            var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
+                CommandOptionType.SingleValue);
             var cacheOption = cmd.Option("--cache", "Set enable caching", CommandOptionType.NoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable chinalist", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
+            var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
 
             cmd.OnExecute(() =>
             {
@@ -31,9 +34,11 @@ namespace Arashi.Aoi
                     ? IPEndPoint.Parse(ipOption.Value())
                     : new IPEndPoint(IPAddress.Loopback, 2020);
                 if (upOption.HasValue()) Config.UpStream = IPAddress.Parse(upOption.Value());
+                if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
+                Config.OnlyTcpEnable = tcpOption.HasValue();
 
                 var host = new WebHostBuilder()
                     .UseKestrel()

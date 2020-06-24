@@ -198,7 +198,8 @@ namespace Arashi.Azure
 
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage)
         {
-            var client = new DnsClient(ipAddress, Config.TimeOut);
+            var client = new DnsClient(ipAddress, Config.TimeOut)
+                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
             for (var i = 0; i < Config.Tries; i++)
             {
                 var aMessage = client.SendMessage(dnsMessage);

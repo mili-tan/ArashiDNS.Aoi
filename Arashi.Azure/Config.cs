@@ -13,5 +13,6 @@ namespace Arashi.Azure
         public static bool CacheEnable = true;
         public static bool LogEnable = false;
         public static bool ChinaListEnable = true;
+        public static bool OnlyTcpEnable = false;
     }
 }
