@@ -18,10 +18,14 @@ namespace Arashi.Aoi
             cmd.HelpOption("-?|-h|--help");
             var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set listen ip address and port <127.0.0.1:2020>",
                 CommandOptionType.SingleValue);
-            var upOption = cmd.Option<string>("-up|--upstream <IPAddress>", "Set upstream ip address <8.8.8.8>",
+            var upOption = cmd.Option<string>("-u|--upstream <IPAddress>", "Set upstream ip address <8.8.8.8>",
                 CommandOptionType.SingleValue);
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
                 CommandOptionType.SingleValue);
+            var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>",
+                "Set enable https query perfix <\"/dns-query\">",
+                CommandOptionType.SingleValue);
+
             var cacheOption = cmd.Option("--cache", "Set enable caching", CommandOptionType.NoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable chinalist", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
@@ -35,6 +39,7 @@ namespace Arashi.Aoi
                     : new IPEndPoint(IPAddress.Loopback, 2020);
                 if (upOption.HasValue()) Config.UpStream = IPAddress.Parse(upOption.Value());
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
+                if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
