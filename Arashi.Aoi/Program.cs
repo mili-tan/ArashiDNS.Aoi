@@ -23,13 +23,14 @@ namespace Arashi.Aoi
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
                 CommandOptionType.SingleValue);
             var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>",
-                "Set enable https query perfix <\"/dns-query\">",
+                "Set https query perfix <\"/dns-query\">",
                 CommandOptionType.SingleValue);
 
             var cacheOption = cmd.Option("--cache", "Set enable caching", CommandOptionType.NoValue);
-            var chinaListOption = cmd.Option("--chinalist", "Set enable chinalist", CommandOptionType.NoValue);
+            var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
+            chinaListOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
             {
