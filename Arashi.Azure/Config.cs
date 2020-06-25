@@ -14,5 +14,7 @@ namespace Arashi.Azure
         public static bool LogEnable = false;
         public static bool ChinaListEnable = true;
         public static bool OnlyTcpEnable = false;
+        public static bool UseIpRoute = true;
+        public static bool UseCacheRoute = true;
     }
 }

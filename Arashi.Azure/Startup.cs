@@ -41,7 +41,9 @@ namespace Arashi.Azure
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync(IndexStr);
                 });
-            }).UseEndpoints(DnsQueryRoute).UseEndpoints(GeoIPRoute);
+            });
+            if (Config.UseIpRoute) app.UseEndpoints(GeoIPRoute);
+            if (Config.UseCacheRoute) app.UseEndpoints(CacheRoute);
         }
 
         private static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
@@ -61,13 +63,18 @@ namespace Arashi.Azure
                     await context.Response.WriteAsync(IndexStr);
                 }
             });
+
+        }
+
+        private static void CacheRoute(IEndpointRouteBuilder endpoints)
+        {
             endpoints.Map(Config.CachePerfix + "/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
                 context.Response.ContentType = "text/plain";
                 await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
                     (current, item) =>
-                        current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
+                        current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>)item.Value).FirstOrDefault()}" +
                         Environment.NewLine));
             });
             endpoints.Map(Config.CachePerfix + "/rm", async context =>

@@ -45,6 +45,8 @@ namespace Arashi.Aoi
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
+                Config.UseIpRoute = false;
+                Config.UseCacheRoute = false;
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
