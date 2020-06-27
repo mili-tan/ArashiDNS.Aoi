@@ -16,5 +16,6 @@ namespace Arashi.Azure
         public static bool OnlyTcpEnable = false;
         public static bool UseIpRoute = true;
         public static bool UseCacheRoute = true;
+        public static bool GeoCacheEnable = true;
     }
 }

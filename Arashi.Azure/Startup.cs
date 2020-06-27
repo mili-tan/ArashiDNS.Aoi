@@ -186,7 +186,7 @@ namespace Arashi.Azure
             {
                 if (Config.CacheEnable)
                 {
-                    if (context != null && DnsCache.Contains(dnsMessage, context))
+                    if (context != null && Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
                     if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 }
@@ -222,7 +222,7 @@ namespace Arashi.Azure
             if (Config.CacheEnable)
                 Task.Run(() =>
                 {
-                    if (context != null) DnsCache.Add(dnsMessage, context);
+                    if (context != null && Config.GeoCacheEnable) DnsCache.Add(dnsMessage, context);
                     else DnsCache.Add(dnsMessage);
                 });
 

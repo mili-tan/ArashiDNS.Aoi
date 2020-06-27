@@ -26,7 +26,7 @@ namespace Arashi.Aoi
                 "Set https query perfix <\"/dns-query\">",
                 CommandOptionType.SingleValue);
 
-            var cacheOption = cmd.Option("--cache", "Set enable caching", CommandOptionType.NoValue);
+            var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching <full/flexible/none>", CommandOptionType.SingleOrNoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
@@ -47,6 +47,14 @@ namespace Arashi.Aoi
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.UseIpRoute = false;
                 Config.UseCacheRoute = false;
+                if (cacheOption.HasValue() && !string.IsNullOrWhiteSpace(cacheOption.Value()))
+                {
+                    var val = cacheOption.Value().ToLower().Trim();
+                    if (val == "full")
+                        Config.GeoCacheEnable = false;
+                    if (val == "none" || val == "null" || val == "off")
+                        Config.CacheEnable = false;
+                }
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
