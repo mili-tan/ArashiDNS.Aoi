@@ -30,6 +30,11 @@ namespace Arashi.Aoi
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
+            var httpsOption = cmd.Option("--https", "Set enable HTTPS", CommandOptionType.NoValue);
+            var pfxOption = cmd.Option<string>("--pfx <FilePath>", "Set pfx file path <./cert.pfx>",
+                CommandOptionType.SingleValue);
+            var pfxpassOption = cmd.Option<string>("--pfx-pass <Password>", "Set pfx file password <Password>",
+                CommandOptionType.SingleValue);
             chinaListOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
@@ -64,11 +69,21 @@ namespace Arashi.Aoi
                     {
                         options.Limits.MaxRequestBodySize = 1024;
                         options.Listen(ipEndPoint,
-                            listenOptions => listenOptions.Protocols = HttpProtocols.Http1AndHttp2);
+                            listenOptions =>
+                            {
+                                listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                                if (httpsOption.HasValue())
+                                {
+                                    if (pfxOption.HasValue() && pfxpassOption.HasValue())
+                                        listenOptions.UseHttps(pfxOption.Value(), pfxpassOption.Value());
+                                    else if (pfxOption.HasValue()) listenOptions.UseHttps(pfxOption.Value());
+                                    else listenOptions.UseHttps();
+                                }
+                            });
                     })
                     .UseStartup<Startup>()
                     .Build();
-
+                
                 host.Run();
             });
 
