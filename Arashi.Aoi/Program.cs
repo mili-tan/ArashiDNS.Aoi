@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using System.Net;
 using Arashi.Azure;
+using LettuceEncrypt;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -42,7 +45,9 @@ namespace Arashi.Aoi
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
-                    : new IPEndPoint(IPAddress.Loopback, 2020);
+                    : httpsOption.HasValue()
+                        ? new IPEndPoint(IPAddress.Loopback, 443)
+                        : new IPEndPoint(IPAddress.Loopback, 2020);
                 if (upOption.HasValue()) Config.UpStream = IPAddress.Parse(upOption.Value());
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
@@ -64,22 +69,30 @@ namespace Arashi.Aoi
                 var host = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
-                    .ConfigureServices(services => services.AddRouting())
+                    .ConfigureServices(services =>
+                    {
+                        services.AddRouting();
+                        services.AddLettuceEncrypt(configure =>
+                        {
+                            configure.AcceptTermsOfService = true;
+                            configure.EmailAddress = "me@mili.one";
+                            configure.DomainNames = new[] {"me.mili.one"};
+                        }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
+                    })
                     .ConfigureKestrel(options =>
                     {
                         options.Limits.MaxRequestBodySize = 1024;
-                        options.Listen(ipEndPoint,
-                            listenOptions =>
+                        options.Listen(ipEndPoint, listenOptions =>
+                        {
+                            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                            if (httpsOption.HasValue())
                             {
-                                listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-                                if (httpsOption.HasValue())
-                                {
-                                    if (pfxOption.HasValue() && pfxpassOption.HasValue())
-                                        listenOptions.UseHttps(pfxOption.Value(), pfxpassOption.Value());
-                                    else if (pfxOption.HasValue()) listenOptions.UseHttps(pfxOption.Value());
-                                    else listenOptions.UseHttps();
-                                }
-                            });
+                                if (pfxOption.HasValue() && pfxpassOption.HasValue())
+                                    listenOptions.UseHttps(pfxOption.Value(), pfxpassOption.Value());
+                                else if (pfxOption.HasValue()) listenOptions.UseHttps(pfxOption.Value());
+                                else listenOptions.UseHttps();
+                            }
+                        });
                     })
                     .UseStartup<Startup>()
                     .Build();
