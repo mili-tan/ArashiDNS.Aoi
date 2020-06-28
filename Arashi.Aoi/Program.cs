@@ -34,7 +34,7 @@ namespace Arashi.Aoi
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
-            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx>[:<password>]",
+            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx>[@<password>]",
                 CommandOptionType.SingleValue);
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
@@ -91,7 +91,7 @@ namespace Arashi.Aoi
                             if (!pfxOption.HasValue()) listenOptions.UseHttps();
                             else
                             {
-                                var pfxStrings = pfxOption.Value().Split(':');
+                                var pfxStrings = pfxOption.Value().Split('@');
                                 if (pfxStrings.Length > 1)
                                     listenOptions.UseHttps(pfxStrings[0], pfxStrings[1]);
                                 else listenOptions.UseHttps(pfxOption.Value());
