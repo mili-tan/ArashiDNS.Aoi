@@ -29,16 +29,14 @@ namespace Arashi.Aoi
                 "Set https query perfix <\"/dns-query\">",
                 CommandOptionType.SingleValue);
 
-            var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching <full/flexible/none>", CommandOptionType.SingleOrNoValue);
+            var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
-            var pfxOption = cmd.Option<string>("--pfx <FilePath>", "Set pfx file path <./cert.pfx>",
+            var pfxOption = cmd.Option<string>("--pfx <FilePath>", "Set pfx file path <./cert.pfx[:password]>",
                 CommandOptionType.SingleValue);
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name:name@your.email>",
-                CommandOptionType.SingleValue);
-            var pfxpassOption = cmd.Option<string>("--pfx-pass <Password>", "Set pfx file password <Password>",
                 CommandOptionType.SingleValue);
             chinaListOption.ShowInHelpText = false;
 
@@ -91,8 +89,9 @@ namespace Arashi.Aoi
                             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                             if (httpsOption.HasValue())
                             {
-                                if (pfxOption.HasValue() && pfxpassOption.HasValue())
-                                    listenOptions.UseHttps(pfxOption.Value(), pfxpassOption.Value());
+                                var pfxStrings = pfxOption.Value().Split(':');
+                                if (pfxOption.HasValue() && pfxStrings.Length > 1)
+                                    listenOptions.UseHttps(pfxStrings[0], pfxStrings[1]);
                                 else if (pfxOption.HasValue()) listenOptions.UseHttps(pfxOption.Value());
                                 else listenOptions.UseHttps();
                             }
