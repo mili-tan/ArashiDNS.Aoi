@@ -8,6 +8,7 @@ using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Arashi.Aoi
 {
@@ -69,6 +70,10 @@ namespace Arashi.Aoi
                 var host = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
+                    .ConfigureLogging(configureLogging =>
+                    {
+                        if (logOption.HasValue()) configureLogging.AddConsole();
+                    })
                     .ConfigureServices(services =>
                     {
                         services.AddRouting();
@@ -77,7 +82,7 @@ namespace Arashi.Aoi
                             {
                                 var letStrings = letsencryptOption.Value().Split(':');
                                 configure.AcceptTermsOfService = true;
-                                configure.DomainNames = new[] { letStrings[0] };
+                                configure.DomainNames = new[] {letStrings[0]};
                                 configure.EmailAddress = letStrings[1];
                             }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
                     })
@@ -100,7 +105,7 @@ namespace Arashi.Aoi
                     })
                     .UseStartup<Startup>()
                     .Build();
-                
+
                 host.Run();
             });
 
