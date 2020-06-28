@@ -26,7 +26,7 @@ namespace Arashi.Aoi
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
                 CommandOptionType.SingleValue);
             var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>",
-                "Set https query perfix <\"/dns-query\">",
+                "Set https query perfix </dns-query>",
                 CommandOptionType.SingleValue);
 
             var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
@@ -34,9 +34,9 @@ namespace Arashi.Aoi
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
-            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx[:password]>",
+            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx>[:<password>]",
                 CommandOptionType.SingleValue);
-            var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name:name@your.email>",
+            var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
             chinaListOption.ShowInHelpText = false;
 
