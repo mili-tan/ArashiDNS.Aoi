@@ -87,13 +87,14 @@ namespace Arashi.Aoi
                         options.Listen(ipEndPoint, listenOptions =>
                         {
                             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-                            if (httpsOption.HasValue())
+                            if (!httpsOption.HasValue()) return;
+                            if (!pfxOption.HasValue()) listenOptions.UseHttps();
+                            else
                             {
                                 var pfxStrings = pfxOption.Value().Split(':');
-                                if (pfxOption.HasValue() && pfxStrings.Length > 1)
+                                if (pfxStrings.Length > 1)
                                     listenOptions.UseHttps(pfxStrings[0], pfxStrings[1]);
-                                else if (pfxOption.HasValue()) listenOptions.UseHttps(pfxOption.Value());
-                                else listenOptions.UseHttps();
+                                else listenOptions.UseHttps(pfxOption.Value());
                             }
                         });
                     })
