@@ -33,8 +33,10 @@ namespace Arashi.Aoi
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
-            var httpsOption = cmd.Option("--https", "Set enable HTTPS", CommandOptionType.NoValue);
+            var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
             var pfxOption = cmd.Option<string>("--pfx <FilePath>", "Set pfx file path <./cert.pfx>",
+                CommandOptionType.SingleValue);
+            var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name:name@your.email>",
                 CommandOptionType.SingleValue);
             var pfxpassOption = cmd.Option<string>("--pfx-pass <Password>", "Set pfx file password <Password>",
                 CommandOptionType.SingleValue);
@@ -72,12 +74,14 @@ namespace Arashi.Aoi
                     .ConfigureServices(services =>
                     {
                         services.AddRouting();
-                        services.AddLettuceEncrypt(configure =>
-                        {
-                            configure.AcceptTermsOfService = true;
-                            configure.EmailAddress = "me@mili.one";
-                            configure.DomainNames = new[] {"me.mili.one"};
-                        }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
+                        if (httpsOption.HasValue() && letsencryptOption.HasValue())
+                            services.AddLettuceEncrypt(configure =>
+                            {
+                                var letStrings = letsencryptOption.Value().Split(':');
+                                configure.AcceptTermsOfService = true;
+                                configure.DomainNames = new[] { letStrings[0] };
+                                configure.EmailAddress = letStrings[1];
+                            }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
                     })
                     .ConfigureKestrel(options =>
                     {
