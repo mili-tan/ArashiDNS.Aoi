@@ -12,6 +12,7 @@ namespace Arashi.Azure
         public static int TimeOut = 500;
         public static bool CacheEnable = true;
         public static bool LogEnable = false;
+        public static bool FullLogEnable = false;
         public static bool ChinaListEnable = true;
         public static bool OnlyTcpEnable = false;
         public static bool UseIpRoute = true;

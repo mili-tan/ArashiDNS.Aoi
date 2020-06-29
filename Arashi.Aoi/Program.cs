@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using Arashi.Azure;
 using LettuceEncrypt;
 using McMaster.Extensions.CommandLineUtils;
@@ -30,8 +31,8 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
 
             var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
+            var logOption = cmd.Option("--log:<Type>", "Set enable log [full/dns/none]", CommandOptionType.SingleOrNoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
-            var logOption = cmd.Option("--log", "Set enable log", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
             var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx>[@<password>]",
@@ -57,13 +58,40 @@ namespace Arashi.Aoi
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.UseIpRoute = false;
                 Config.UseCacheRoute = false;
+                if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
+                {
+                    var val = logOption.Value().ToLower().Trim();
+                    if (val == "full") Config.FullLogEnable = true;
+                    if (val == "none" || val == "null" || val == "off") Config.LogEnable = false;
+                }
                 if (cacheOption.HasValue() && !string.IsNullOrWhiteSpace(cacheOption.Value()))
                 {
                     var val = cacheOption.Value().ToLower().Trim();
-                    if (val == "full")
-                        Config.GeoCacheEnable = false;
-                    if (val == "none" || val == "null" || val == "off")
-                        Config.CacheEnable = false;
+                    if (val == "full") Config.GeoCacheEnable = false;
+                    if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
+                }
+                if (Config.CacheEnable && Config.GeoCacheEnable)
+                {
+                    if (!File.Exists("GeoLite2-ASN.mmdb"))
+                        Task.Run(() =>
+                        {
+                            Console.WriteLine("Downloading GeoLite2-ASN.mmdb...");
+                            new WebClient().DownloadFile(
+                                "https://gh.api.99988866.xyz/" +
+                                "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb",
+                                "GeoLite2-ASN.mmdb");
+                            Console.WriteLine("GeoLite2-ASN.mmdb Download Done");
+                        });
+                    if (!File.Exists("GeoLite2-City.mmdb"))
+                        Task.Run(() =>
+                        {
+                            Console.WriteLine("Downloading GeoLite2-City.mmdb...");
+                            new WebClient().DownloadFile(
+                                "https://gh.api.99988866.xyz/" +
+                                "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb",
+                                "GeoLite2-City.mmdb");
+                            Console.WriteLine("GeoLite2-City.mmdb Download Done");
+                        });
                 }
 
                 var host = new WebHostBuilder()
@@ -71,7 +99,7 @@ namespace Arashi.Aoi
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
                     .ConfigureLogging(configureLogging =>
                     {
-                        if (logOption.HasValue()) configureLogging.AddConsole();
+                        if (Config.LogEnable && Config.FullLogEnable) configureLogging.AddConsole();
                     })
                     .ConfigureServices(services =>
                     {

@@ -233,7 +233,7 @@ namespace Arashi.Azure
                 Task.Run(() =>
                 {
                     var ip = RealIP.GetFromDns(dnsMessage, context);
-                    if (LoggerFactory != null)
+                    if (LoggerFactory != null && Config.FullLogEnable)
                     {
                         var logger = LoggerFactory.CreateLogger("Arashi.Aoi");
                         dnsMessage.Questions.ForEach(o => logger.LogInformation(ip + ":Question:" + o));
