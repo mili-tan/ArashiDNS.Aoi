@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using Arashi.Azure;
 using LettuceEncrypt;

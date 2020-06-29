@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -21,6 +22,7 @@ namespace Arashi.Azure
 {
     public class Startup
     {
+        private static ILoggerFactory LoggerFactory;
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
         private static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
@@ -31,8 +33,9 @@ namespace Arashi.Azure
             DnsEncoder.Init();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            if (loggerFactory != null) LoggerFactory = loggerFactory;
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
             app.UseRouting().UseEndpoints(endpoints =>
             {
@@ -41,7 +44,7 @@ namespace Arashi.Azure
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync(IndexStr);
                 });
-            });
+            }).UseEndpoints(DnsQueryRoute);
             if (Config.UseIpRoute) app.UseEndpoints(GeoIPRoute);
             if (Config.UseCacheRoute) app.UseEndpoints(CacheRoute);
         }
@@ -230,9 +233,19 @@ namespace Arashi.Azure
                 Task.Run(() =>
                 {
                     var ip = RealIP.GetFromDns(dnsMessage, context);
-                    dnsMessage.Questions.ForEach(o => Console.WriteLine(ip + ":Question:" + o));
-                    dnsMessage.AnswerRecords.ForEach(o => Console.WriteLine(ip + ":Answer:" + o));
-                    dnsMessage.AuthorityRecords.ForEach(o => Console.WriteLine(ip + ":Authority:" + o));
+                    if (LoggerFactory != null)
+                    {
+                        var logger = LoggerFactory.CreateLogger("Arashi.Aoi");
+                        dnsMessage.Questions.ForEach(o => logger.LogInformation(ip + ":Question:" + o));
+                        dnsMessage.AnswerRecords.ForEach(o => logger.LogInformation(ip + ":Answer:" + o));
+                        dnsMessage.AuthorityRecords.ForEach(o => logger.LogInformation(ip + ":Authority:" + o));
+                    }
+                    else
+                    {
+                        dnsMessage.Questions.ForEach(o => Console.WriteLine(ip + ":Question:" + o));
+                        dnsMessage.AnswerRecords.ForEach(o => Console.WriteLine(ip + ":Answer:" + o));
+                        dnsMessage.AuthorityRecords.ForEach(o => Console.WriteLine(ip + ":Authority:" + o));
+                    }
                 });
         }
     }
