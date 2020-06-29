@@ -40,6 +40,7 @@ namespace Arashi.Aoi
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
             chinaListOption.ShowInHelpText = false;
+            letsencryptOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
             {
