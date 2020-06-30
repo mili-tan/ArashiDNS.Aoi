@@ -39,6 +39,7 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
+            var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             chinaListOption.ShowInHelpText = false;
             letsencryptOption.ShowInHelpText = false;
 
@@ -71,8 +72,14 @@ namespace Arashi.Aoi
                     if (val == "full") Config.GeoCacheEnable = false;
                     if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
                 }
-                if (Config.CacheEnable && Config.GeoCacheEnable)
+                if ((Config.CacheEnable && Config.GeoCacheEnable) || syncmmdbOption.HasValue())
                 {
+                    Console.WriteLine("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
+                    if (syncmmdbOption.HasValue())
+                    {
+                        if (!File.Exists("GeoLite2-ASN.mmdb")) File.Delete("GeoLite2-ASN.mmdb");
+                        if (!File.Exists("GeoLite2-City.mmdb")) File.Delete("GeoLite2-City.mmdb");
+                    }
                     if (!File.Exists("GeoLite2-ASN.mmdb"))
                         Task.Run(() =>
                         {
