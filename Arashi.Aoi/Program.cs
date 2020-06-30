@@ -30,7 +30,7 @@ namespace Arashi.Aoi
                 "Set https query perfix </dns-query>",
                 CommandOptionType.SingleValue);
 
-            var cacheOption = cmd.Option("--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
+            var cacheOption = cmd.Option("-c|--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
             var logOption = cmd.Option("--log:<Type>", "Set enable log [full/dns/none]", CommandOptionType.SingleOrNoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
@@ -77,8 +77,8 @@ namespace Arashi.Aoi
                     Console.WriteLine("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
                     if (syncmmdbOption.HasValue())
                     {
-                        if (!File.Exists("GeoLite2-ASN.mmdb")) File.Delete("GeoLite2-ASN.mmdb");
-                        if (!File.Exists("GeoLite2-City.mmdb")) File.Delete("GeoLite2-City.mmdb");
+                        if (File.Exists("GeoLite2-ASN.mmdb")) File.Delete("GeoLite2-ASN.mmdb");
+                        if (File.Exists("GeoLite2-City.mmdb")) File.Delete("GeoLite2-City.mmdb");
                     }
                     if (!File.Exists("GeoLite2-ASN.mmdb"))
                         Task.Run(() =>
