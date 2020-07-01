@@ -9,6 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+    <TrimmerRootAssembly Include="System.Threading.Tasks" />
+    <TrimmerRootAssembly Include="System.Threading.Tasks.Parallel" />
   </ItemGroup>
 
 </Project>
