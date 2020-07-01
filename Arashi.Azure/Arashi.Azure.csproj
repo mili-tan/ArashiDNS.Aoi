@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />
+    <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />  </ItemGroup>
+
+  <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
     <TrimmerRootAssembly Include="System.Threading.Tasks" />
     <TrimmerRootAssembly Include="System.Threading.Tasks.Parallel" />
