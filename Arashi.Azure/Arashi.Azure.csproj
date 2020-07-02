@@ -3,11 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Arashi.Azure</RootNamespace>
-    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />  </ItemGroup>
+    <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />  
+  </ItemGroup>
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
