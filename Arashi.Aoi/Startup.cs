@@ -26,7 +26,7 @@ namespace Arashi.Azure
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
         private static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
-            : "Welcome to ArashiDNS.P ONE Azure";
+            : "Welcome to ArashiDNS.P ONE.Aoi Azure";
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -53,7 +53,7 @@ namespace Arashi.Azure
         {
             endpoints.Map(Config.QueryPerfix, async context =>
             {
-                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 var queryDictionary = context.Request.Query;
                 if (queryDictionary.ContainsKey("dns"))
                     ReturnContext(context, true,
@@ -66,23 +66,28 @@ namespace Arashi.Azure
                     await context.Response.WriteAsync(IndexStr);
                 }
             });
-
         }
 
         private static void CacheRoute(IEndpointRouteBuilder endpoints)
         {
             endpoints.Map(Config.CachePerfix + "/ls", async context =>
             {
-                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
                 await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
                     (current, item) =>
                         current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>)item.Value).FirstOrDefault()}" +
                         Environment.NewLine));
             });
+            endpoints.Map(Config.CachePerfix + "/cnlist", async context =>
+            {
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
+                context.Response.ContentType = "text/plain";
+                await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
+            });
             endpoints.Map(Config.CachePerfix + "/rm", async context =>
             {
-                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE");
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
                 MemoryCache.Default.Trim(100);
                 await context.Response.WriteAsync("OK");
