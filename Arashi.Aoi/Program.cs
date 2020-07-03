@@ -18,7 +18,6 @@ namespace Arashi.Aoi
         {
             var cmd = new CommandLineApplication
                 {Name = "Arashi.Aoi", Description = "ArashiDNS.Aoi - Simple Lightweight DNS over HTTPS Server"};
-
             cmd.HelpOption("-?|-h|--help");
             var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set listen ip address and port <127.0.0.1:2020>",
                 CommandOptionType.SingleValue);
@@ -26,8 +25,7 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
                 CommandOptionType.SingleValue);
-            var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>",
-                "Set https query perfix </dns-query>",
+            var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>", "Set https query perfix </dns-query>",
                 CommandOptionType.SingleValue);
 
             var cacheOption = cmd.Option("-c|--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
@@ -40,6 +38,11 @@ namespace Arashi.Aoi
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
+            
+            var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
+            var lschOption = cmd.Option("--lsch", string.Empty, CommandOptionType.NoValue);
+            ipipOption.ShowInHelpText = false;
+            lschOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
             letsencryptOption.ShowInHelpText = false;
 
@@ -58,8 +61,8 @@ namespace Arashi.Aoi
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
-                Config.UseIpRoute = false;
-                Config.UseCacheRoute = false;
+                Config.UseCacheRoute = lschOption.HasValue();
+                Config.UseIpRoute = ipipOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {
                     var val = logOption.Value().ToLower().Trim();
