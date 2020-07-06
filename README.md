@@ -1,6 +1,6 @@
 
 <p align="center">
-          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://i.loli.net/2020/07/05/EKsQYkIxZblvWAJ.png' width="45%" height="45%"/></a></p>
+          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://mili.one/pics/arashiaoi.png' width="50%" height="50%"/></a></p>
 <p align="center">
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zhs.md'><img src='https://mili.one/shields/zh-Hans-README.svg' alt='中文简体 Readme' referrerPolicy='no-referrer' /></a>
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zht.md'><img src='https://mili.one/shields/zh-Hant-README.svg' alt='中文繁體/正體 Readme' referrerPolicy='no-referrer' /></a>
@@ -26,7 +26,7 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 - As a starter, there may be many problems, so please forgive me.
 - If you have bug report or feature request, please send issues.
-- If you have added a new feature or fixed a bug, please submit a PR to me as well, thank you very much.
+- If you have added new feature or fixed bug, please submit a PR to me as well, thank you very much.
 - I'm not a native English speaker, so forgive my typo and grammatical errors. If possible, please talk with me in Chinese.
 
 ## Credits 
