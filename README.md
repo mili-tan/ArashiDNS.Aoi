@@ -37,4 +37,4 @@ Check out Credits for a list of our collaborators and other open source software
 
 ## License
 
-Copyright (c) 2018 Milkey Tan. Code released under the [MIT License](https://github.com/mili-tan/AuroraDNS.GUI/blob/master/LICENSE.md). 
+Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://github.com/mili-tan/AuroraDNS.GUI/blob/master/LICENSE.md). 
