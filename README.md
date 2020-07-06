@@ -18,7 +18,7 @@
 
 ## QuickStart
 
-Run your DNS over HTTPS Server even just `./Arashi.Aoi --upstream 127.0.0.1`. 
+Host your DNS over HTTPS Server just by running `./Arashi.Aoi --upstream 127.0.0.1`. 
 
 It's that easy. Use `--help` / `-?` to discover more parameters and get help information.
 
@@ -31,9 +31,9 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 ## Credits 
 
-ArashiDNS was born of open source software and the people who support it.
+ArashiDNS was born of open source softwares and the people who support it.
 
-Check out Credits for a list of our collaborators and other open source software used.
+Check out Credits for a list of our collaborators and other open source softwares used.
 
 ## License
 
