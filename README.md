@@ -13,6 +13,7 @@
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest'><img src='https://img.shields.io/github/downloads/mili-tan/ArashiDNS.Aoi/total.svg' alt='Github All Releases' referrerPolicy='no-referrer' /></a>
           <a href='https://app.fossa.io/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi?ref=badge_shield'><img src='https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi.svg?type=shield' alt='FOSSA Status' referrerPolicy='no-referrer' /></a>
 </p>
+
 ----------
 
 ## QuickStart
@@ -23,20 +24,20 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 ## Introduces
 
-#### Parameters
+### Parameters
 
 | parameter              | explanation                                                  | example                       |
 | ---------------------- | ------------------------------------------------------------ | ----------------------------- |
-| `-?` / `-h` / `--help` | Show help information                                        |                               |
+| `-?` / `--help`        | Show help information                                        |                               |
 | `-l` / `--listen`      | Set the server listening address and port                    | 127.0.0.1:2020                |
 | `-u` / `--upstream`    | Set the upstream origin DNS server IP address                | 8.8.8.8                       |
 | `-t` / `--timeout`     | Set timeout for query to the upstream DNS server (ms)        | 500                           |
-| `-p` / `--perfix`      | Set your DNS over HTTPS server query prefix                  | "/dns-query"                |
+| `-p` / `--perfix`      | Set your DNS over HTTPS server query prefix                  | "/dns-query"                  |
 | `-c` / `--cache`       | Local query cache settings                                   | `full` / `flexible` / `none`  |
 | `--log`                | Console log output settings                                  | `full` / `dns-query` / `none` |
 | `--tcp`                | Set enable upstream DNS query using TCP only                 |                               |
-| `-s` / `--https`       | Set enable HTTPS (Self-Signed Certificate by default, **Not Recommended**) |                               |
-| `-pfx` / `--pfxfile` | Set your .pfx certificate file path (with optional password) |"./cert.pfx*@passw0rd*"|
+| `-s` / `--https`       | Set enable HTTPS (Self-Signed Certificate by default, **Not Recommended**) |                 |
+| `-pfx` / `--pfxfile`   | Set your .pfx certificate file path (with optional password) |"./cert.pfx *@passw0rd* "      |
 
 ## Protocol Compatibility
 
