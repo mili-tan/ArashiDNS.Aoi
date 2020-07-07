@@ -43,7 +43,7 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 ### Google DNS over HTTPS Json API
 
-When the `ct` parameter's application is not `dns-message` , and with a valid `name` parameter. ArashiDNS.Aoi provides [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) compatible protocol. Parameters are the same, But `cd` , `do` , `random_padding` are not be implemented, they will be ignored.
+When the `ct` parameter's application is not `dns-message` , and with a valid `name` parameter. ArashiDNS.Aoi provides [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) compatible protocol. Parameters are the same, But `cd` , `do` , `random_padding` are not implemented, they will be ignored.
 
 ### IETF RFC-8484 DNS over HTTPS
 
