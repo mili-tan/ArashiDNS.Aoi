@@ -13,6 +13,7 @@
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest'><img src='https://img.shields.io/github/downloads/mili-tan/ArashiDNS.Aoi/total.svg' alt='Github All Releases' referrerPolicy='no-referrer' /></a>
           <a href='https://app.fossa.io/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi?ref=badge_shield'><img src='https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi.svg?type=shield' alt='FOSSA Status' referrerPolicy='no-referrer' /></a>
 </p>
+
 ----------
 
 ## 快速开始
@@ -37,7 +38,7 @@
 | `--tcp`                | 启用向上游仅TCP查询                          |                               |
 | `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                               |
 | `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "        |
-| `--chinalist` | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                            |
+| `--chinalist` | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                          |
 
 ### 后台运行
 
@@ -48,7 +49,7 @@
 
 ##### Linux
 
-- 运行 `nohup ./Arashi.Aoi & ` 或使用 `screen`，这可能不是一个很好的主意，但是 it just works*（它就是能用）*。
+- 运行 `nohup ./Arashi.Aoi & ` 或使用 `screen`，这或许可能不是一个很好的主意，但是 it just works *（它就是能用）* 。
 - 使用 [supervisor](http://supervisord.org/), [pm2](https://pm2.keymetrics.io/), [monit](https://mmonit.com/monit/), [gosuv](https://github.com/codeskyblue/gosuv), 亦或是 [systemd](https://systemd.io/) 作为进程守护程序，保持 ArashiDNS.Aoi 运行。
 
 ## 协议兼容
@@ -65,7 +66,7 @@ ArashiDNS.Aoi 包含较为完善的 [IETF DNS-over-HTTPS (RFC 8484)](https://too
 
 ##### IPv6 支持
 
-ArashiDNS.Aoi 包含完全的 IPv6 支持，但在很多时候，IPv4 仍是首选。你可能需要强制`AAAA`查询或手动设置 IPv6 监听地址。
+ArashiDNS.Aoi 包含完全的 IPv6 支持，但在很多时候，IPv4 仍是首选。你可能需要强制 `AAAA` 查询或手动设置 IPv6 监听地址。
 
 ##### EDNS-Client-Subnet
 
