@@ -13,7 +13,6 @@
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest'><img src='https://img.shields.io/github/downloads/mili-tan/ArashiDNS.Aoi/total.svg' alt='Github All Releases' referrerPolicy='no-referrer' /></a>
           <a href='https://app.fossa.io/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi?ref=badge_shield'><img src='https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi.svg?type=shield' alt='FOSSA Status' referrerPolicy='no-referrer' /></a>
 </p>
-
 ----------
 
 ## 快速开始
@@ -38,7 +37,7 @@
 | `--tcp`                | 启用向上游仅TCP查询                          |                               |
 | `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                               |
 | `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "        |
-| --chinalist | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                            |
+| `--chinalist` | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                            |
 
 ### 后台运行
 
@@ -82,7 +81,7 @@ EDNS-Client-Subnet 已默认启用，但是您的上游源 DNS 服务器也需�
 
 ## Credits 
 
-没有开源软件与社区，就没有 ArashiDNS.Aoi 的诞生。感谢那些支持开源的人们。
+如果没有开源软件与社区，就不会有 ArashiDNS.Aoi 的诞生。感谢那些支持开源的人们。
 
 请查阅 Credits ，其中包含了我们的协作者与使用到的其他开源软件。
 
