@@ -13,7 +13,6 @@
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest'><img src='https://img.shields.io/github/downloads/mili-tan/ArashiDNS.Aoi/total.svg' alt='Github All Releases' referrerPolicy='no-referrer' /></a>
           <a href='https://app.fossa.io/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi?ref=badge_shield'><img src='https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi.svg?type=shield' alt='FOSSA Status' referrerPolicy='no-referrer' /></a>
 </p>
-
 ----------
 
 ## QuickStart
@@ -38,6 +37,18 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 | `--tcp`                | Set enable upstream DNS query using TCP only                 |                               |
 | `-s` / `--https`       | Set enable HTTPS (Self-Signed Certificate by default, **Not Recommended**) |                 |
 | `-pfx` / `--pfxfile`   | Set your .pfx certificate file path (with optional password) |"./cert.pfx *@passw0rd* "      |
+
+### Run in Background
+
+##### Windows
+
+- Just double-click it, or running `./Arashi.Aoi.exe` in CMD or Powershell, and click the Minimize button.
+- Use [nssm](https://nssm.cc/) to register ArashiDNS.Aoi as a service. It as a service will restart in the unexpected failure.
+
+##### Linux
+
+- Running `nohup ./Arashi.Aoi & ` or use `screen` , It may be not a very good idea, but it just works.
+- Use [supervisor](http://supervisord.org/), [pm2](https://pm2.keymetrics.io/), [monit](https://mmonit.com/monit/), [gosuv](https://github.com/codeskyblue/gosuv), or [systemd](https://systemd.io/) as process daemon and keeping ArashiDNS.Aoi running.
 
 ## Protocol Compatibility
 
