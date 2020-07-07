@@ -1,9 +1,9 @@
 
 <p align="center">
-          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://mili.one/pics/arashiaoi.png' width="50%" height="50%"/></a></p>
+          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://mili.one/pics/arashiaoi1.png' width="50%" height="50%"/></a></p>
 <p align="center">
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zhs.md'><img src='https://mili.one/shields/zh-Hans-README.svg' alt='中文简体 Readme' referrerPolicy='no-referrer' /></a>
-          <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zht.md'><img src='https://mili.one/shields/zh-Hant-README.svg' alt='中文繁體/正體 Readme' referrerPolicy='no-referrer' /></a>
+          <!--- a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zht.md'><img src='https://mili.one/shields/zh-Hant-README.svg' alt='中文繁體/正體 Readme' referrerPolicy='no-referrer' /></a --->
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README.md'><img src='https://mili.one/shields/English-README.svg' alt='English Readme' referrerPolicy='no-referrer' /></a>
 </p>
 <p align="center">
@@ -43,7 +43,7 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 ### Google DNS over HTTPS Json API
 
-When the `ct` parameter's application is not `dns-message` , and with a valid `name` parameter. ArashiDNS.Aoi provides [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) compatible protocol. Parameters are also same, But `cd` , `do` , `random_padding` are not be implemented, they will be ignored.
+When the `ct` parameter's application is not `dns-message` , and with a valid `name` parameter. ArashiDNS.Aoi provides [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) compatible protocol. Parameters are the same, But `cd` , `do` , `random_padding` are not be implemented, they will be ignored.
 
 ### IETF RFC-8484 DNS over HTTPS
 
@@ -53,19 +53,19 @@ ArashiDNS.Aoi contains the complete [IETF DNS-over-HTTPS (RFC 8484)](https://too
 
 ##### IPv6 Support 
 
-Full IPv6 support is available, but in many cases IPv4 is still preferred. You may need to force `AAAA` lookups or ipv6 server listening addresse.
+Full IPv6 support is available, but in many cases IPv4 is still preferred. You may need to force `AAAA` lookups or ipv6 server listening addresses.
 
 ##### EDNS-Client-Subnet
 
-EDNS-Client-Subnet is enabled by default. Your upstream origin DNS server also needs to support EDNS-Client-Subnet just to work. If your server is hosted in ECS or behind CDN, The request need include `X-Forwarded-For` or `X-Real-IP`. 
+EDNS-Client-Subnet is enabled by default. Your upstream origin DNS server also needs to support EDNS-Client-Subnet for it to work. If your server is hosted in ECS or behind CDN, The request need to include `X-Forwarded-For` or `X-Real-IP`. 
 
 If you wish to disable it, please enter EDNS-Client-Subnet IP `0.0.0.0` in your client.
 
 ## Feedback
 
 - As a starter, there may be many problems, so please forgive me.
-- If you have bug report or feature request, please send issues.
-- If you have added new feature or fixed bug, please submit a PR to me as well, thank you very much.
+- If you have bugs report or feature request, please send issues.
+- If you have added new feature or fixed bugs, please submit a PR to me as well, thank you very much.
 - I'm not a native English speaker, so forgive my typo and grammatical errors. If possible, please talk with me in Chinese.
 
 ## Credits 
@@ -76,4 +76,4 @@ Check out Credits for a list of our collaborators and other open source software
 
 ## License
 
-Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://github.com/mili-tan/AuroraDNS.GUI/blob/master/LICENSE.md). 
+Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/LICENSE.md). 
