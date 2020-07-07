@@ -13,6 +13,7 @@
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest'><img src='https://img.shields.io/github/downloads/mili-tan/ArashiDNS.Aoi/total.svg' alt='Github All Releases' referrerPolicy='no-referrer' /></a>
           <a href='https://app.fossa.io/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi?ref=badge_shield'><img src='https://app.fossa.io/api/projects/git%2Bgithub.com%2Fmili-tan%2FArashiDNS.Aoi.svg?type=shield' alt='FOSSA Status' referrerPolicy='no-referrer' /></a>
 </p>
+
 ----------
 
 ## 快速开始
@@ -25,8 +26,8 @@
 
 ### 参数
 
-| 参数            | 说明                                                | 示例                     |
-| ---------------------- | ------------------------------------------------------------ | ----------------------------- |
+| 参数                   | 说明                                         | 示例                          |
+| ---------------------- | -------------------------------------------- | ----------------------------- |
 | `-?` / `--help`        | 显示帮助信息                                 |                               |
 | `-l` / `--listen`      | 设置服务器监听地址和端口                     | 127.0.0.1:2020                |
 | `-u` / `--upstream`    | 设置上游查询源 DNS 服务器 IP 地址            | 8.8.8.8                       |
@@ -35,9 +36,9 @@
 | `-c` / `--cache`       | 本地缓存设置                                 | `full` / `flexible` / `none`  |
 | `--log`                | 控制台日志输出设置                           | `full` / `dns-query` / `none` |
 | `--tcp`                | 启用向上游仅TCP查询                          |                               |
-| `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                 |
-| `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "      |
-| --chinalist | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |      |
+| `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                               |
+| `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "        |
+| --chinalist | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                            |
 
 ### 后台运行
 
@@ -55,7 +56,7 @@
 
 ### Google DNS over HTTPS Json API
 
-当 `ct` 参数传入的程序不包含 `dns-message`，且包含有效的 `name` 参数。 ArashiDNS.Aoi 将会提供 [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) 的兼容协议。参数也同样相同，但是 `cd` , `do` , `random_padding` 没有被实现，传入将被忽略。
+当 `ct` 的程序参数不为 `dns-message`，且包含有效的 `name` 参数。 ArashiDNS.Aoi 将会提供 [Google JSON API for DNS over HTTPS (DoH)](https://developers.google.com/speed/public-dns/docs/doh/json) 的兼容协议。参数也同样相同，但是 `cd` , `do` , `random_padding` 没有被实现，传入也将被忽略。
 
 ### IETF RFC-8484 DNS over HTTPS
 
