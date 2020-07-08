@@ -56,8 +56,7 @@ namespace Arashi.Azure
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 var queryDictionary = context.Request.Query;
                 if (queryDictionary.ContainsKey("dns"))
-                    ReturnContext(context, true,
-                        DnsQuery(DNSGet.FromWebBase64(queryDictionary["dns"].ToString()), context));
+                    ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
                     ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
                 else

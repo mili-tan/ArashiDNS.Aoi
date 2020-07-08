@@ -18,5 +18,6 @@ namespace Arashi.Azure
         public static bool UseIpRoute = true;
         public static bool UseCacheRoute = true;
         public static bool GeoCacheEnable = true;
+        public static bool EcsEnable = true;
     }
 }

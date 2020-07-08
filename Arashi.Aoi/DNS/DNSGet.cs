@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
+using Arashi.Azure;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
@@ -34,6 +36,7 @@ namespace Arashi.Kestrel.DNS
             };
             dnsQMsg.Questions.Add(dnsQuestion);
 
+            if (!Config.EcsEnable) return dnsQMsg;
             if (queryDictionary.ContainsKey("edns_client_subnet"))
             {
                 var ipStr = queryDictionary["edns_client_subnet"].ToString();
@@ -43,9 +46,21 @@ namespace Arashi.Kestrel.DNS
             else
                 dnsQMsg.EDnsOptions.Options.Add(
                     new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
+
             return dnsQMsg;
         }
 
         public static DnsMessage FromWebBase64(string base64) => DnsMessage.Parse(DecodeWebBase64(base64));
+
+        public static DnsMessage FromWebBase64(HttpContext context)
+        {
+            var queryDictionary = context.Request.Query;
+            var msg = FromWebBase64(queryDictionary["dns"].ToString());
+            if (!Config.EcsEnable) return msg;
+            if (msg.IsEDnsEnabled && msg.EDnsOptions.Options.ToArray().OfType<ClientSubnetOption>().Any()) return msg;
+            if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
+            return msg;
+        }
     }
 }
