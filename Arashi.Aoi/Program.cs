@@ -38,7 +38,8 @@ namespace Arashi.Aoi
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
-            
+            var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
+
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var lschOption = cmd.Option("--lsch", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
@@ -61,6 +62,7 @@ namespace Arashi.Aoi
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
+                Config.EcsEnable = !noecsOption.HasValue();
                 Config.UseCacheRoute = lschOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
