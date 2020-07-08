@@ -19,21 +19,21 @@ namespace Arashi.Aoi
             var cmd = new CommandLineApplication
                 {Name = "Arashi.Aoi", Description = "ArashiDNS.Aoi - Simple Lightweight DNS over HTTPS Server"};
             cmd.HelpOption("-?|-h|--help");
-            var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set listen ip address and port <127.0.0.1:2020>",
+            var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set the server listening address and port <127.0.0.1:2020>",
                 CommandOptionType.SingleValue);
-            var upOption = cmd.Option<string>("-u|--upstream <IPAddress>", "Set upstream ip address <8.8.8.8>",
+            var upOption = cmd.Option<string>("-u|--upstream <IPAddress>", "Set the upstream origin DNS server IP address <8.8.8.8>",
                 CommandOptionType.SingleValue);
-            var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set upstream query timeout <500>",
+            var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set timeout for query to the upstream DNS server <500>",
                 CommandOptionType.SingleValue);
-            var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>", "Set https query perfix </dns-query>",
+            var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>", "Set your DNS over HTTPS server query prefix </dns-query>",
                 CommandOptionType.SingleValue);
 
-            var cacheOption = cmd.Option("-c|--cache:<Type>", "Set enable caching [full/flexible/none]", CommandOptionType.SingleOrNoValue);
-            var logOption = cmd.Option("--log:<Type>", "Set enable log [full/dns/none]", CommandOptionType.SingleOrNoValue);
+            var cacheOption = cmd.Option("-c|--cache:<Type>", "Local query cache settings [full/flexible/none]", CommandOptionType.SingleOrNoValue);
+            var logOption = cmd.Option("--log:<Type>", "Console log output settings [full/dns/none]", CommandOptionType.SingleOrNoValue);
             var chinaListOption = cmd.Option("--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
-            var tcpOption = cmd.Option("--tcp", "Set enable only TCP query", CommandOptionType.NoValue);
+            var tcpOption = cmd.Option("--tcp", "Set enable upstream DNS query using TCP only", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
-            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set pfx file path <./cert.pfx>[@<password>]",
+            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set your pfx certificate file path <./cert.pfx>[@<password>]",
                 CommandOptionType.SingleValue);
             var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
                 CommandOptionType.SingleValue);
