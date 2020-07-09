@@ -20,6 +20,8 @@
 
 Host your DNS over HTTPS Server just by running `./Arashi.Aoi --upstream 127.0.0.1`. 
 
+If you get `Permission denied`, running `chmod +x ./Arashi.Aoi` to give the execution permission.
+
 It's that easy. Use `--help` / `-?` to discover more parameters and get help information.
 
 ## Introduces
@@ -48,7 +50,7 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 
 ##### Linux
 
-- Running `nohup ./Arashi.Aoi & ` or use `screen` , It may be not a very good idea, but it just works.
+- Running `nohup ./Arashi.Aoi --upstream 127.0.0.1 &` or use `screen` , It may be not a very good idea, but it just works.
 - Use [supervisor](http://supervisord.org/), [pm2](https://pm2.keymetrics.io/), [monit](https://mmonit.com/monit/), [gosuv](https://github.com/codeskyblue/gosuv), or [systemd](https://systemd.io/) as process daemon and keeping ArashiDNS.Aoi running.
 
 ## Protocol Compatibility
