@@ -20,6 +20,8 @@
 
 搭建你的 DNS over HTTPS 服务器只需要运行 `./Arashi.Aoi --upstream 127.0.0.1`。
 
+如果你得到了 `Permission denied`，请运行 `chmod +x ./Arashi.Aoi` 来给予可执行权限。
+
 就这么简单，使用 `--help` / `-?` 来探索更多参数和获取帮助信息。
 
 ## 介绍
@@ -49,7 +51,7 @@
 
 ##### Linux
 
-- 运行 `nohup ./Arashi.Aoi & ` 或使用 `screen`，这或许可能不是一个很好的主意，但是 it just works *（它就是能用）* 。
+- 运行 `nohup ./Arashi.Aoi --upstream 127.0.0.1 &` 或使用 `screen`，这或许可能不是一个很好的主意，但是 it just works *(它就是能用)* 。
 - 使用 [supervisor](http://supervisord.org/), [pm2](https://pm2.keymetrics.io/), [monit](https://mmonit.com/monit/), [gosuv](https://github.com/codeskyblue/gosuv), 亦或是 [systemd](https://systemd.io/) 作为进程守护程序，保持 ArashiDNS.Aoi 运行。
 
 ## 协议兼容
