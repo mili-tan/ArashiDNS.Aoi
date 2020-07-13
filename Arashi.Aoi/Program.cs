@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Azure;
-using LettuceEncrypt;
+
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -35,17 +35,17 @@ namespace Arashi.Aoi
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
             var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set your pfx certificate file path <./cert.pfx>[@<password>]",
                 CommandOptionType.SingleValue);
-            var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
-                CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
+            //var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
+            //    CommandOptionType.SingleValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var lschOption = cmd.Option("--lsch", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             lschOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
-            letsencryptOption.ShowInHelpText = false;
+            //letsencryptOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
             {
@@ -118,14 +118,14 @@ namespace Arashi.Aoi
                     .ConfigureServices(services =>
                     {
                         services.AddRouting();
-                        if (httpsOption.HasValue() && letsencryptOption.HasValue())
-                            services.AddLettuceEncrypt(configure =>
-                            {
-                                var letStrings = letsencryptOption.Value().Split(':');
-                                configure.AcceptTermsOfService = true;
-                                configure.DomainNames = new[] {letStrings[0]};
-                                configure.EmailAddress = letStrings[1];
-                            }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
+                        //if (httpsOption.HasValue() && letsencryptOption.HasValue())
+                        //    services.AddLettuceEncrypt(configure =>
+                        //    {
+                        //        var letStrings = letsencryptOption.Value().Split(':');
+                        //        configure.AcceptTermsOfService = true;
+                        //        configure.DomainNames = new[] {letStrings[0]};
+                        //        configure.EmailAddress = letStrings[1];
+                        //    }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
                     })
                     .ConfigureKestrel(options =>
                     {
