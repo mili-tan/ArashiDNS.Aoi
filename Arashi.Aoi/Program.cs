@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Azure;
-
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
