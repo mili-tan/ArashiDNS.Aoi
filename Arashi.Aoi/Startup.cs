@@ -73,23 +73,37 @@ namespace Arashi.Azure
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
-                    (current, item) =>
-                        current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>)item.Value).FirstOrDefault()}" +
-                        Environment.NewLine));
+                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                    tokenValue.Equals(Config.AdminToken))
+                    await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
+                        (current, item) =>
+                            current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
+                            Environment.NewLine));
+                else
+                    await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
+                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                    tokenValue.Equals(Config.AdminToken))
+                    await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
+                else
+                    await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
-                MemoryCache.Default.Trim(100);
-                await context.Response.WriteAsync("OK");
+                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                    tokenValue.Equals(Config.AdminToken))
+                {
+                    MemoryCache.Default.Trim(100);
+                    await context.Response.WriteAsync("Trim OK");
+                }
+                else
+                    await context.Response.WriteAsync("Token Required");
             });
         }
 
