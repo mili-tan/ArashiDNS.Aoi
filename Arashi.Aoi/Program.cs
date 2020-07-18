@@ -41,9 +41,9 @@ namespace Arashi.Aoi
             //    CommandOptionType.SingleValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
-            var lschOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
+            var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
-            lschOption.ShowInHelpText = false;
+            adminOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
             //letsencryptOption.ShowInHelpText = false;
 
@@ -63,7 +63,7 @@ namespace Arashi.Aoi
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.EcsEnable = !noecsOption.HasValue();
-                Config.UseAdminRoute = lschOption.HasValue();
+                Config.UseAdminRoute = adminOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {
@@ -77,7 +77,7 @@ namespace Arashi.Aoi
                     if (val == "full") Config.GeoCacheEnable = false;
                     if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
                 }
-                if ((Config.CacheEnable && Config.GeoCacheEnable) || syncmmdbOption.HasValue())
+                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue())
                 {
                     var SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
                     Console.WriteLine("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
@@ -107,6 +107,8 @@ namespace Arashi.Aoi
                             Console.WriteLine("GeoLite2-City.mmdb Download Done");
                         });
                 }
+
+                if (Config.UseAdminRoute) Console.WriteLine($"AdminToken : {Config.AdminToken}");
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
