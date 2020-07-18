@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Arashi.Azure
 {
@@ -6,7 +7,7 @@ namespace Arashi.Azure
     {
         public static IPAddress UpStream = IPAddress.Parse("8.8.8.8");
         public static string QueryPerfix = "/dns-query";
-        public static string CachePerfix = "/cache";
+        public static string AdminPerfix = "/dns-admin";
         public static string IpPerfix = "/ip";
         public static int Tries = 4;
         public static int TimeOut = 500;
@@ -16,8 +17,9 @@ namespace Arashi.Azure
         public static bool ChinaListEnable = true;
         public static bool OnlyTcpEnable = false;
         public static bool UseIpRoute = true;
-        public static bool UseCacheRoute = true;
+        public static bool UseAdminRoute = true;
         public static bool GeoCacheEnable = true;
         public static bool EcsEnable = true;
+        public static string AdminToken = Guid.NewGuid().ToString();
     }
 }

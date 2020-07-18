@@ -41,7 +41,7 @@ namespace Arashi.Aoi
             //    CommandOptionType.SingleValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
-            var lschOption = cmd.Option("--lsch", string.Empty, CommandOptionType.NoValue);
+            var lschOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             lschOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
@@ -63,7 +63,7 @@ namespace Arashi.Aoi
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.EcsEnable = !noecsOption.HasValue();
-                Config.UseCacheRoute = lschOption.HasValue();
+                Config.UseAdminRoute = lschOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {

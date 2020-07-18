@@ -46,7 +46,7 @@ namespace Arashi.Azure
                 });
             }).UseEndpoints(DnsQueryRoute);
             if (Config.UseIpRoute) app.UseEndpoints(GeoIPRoute);
-            if (Config.UseCacheRoute) app.UseEndpoints(CacheRoute);
+            if (Config.UseAdminRoute) app.UseEndpoints(AdminRoute);
         }
 
         private static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
@@ -67,9 +67,9 @@ namespace Arashi.Azure
             });
         }
 
-        private static void CacheRoute(IEndpointRouteBuilder endpoints)
+        private static void AdminRoute(IEndpointRouteBuilder endpoints)
         {
-            endpoints.Map(Config.CachePerfix + "/ls", async context =>
+            endpoints.Map(Config.AdminPerfix + "/cache/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
@@ -78,13 +78,13 @@ namespace Arashi.Azure
                         current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>)item.Value).FirstOrDefault()}" +
                         Environment.NewLine));
             });
-            endpoints.Map(Config.CachePerfix + "/cnlist", async context =>
+            endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
                 await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
             });
-            endpoints.Map(Config.CachePerfix + "/rm", async context =>
+            endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
