@@ -108,7 +108,8 @@ namespace Arashi.Aoi
                         });
                 }
 
-                if (Config.UseAdminRoute) Console.WriteLine($"AdminToken : {Config.AdminToken}");
+                if (Config.UseAdminRoute) Console.WriteLine(
+                    $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
                 var host = new WebHostBuilder()
                     .UseKestrel()

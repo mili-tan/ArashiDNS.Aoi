@@ -86,7 +86,7 @@ namespace Arashi.Azure
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
-                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                     tokenValue.Equals(Config.AdminToken))
                     await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
                 else
@@ -96,11 +96,28 @@ namespace Arashi.Azure
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
-                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                     tokenValue.Equals(Config.AdminToken))
                 {
                     MemoryCache.Default.Trim(100);
                     await context.Response.WriteAsync("Trim OK");
+                }
+                else
+                    await context.Response.WriteAsync("Token Required");
+            });
+            endpoints.Map(Config.AdminPerfix + "/set-token", async context =>
+            {
+                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
+                context.Response.ContentType = "text/plain";
+                if (context.Request.Query.TryGetValue("t",out var tokenValue))
+                {
+                    context.Response.Cookies.Append("atoken", tokenValue.ToString(),
+                        new CookieOptions
+                        {
+                            Path = "/", HttpOnly = true, MaxAge = TimeSpan.FromDays(30),
+                            SameSite = SameSiteMode.Strict, IsEssential = true
+                        });
+                    await context.Response.WriteAsync("Set OK");
                 }
                 else
                     await context.Response.WriteAsync("Token Required");
