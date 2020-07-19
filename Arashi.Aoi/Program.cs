@@ -36,15 +36,12 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
-            //var letsencryptOption = cmd.Option<string>("-let|--letsencrypt <ApplyString>", "Apply LetsEncrypt <domain.name>:<you@your.email>",
-            //    CommandOptionType.SingleValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             adminOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
-            //letsencryptOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
             {
@@ -117,18 +114,7 @@ namespace Arashi.Aoi
                     {
                         if (Config.LogEnable && Config.FullLogEnable) configureLogging.AddConsole();
                     })
-                    .ConfigureServices(services =>
-                    {
-                        services.AddRouting();
-                        //if (httpsOption.HasValue() && letsencryptOption.HasValue())
-                        //    services.AddLettuceEncrypt(configure =>
-                        //    {
-                        //        var letStrings = letsencryptOption.Value().Split(':');
-                        //        configure.AcceptTermsOfService = true;
-                        //        configure.DomainNames = new[] {letStrings[0]};
-                        //        configure.EmailAddress = letStrings[1];
-                        //    }).PersistDataToDirectory(new DirectoryInfo("/LettuceEncrypt"), null);
-                    })
+                    .ConfigureServices(services => services.AddRouting())
                     .ConfigureKestrel(options =>
                     {
                         options.Limits.MaxRequestBodySize = 1024;
