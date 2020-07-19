@@ -141,7 +141,7 @@ namespace Arashi.Aoi
                             {
                                 var pfxStrings = pfxOption.Value().Split('@');
                                 if (pfxStrings.Length > 1)
-                                    listenOptions.UseHttps(pfxStrings[0], pfxStrings[1]);
+                                    listenOptions.UseHttps(pfxStrings[0].Trim(), pfxStrings[1].Trim());
                                 else listenOptions.UseHttps(pfxOption.Value());
                             }
                         });
