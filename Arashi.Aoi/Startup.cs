@@ -28,10 +28,7 @@ namespace Arashi.Azure
             ? File.ReadAllText(SetupBasePath + "index.html")
             : "Welcome to ArashiDNS.P ONE.Aoi Azure";
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            DnsEncoder.Init();
-        }
+        public void ConfigureServices(IServiceCollection services) => DnsEncoder.Init();
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
@@ -45,6 +42,7 @@ namespace Arashi.Azure
                     await context.Response.WriteAsync(IndexStr);
                 });
             }).UseEndpoints(DnsQueryRoute);
+
             if (Config.UseIpRoute) app.UseEndpoints(GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoute);
         }
@@ -73,37 +71,37 @@ namespace Arashi.Azure
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
+
                 if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
                     tokenValue.Equals(Config.AdminToken))
                     await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
                         (current, item) =>
                             current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>) item.Value).FirstOrDefault()}" +
                             Environment.NewLine));
-                else
-                    await context.Response.WriteAsync("Token Required");
+                else await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
+
                 if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                     tokenValue.Equals(Config.AdminToken))
                     await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
-                else
-                    await context.Response.WriteAsync("Token Required");
+                else await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 context.Response.ContentType = "text/plain";
+
                 if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                     tokenValue.Equals(Config.AdminToken))
                 {
                     MemoryCache.Default.Trim(100);
                     await context.Response.WriteAsync("Trim OK");
                 }
-                else
-                    await context.Response.WriteAsync("Token Required");
+                else await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/set-token", async context =>
             {
@@ -119,8 +117,7 @@ namespace Arashi.Azure
                         });
                     await context.Response.WriteAsync("Set OK");
                 }
-                else
-                    await context.Response.WriteAsync("Token Required");
+                else await context.Response.WriteAsync("Token Required");
             });
         }
 
@@ -176,18 +173,14 @@ namespace Arashi.Azure
             {
                 var jObject = new JObject
                 {
-                    {"IP", RealIP.Get(context)},
-                    {
-                        "UserHostAddress",
-                        context.Connection.RemoteIpAddress.ToString()
-                    }
+                    {"IP", RealIP.Get(context)}, {"UserHostAddress", context.Connection.RemoteIpAddress.ToString()}
                 };
-                if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
-                    jObject.Add("X-Forwarded-For", context.Request.Headers["X-Forwarded-For"].ToString());
-                if (context.Request.Headers.ContainsKey("CF-Connecting-IP"))
-                    jObject.Add("CF-Connecting-IP", context.Request.Headers["CF-Connecting-IP"].ToString());
-                if (context.Request.Headers.ContainsKey("X-Real-IP"))
-                    jObject.Add("X-Real-IP", context.Request.Headers["X-Real-IP"].ToString());
+                if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var xFwdValue))
+                    jObject.Add("X-Forwarded-For", xFwdValue.ToString());
+                if (context.Request.Headers.TryGetValue("CF-Connecting-IP", out var xCfValue))
+                    jObject.Add("CF-Connecting-IP", xCfValue.ToString());
+                if (context.Request.Headers.TryGetValue("X-Real-IP", out var xRealValue))
+                    jObject.Add("X-Real-IP", xRealValue.ToString());
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsync(jObject.ToString());
             });
