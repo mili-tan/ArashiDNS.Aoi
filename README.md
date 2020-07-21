@@ -34,10 +34,12 @@ It's that easy. Use `--help` / `-?` to discover more parameters and get help inf
 | `-l` / `--listen`      | Set the server listening address and port                    | 127.0.0.1:2020                |
 | `-u` / `--upstream`    | Set the upstream origin DNS server IP address                | 8.8.8.8                       |
 | `-t` / `--timeout`     | Set timeout for query to the upstream DNS server (ms)        | 500                           |
+| `-r` / `--retries`     | Set number of retries for query to upstream DNS server       | 5                             |
 | `-p` / `--perfix`      | Set your DNS over HTTPS server query prefix                  | "/dns-query"                  |
 | `-c` / `--cache`       | Local query cache settings                                   | `full` / `flexible` / `none`  |
 | `--log`                | Console log output settings                                  | `full` / `dns-query` / `none` |
 | `--tcp`                | Set enable upstream DNS query using TCP only                 |                               |
+| `--noecs`              | Set force disable active EDNS Client Subnet                  |                               |
 | `-s` / `--https`       | Set enable HTTPS (Self-Signed Certificate by default, **Not Recommended**) |                 |
 | `-pfx` / `--pfxfile`   | Set your .pfx certificate file path (with optional password) |"./cert.pfx *@passw0rd* "      |
 
