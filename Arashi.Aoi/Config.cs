@@ -9,7 +9,7 @@ namespace Arashi.Azure
         public static string QueryPerfix = "/dns-query";
         public static string AdminPerfix = "/dns-admin";
         public static string IpPerfix = "/ip";
-        public static int Tries = 4;
+        public static int Retries = 4;
         public static int TimeOut = 500;
         public static bool CacheEnable = true;
         public static bool LogEnable = false;

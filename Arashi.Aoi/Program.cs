@@ -24,7 +24,7 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set timeout for query to upstream DNS server <500>",
                 CommandOptionType.SingleValue);
-            var triesOption = cmd.Option<int>("-r|--retries <Int>", "Set number of retries for query to upstream DNS server <5>",
+            var retriesOption = cmd.Option<int>("-r|--retries <Int>", "Set number of retries for query to upstream DNS server <5>",
                 CommandOptionType.SingleValue);
             var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>", "Set your DNS over HTTPS server query prefix </dns-query>",
                 CommandOptionType.SingleValue);
@@ -55,7 +55,7 @@ namespace Arashi.Aoi
                         : new IPEndPoint(IPAddress.Loopback, 2020);
                 if (upOption.HasValue()) Config.UpStream = IPAddress.Parse(upOption.Value());
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
-                if (triesOption.HasValue()) Config.Tries = triesOption.ParsedValue;
+                if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();

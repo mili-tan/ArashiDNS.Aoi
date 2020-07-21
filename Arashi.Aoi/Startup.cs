@@ -238,7 +238,7 @@ namespace Arashi.Azure
         {
             var client = new DnsClient(ipAddress, Config.TimeOut)
                 {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
-            for (var i = 0; i < Config.Tries; i++)
+            for (var i = 0; i < Config.Retries; i++)
             {
                 var aMessage = client.SendMessage(dnsMessage);
                 if (aMessage != null) return aMessage;
