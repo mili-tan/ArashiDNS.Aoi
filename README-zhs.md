@@ -88,7 +88,7 @@ EDNS-Client-Subnet 已默认启用，但是您的上游源 DNS 服务器也需�
 
 如果没有开源软件与社区，就不会有 ArashiDNS.Aoi 的诞生。感谢那些支持开源的人们。
 
-请查阅 Credits ，其中包含了我们的协作者与使用到的其他开源软件。
+请查阅 [Credits](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/CREDITS.md) ，其中包含了我们的协作者与使用到的其他开源软件。
 
 ## License
 
