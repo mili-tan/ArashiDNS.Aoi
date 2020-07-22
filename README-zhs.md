@@ -34,10 +34,12 @@
 | `-l` / `--listen`      | 设置服务器监听地址和端口                     | 127.0.0.1:2020                |
 | `-u` / `--upstream`    | 设置上游查询源 DNS 服务器 IP 地址            | 8.8.8.8                       |
 | `-t` / `--timeout`     | 设置向上游查询的超时时间（毫秒）             | 500                           |
+| `-r` / `--retries`     | 设置向上游查询的重试次数                     | 5                            |
 | `-p` / `--perfix`      | 设置 DNS over HTTPS 的查询路径前缀           | "/dns-query"                  |
 | `-c` / `--cache`       | 本地缓存设置                                 | `full` / `flexible` / `none`  |
 | `--log`                | 控制台日志输出设置                           | `full` / `dns-query` / `none` |
 | `--tcp`                | 启用向上游仅TCP查询                          |                               |
+| `--noecs`              | 强制停用主动EDNS Client Subnet               |                               |
 | `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                               |
 | `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "        |
 | `--chinalist` | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                          |
