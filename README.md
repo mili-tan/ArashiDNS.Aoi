@@ -88,7 +88,7 @@ If you wish to disable it, please enter EDNS-Client-Subnet IP `0.0.0.0` in your 
 
 ArashiDNS was born of open source softwares and the people who support it.
 
-Check out Credits for a list of our collaborators and other open source softwares used.
+Check out [Credits](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/CREDITS.md) for a list of our collaborators and other open source softwares used.
 
 ## License
 
