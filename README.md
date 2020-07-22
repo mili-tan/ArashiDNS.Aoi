@@ -92,4 +92,4 @@ Check out [Credits](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/CREDIT
 
 ## License
 
-Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/LICENSE.md). 
+Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). 
