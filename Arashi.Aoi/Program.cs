@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using static Arashi.AoiConfig;
 
 namespace Arashi.Aoi
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
             var cmd = new CommandLineApplication
@@ -38,6 +41,8 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
+            var saveOption = cmd.Option("--save", "Save the active configuration to config.json file", CommandOptionType.NoValue);
+            var loadOption = cmd.Option("--load <FilePath>", "Load the existing configuration from config.json file <./config.json>", CommandOptionType.SingleOrNoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
@@ -53,7 +58,7 @@ namespace Arashi.Aoi
                     : httpsOption.HasValue()
                         ? new IPEndPoint(IPAddress.Loopback, 443)
                         : new IPEndPoint(IPAddress.Loopback, 2020);
-                if (upOption.HasValue()) Config.UpStream = IPAddress.Parse(upOption.Value());
+                if (upOption.HasValue()) Config.UpStream = upOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');

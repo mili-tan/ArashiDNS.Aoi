@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using Arashi.Azure;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
+using static Arashi.AoiConfig;
 
 namespace Arashi.Kestrel.DNS
 {
@@ -35,7 +35,6 @@ namespace Arashi.Kestrel.DNS
                 TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 99))
             };
             dnsQMsg.Questions.Add(dnsQuestion);
-
             if (!Config.EcsEnable) return dnsQMsg;
             if (queryDictionary.ContainsKey("edns_client_subnet"))
             {

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
-using Arashi.Azure;
 using Arashi.Kestrel;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using static Arashi.AoiConfig;
 
 namespace Arashi.Aoi.Routes
 {

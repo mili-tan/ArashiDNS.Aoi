@@ -1,25 +1,25 @@
 ﻿using System;
-using System.Net;
 
-namespace Arashi.Azure
+namespace Arashi
 {
-    public class Config
+    public class AoiConfig
     {
-        public static IPAddress UpStream = IPAddress.Parse("8.8.8.8");
-        public static string QueryPerfix = "/dns-query";
-        public static string AdminPerfix = "/dns-admin";
-        public static string IpPerfix = "/ip";
-        public static int Retries = 4;
-        public static int TimeOut = 500;
-        public static bool CacheEnable = true;
-        public static bool LogEnable = false;
-        public static bool FullLogEnable = false;
-        public static bool ChinaListEnable = true;
-        public static bool OnlyTcpEnable = false;
-        public static bool UseIpRoute = true;
-        public static bool UseAdminRoute = true;
-        public static bool GeoCacheEnable = true;
-        public static bool EcsEnable = true;
-        public static string AdminToken = Guid.NewGuid().ToString();
+        public static AoiConfig Config = new AoiConfig();
+        public string UpStream = "8.8.8.8";
+        public string QueryPerfix = "/dns-query";
+        public string AdminPerfix = "/dns-admin";
+        public string IpPerfix = "/ip";
+        public int Retries = 4;
+        public int TimeOut = 500;
+        public bool CacheEnable = true;
+        public bool LogEnable = false;
+        public bool FullLogEnable = false;
+        public bool ChinaListEnable = true;
+        public bool OnlyTcpEnable = false;
+        public bool UseIpRoute = true;
+        public bool UseAdminRoute = true;
+        public bool GeoCacheEnable = true;
+        public bool EcsEnable = true;
+        public string AdminToken = Guid.NewGuid().ToString();
     }
 }

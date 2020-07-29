@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using static Arashi.AoiConfig;
 
 namespace Arashi.Aoi.Routes
 {
@@ -96,7 +97,7 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(Config.UpStream, dnsMessage);
+            return DnsQuery(IPAddress.Parse(Config.UpStream), dnsMessage);
         }
 
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage)
