@@ -41,8 +41,10 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
-            var saveOption = cmd.Option("--save", "Save the active configuration to config.json file", CommandOptionType.NoValue);
-            var loadOption = cmd.Option("--load:<FilePath>", "Load the existing configuration from config.json file [./config.json]", CommandOptionType.SingleOrNoValue);
+            var showOption = cmd.Option("--show", "Show current active configuration", CommandOptionType.NoValue);
+            var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
+            var loadOption = cmd.Option<string>("--load:<FilePath>", "Load existing configuration from config.json file [./config.json]",
+                CommandOptionType.SingleOrNoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
@@ -57,7 +59,6 @@ namespace Arashi.Aoi
                         string.IsNullOrWhiteSpace(loadOption.Value())
                             ? File.ReadAllText("config.json")
                             : File.ReadAllText(loadOption.Value()));
-                
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
@@ -150,8 +151,8 @@ namespace Arashi.Aoi
                     .Build();
 
                 if (saveOption.HasValue())
-                    File.WriteAllText("config.json",
-                        JsonConvert.SerializeObject(Config, Formatting.Indented));
+                    File.WriteAllText("config.json", JsonConvert.SerializeObject(Config, Formatting.Indented));
+                if (showOption.HasValue()) Console.WriteLine(JsonConvert.SerializeObject(Config, Formatting.Indented));
                 host.Run();
             });
 
