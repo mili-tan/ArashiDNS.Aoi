@@ -42,7 +42,7 @@ namespace Arashi.Aoi
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
             var saveOption = cmd.Option("--save", "Save the active configuration to config.json file", CommandOptionType.NoValue);
-            var loadOption = cmd.Option("--load <FilePath>", "Load the existing configuration from config.json file <./config.json>", CommandOptionType.SingleOrNoValue);
+            var loadOption = cmd.Option("--load:<FilePath>", "Load the existing configuration from config.json file [./config.json]", CommandOptionType.SingleOrNoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
@@ -52,6 +52,12 @@ namespace Arashi.Aoi
 
             cmd.OnExecute(() =>
             {
+                if (loadOption.HasValue())
+                    Config = JsonConvert.DeserializeObject<AoiConfig>(
+                        string.IsNullOrWhiteSpace(loadOption.Value())
+                            ? File.ReadAllText("config.json")
+                            : File.ReadAllText(loadOption.Value()));
+                
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
@@ -143,6 +149,9 @@ namespace Arashi.Aoi
                     .UseStartup<Startup>()
                     .Build();
 
+                if (saveOption.HasValue())
+                    File.WriteAllText("config.json",
+                        JsonConvert.SerializeObject(Config, Formatting.Indented));
                 host.Run();
             });
 
