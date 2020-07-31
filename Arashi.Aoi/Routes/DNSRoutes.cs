@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
 using static Arashi.AoiConfig;
 
 namespace Arashi.Aoi.Routes
@@ -28,17 +26,14 @@ namespace Arashi.Aoi.Routes
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST" && context.Request.ContentType.Contains("dns-message"))
-                {
                     if (context.Request.BodyReader.TryRead(out var readResult))
                         ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
                     else
                     {
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         await context.Response.WriteAsync("Query POST RAW data read error");
-                        return;
                     }
-                }
-                if (queryDictionary.ContainsKey("dns"))
+                else if (queryDictionary.ContainsKey("dns"))
                     ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
                     ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
