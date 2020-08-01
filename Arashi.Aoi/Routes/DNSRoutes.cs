@@ -25,14 +25,9 @@ namespace Arashi.Aoi.Routes
             {
                 context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 var queryDictionary = context.Request.Query;
-                if (context.Request.Method == "POST" && context.Request.ContentType.Contains("dns-message"))
-                    if (context.Request.BodyReader.TryRead(out var readResult))
-                        ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
-                    else
-                    {
-                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                        await context.Response.WriteAsync("Query POST RAW data read error");
-                    }
+                if (context.Request.Method == "POST" && context.Request.ContentType.Contains("dns-message") &&
+                    context.Request.BodyReader.TryRead(out var readResult))
+                    ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
                 else if (queryDictionary.ContainsKey("dns"))
                     ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
