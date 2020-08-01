@@ -40,7 +40,8 @@ namespace Arashi.Aoi.Routes
             });
         }
 
-        public static async void ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg)
+        public static async void ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
+            bool cache = true)
         {
             var queryDictionary = context.Request.Query;
 
@@ -78,7 +79,7 @@ namespace Arashi.Aoi.Routes
                 }
             }
 
-            WriteLogCache(dnsMsg, context);
+            if (cache) WriteLogCache(dnsMsg, context);
         }
 
         public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null)
