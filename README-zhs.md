@@ -84,6 +84,14 @@ EDNS-Client-Subnet 已默认启用，但是您的上游源 DNS 服务器也需�
 - 如果有 Bug 或者希望新增功能，请在 issues 中提出。
 - 如果你添加了新的功能或者修正了问题，也请向我提交 PR，非常感谢。
 
+## 致谢
+
+<img src='https://i.loli.net/2020/08/03/LWNj2BM6mxuYtRU.png' width="10%" height="10%" align="right"/>
+
+> 我一直在使用 ReSharper，它真的可以说是令人惊叹的工具，使我的开发效率提升了数倍。
+
+感谢 [JetBrains](https://www.jetbrains.com/?from=AuroraDNS) 为本项目提供了 [ReSharper](https://www.jetbrains.com/ReSharper/) 开源许可证授权。
+
 ## Credits 
 
 如果没有开源软件与社区，就不会有 ArashiDNS.Aoi 的诞生。感谢那些支持开源的人们。
