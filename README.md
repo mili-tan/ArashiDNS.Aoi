@@ -84,7 +84,7 @@ If you wish to disable it, please enter EDNS-Client-Subnet IP `0.0.0.0` in your 
 - If you have added new feature or fixed bugs, please submit a PR to me as well, thank you very much.
 - I'm not a native English speaker, so forgive my typo and grammatical errors. If possible, please talk with me in Chinese.
 
-## 致谢
+## Acknowledgements
 
 <img src='https://i.loli.net/2020/08/03/LWNj2BM6mxuYtRU.png' width="10%" height="10%" align="right"/>
 
