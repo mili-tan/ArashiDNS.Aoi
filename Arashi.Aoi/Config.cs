@@ -18,6 +18,7 @@ namespace Arashi
         public bool OnlyTcpEnable = false;
         public bool UseIpRoute = true;
         public bool UseAdminRoute = true;
+        public bool UseExceptionPage = false;
         public bool GeoCacheEnable = true;
         public bool EcsEnable = true;
         public string AdminToken = Guid.NewGuid().ToString();

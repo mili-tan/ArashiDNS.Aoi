@@ -24,7 +24,8 @@ namespace Arashi.Azure
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (loggerFactory != null) LoggerFactory = loggerFactory;
-            if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
+
             app.UseRouting().UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/", async context =>
