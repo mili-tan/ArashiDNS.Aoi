@@ -15,7 +15,7 @@ namespace Arashi
         {
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            Add(new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+            Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                 dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
         }
 
@@ -23,12 +23,12 @@ namespace Arashi
         {
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            if (RealIP.TryGetFromDns(dnsMessage,out var ipAddress))
+            if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 Add(new CacheItem(
-                    $"{GeoIP.GetGeoStr(ipAddress)}:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                    $"DNS:{GeoIP.GetGeoStr(ipAddress)}{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                     dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
             else
-                Add(new CacheItem($"{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
                     dnsMessage.AnswerRecords.ToList()), dnsRecordBase.TimeToLive);
         }
 
@@ -47,9 +47,9 @@ namespace Arashi
         {
             return context == null
                 ? MemoryCache.Default.Contains(
-                    $"{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}")
+                    $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}")
                 : MemoryCache.Default.Contains(
-                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}");
+                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}");
         }
 
         public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null)
@@ -62,10 +62,10 @@ namespace Arashi
             };
             if (context != null)
                 dCacheMsg.AnswerRecords.AddRange(Get(
-                    $"{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
+                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
             else
                 dCacheMsg.AnswerRecords.AddRange(Get(
-                    $"{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
+                    $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.doh.pp.ua"), 0,
                 "ArashiDNS.P Cached"));

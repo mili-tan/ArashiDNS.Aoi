@@ -56,13 +56,13 @@ namespace Arashi
                 var i = GetAsnCityValueTuple(ipAddress);
                 var cnisp = GetCnISP(i.Item1, i.Item2);
                 if (!string.IsNullOrEmpty(cnisp))
-                    return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:{cnisp}";
+                    return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:{cnisp}:";
                 if (!string.IsNullOrWhiteSpace(i.Item2.MostSpecificSubdivision.IsoCode)
                     && i.Item2.Country.IsoCode != "HK" && i.Item2.Country.IsoCode != "SG")
                     return $"{i.Item2.Country.IsoCode}:{i.Item2.MostSpecificSubdivision.IsoCode}:" +
-                           $"{i.Item1.AutonomousSystemNumber}";
+                           $"{i.Item1.AutonomousSystemNumber}:";
 
-                return $"{i.Item2.Country.IsoCode}:{i.Item1.AutonomousSystemNumber}";
+                return $"{i.Item2.Country.IsoCode}:{i.Item1.AutonomousSystemNumber}:";
             }
             catch (Exception e)
             {
