@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using Arashi.Kestrel;
+using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +25,20 @@ namespace Arashi.Aoi.Routes
                     tokenValue.Equals(Config.AdminToken))
                     await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
                         (current, item) =>
-                            current + $"{item.Key.ToUpper()}:{((List<DnsRecordBase>)item.Value).FirstOrDefault()}" +
+                            current +
+                            $"{item.Key.ToUpper()}:" +
+                            $"{(item.Value as List<DnsRecordBase> ?? new List<DnsRecordBase> { new TxtRecord(DomainName.Parse("PASS"), 600, item.Value.ToString()) }).FirstOrDefault()}" +
                             Environment.NewLine));
+                else await context.Response.WriteAsync("Token Required");
+            });
+            endpoints.Map(Config.AdminPerfix + "/cache/keys", async context =>
+            {
+                context.Response.Headers.Add("X-Powered-By", "CheeDBSE/ONE");
+                context.Response.ContentType = "text/plain";
+                if (context.Request.Cookies.TryGetValue("atoken", out string tokenValue) &&
+                    tokenValue.Equals(Config.AdminToken))
+                    await context.Response.WriteAsync(string.Join(Environment.NewLine,
+                        MemoryCache.Default.Select(item => $"{item.Key}:{item.Value}").ToList()));
                 else await context.Response.WriteAsync("Token Required");
             });
             endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
