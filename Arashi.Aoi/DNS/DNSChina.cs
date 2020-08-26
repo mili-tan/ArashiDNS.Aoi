@@ -10,18 +10,17 @@ namespace Arashi.Kestrel
 {
     class DNSChina
     {
-        private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-        public static string ChinaListPath = SetupBasePath + "china_whitelist.list";
-
-        public static List<DomainName> ChinaList = File.Exists(ChinaListPath)
-            ? File.ReadAllLines(ChinaListPath)
-                .ToList().ConvertAll(DomainName.Parse)
+        public static List<DomainName> ChinaList = File.Exists(DNSChinaConfig.Config.ChinaListPath)
+            ? File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList().ConvertAll(DomainName.Parse)
             : new List<DomainName>();
 
         public static bool IsChinaName(DomainName name) => ChinaList.Any(name.IsEqualOrSubDomainOf);
 
-        public static DnsMessage ResolveOverHttpDns(DnsMessage dnsMessage)
+        public static DnsMessage ResolveOverChinaDns(DnsMessage dnsMessage)
         {
+            if (!DNSChinaConfig.Config.UseHttpDns)
+                return new DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaDnsIp), AoiConfig.Config.TimeOut)
+                    .SendMessage(dnsMessage);
             var domainName = dnsMessage.Questions.FirstOrDefault()?.Name.ToString().TrimEnd('.');
             var dnsStr = string.Empty;
             if (dnsMessage.IsEDnsEnabled)
@@ -30,7 +29,7 @@ namespace Arashi.Kestrel
                     if (eDnsOptionBase is ClientSubnetOption option)
                     {
                         var task = new WebClient().DownloadStringTaskAsync(
-                            $"http://119.29.29.29/d?dn={domainName}&ttl=1&ip={option.Address}");
+                            string.Format(DNSChinaConfig.Config.HttpDnsEcsUrl, domainName, option.Address));
                         task.Wait(1000);
                         dnsStr = task.Result;
                         break;
@@ -39,7 +38,7 @@ namespace Arashi.Kestrel
             else
             {
                 var task = new WebClient().DownloadStringTaskAsync(
-                    $"http://119.29.29.29/d?dn={domainName}&ttl=1");
+                    string.Format(DNSChinaConfig.Config.HttpDnsUrl, domainName));
                 task.Wait(1000);
                 dnsStr = task.Result;
             }

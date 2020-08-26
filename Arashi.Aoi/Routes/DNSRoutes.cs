@@ -18,7 +18,6 @@ namespace Arashi.Aoi.Routes
 {
     class DNSRoutes
     {
-
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
         {
             endpoints.Map(Config.QueryPerfix, async context =>
@@ -95,7 +94,7 @@ namespace Arashi.Aoi.Routes
 
                 if (Config.ChinaListEnable && DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
-                    return DNSChina.ResolveOverHttpDns(dnsMessage);
+                    return DNSChina.ResolveOverChinaDns(dnsMessage);
             }
             catch (Exception e)
             {
