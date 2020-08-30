@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using Arashi.Kestrel;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
@@ -18,8 +19,8 @@ namespace Arashi.Aoi.Routes
         {
             endpoints.Map(Config.AdminPerfix + "/cache/ls", async context =>
             {
-                if (!CheckAdminToken(context)) return;
-                await context.Response.WriteAsync(MemoryCache.Default.Aggregate(string.Empty,
+                if (!await CheckAdminToken(context)) return;
+                await context.WriteResponseAsync(MemoryCache.Default.Aggregate(string.Empty,
                     (current, item) =>
                         current +
                         $"{item.Key.ToUpper()}:" +
@@ -28,25 +29,23 @@ namespace Arashi.Aoi.Routes
             });
             endpoints.Map(Config.AdminPerfix + "/cache/keys", async context =>
             {
-                if (!CheckAdminToken(context)) return;
-                await context.Response.WriteAsync(string.Join(Environment.NewLine,
+                if (!await CheckAdminToken(context)) return;
+                await context.WriteResponseAsync(string.Join(Environment.NewLine,
                     MemoryCache.Default.Select(item => $"{item.Key}:{item.Value}").ToList()));
             });
             endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
             {
-                if (!CheckAdminToken(context)) return;
-                await context.Response.WriteAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
+                if (!await CheckAdminToken(context)) return;
+                await context.WriteResponseAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
             });
             endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
-                if (!CheckAdminToken(context)) return;
+                if (!await CheckAdminToken(context)) return;
                 MemoryCache.Default.Trim(100);
-                await context.Response.WriteAsync("Trim OK");
+                await context.WriteResponseAsync("Trim OK");
             });
             endpoints.Map(Config.AdminPerfix + "/set-token", async context =>
             {
-                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
-                context.Response.ContentType = "text/plain";
                 if (context.Request.Query.TryGetValue("t", out var tokenValue))
                 {
                     context.Response.Cookies.Append("atoken", tokenValue.ToString(),
@@ -58,20 +57,20 @@ namespace Arashi.Aoi.Routes
                             SameSite = SameSiteMode.Strict,
                             IsEssential = true
                         });
-                    await context.Response.WriteAsync("Set OK");
+                    await context.WriteResponseAsync(
+                        "<!DOCTYPE html><html><script language=\"javascript\">window.opener=null;window.close();</script></html>",
+                        type: "text/html");
                 }
-                else await context.Response.WriteAsync("Token Required");
+                else await context.WriteResponseAsync("Token Required", StatusCodes.Status400BadRequest);
             });
         }
 
-        public static bool CheckAdminToken(HttpContext context)
+        public static async Task<bool> CheckAdminToken(HttpContext context)
         {
-            context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
-            context.Response.ContentType = "text/plain";
             if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                 tokenValue.Equals(Config.AdminToken) && Config.UseAdminRoute) return true;
             context.Response.ContentType = "text/plain";
-            context.Response.WriteAsync("Token Required");
+            await context.WriteResponseAsync("Token NotFound", StatusCodes.Status404NotFound);
             return false;
         }
     }

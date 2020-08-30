@@ -22,60 +22,45 @@ namespace Arashi.Aoi.Routes
         {
             endpoints.Map(Config.QueryPerfix, async context =>
             {
-                context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/ONE.Aoi");
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST" && context.Request.ContentType.Contains("dns-message") &&
                     context.Request.BodyReader.TryRead(out var readResult))
-                    ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
+                    await ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
                 else if (queryDictionary.ContainsKey("dns"))
-                    ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
+                    await ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
-                    ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
+                    await ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
                 else
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync(Startup.IndexStr);
-                }
+                    await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
         }
 
-        public static async void ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
+        public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
             bool cache = true)
         {
             var queryDictionary = context.Request.Query;
 
             if (dnsMsg == null)
             {
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("Remote DNS server timeout");
+                await context.WriteResponseAsync("Remote DNS server timeout", StatusCodes.Status500InternalServerError);
                 return;
             }
 
             if (returnMsg)
             {
                 if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("json"))
-                {
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None));
-                }
+                    await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        type: "application/json", headers: Startup.HeaderDict);
                 else
-                {
-                    context.Response.ContentType = "application/dns-message";
-                    await context.Response.Body.WriteAsync(DnsEncoder.Encode(dnsMsg));
-                }
+                    await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
             }
             else
             {
                 if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
-                {
-                    context.Response.ContentType = "application/dns-message";
-                    await context.Response.Body.WriteAsync(DnsEncoder.Encode(dnsMsg));
-                }
+                    await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
                 else
-                {
-                    context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None));
-                }
+                    await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        type: "application/json", headers: Startup.HeaderDict);
             }
 
             if (cache) WriteLogCache(dnsMsg, context);

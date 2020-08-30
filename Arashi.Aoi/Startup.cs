@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using static Arashi.AoiConfig;
 
@@ -18,6 +17,7 @@ namespace Arashi.Azure
         public static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
             : "Welcome to ArashiDNS.P ONE.Aoi Azure";
+        public static HeaderDictionary HeaderDict = new HeaderDictionary();
 
         public void ConfigureServices(IServiceCollection services) => DnsEncoder.Init();
 

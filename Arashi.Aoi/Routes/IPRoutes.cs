@@ -1,6 +1,5 @@
 ﻿using Arashi.Kestrel;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
 using static Arashi.AoiConfig;
@@ -11,11 +10,8 @@ namespace Arashi.Aoi.Routes
     {
         public static void GeoIPRoute(IEndpointRouteBuilder endpoints)
         {
-            endpoints.Map(Config.IpPerfix, async context =>
-            {
-                context.Response.ContentType = "text/plain";
-                await context.Response.WriteAsync(RealIP.Get(context).ToString());
-            });
+            endpoints.Map(Config.IpPerfix,
+                async context => await context.WriteResponseAsync(RealIP.Get(context).ToString()));
             endpoints.Map(Config.IpPerfix + "/source", async context =>
             {
                 var jObject = new JObject
@@ -28,8 +24,7 @@ namespace Arashi.Aoi.Routes
                     jObject.Add("CF-Connecting-IP", xCfValue.ToString());
                 if (context.Request.Headers.TryGetValue("X-Real-IP", out var xRealValue))
                     jObject.Add("X-Real-IP", xRealValue.ToString());
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(jObject.ToString());
+                await context.WriteResponseAsync(jObject.ToString(), type: "application/json");
             });
             endpoints.Map(Config.IpPerfix + "/json", async context =>
             {
@@ -52,9 +47,7 @@ namespace Arashi.Aoi.Routes
                     jObject.Add("City", responseCity.City.Name);
                 var cnIsp = GeoIP.GetCnISP(responseAsn, responseCity);
                 if (!string.IsNullOrWhiteSpace(cnIsp)) jObject.Add("ISP", cnIsp);
-
-                context.Response.ContentType = "application/json";
-                await context.Response.WriteAsync(jObject.ToString());
+                await context.WriteResponseAsync(jObject.ToString(), type: "application/json");
             });
         }
     }
