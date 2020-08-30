@@ -15,7 +15,6 @@ namespace Arashi.Aoi
 {
     class Program
     {
-        
         static void Main(string[] args)
         {
             var cmd = new CommandLineApplication
