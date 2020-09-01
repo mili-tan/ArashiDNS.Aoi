@@ -18,7 +18,14 @@ namespace Arashi.Aoi
         static void Main(string[] args)
         {
             var cmd = new CommandLineApplication
-                {Name = "Arashi.Aoi", Description = "ArashiDNS.Aoi - Simple Lightweight DNS over HTTPS Server"};
+            {
+                Name = "Arashi.Aoi",
+                Description = "ArashiDNS.Aoi - Lightweight DNS over HTTPS Server" +
+                              Environment.NewLine +
+                              $"Copyright (c) {DateTime.Now.Year} Milkey Tan. Code released under the Mozilla Public License 2.0" +
+                              Environment.NewLine +
+                              "https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/CREDITS.md"
+            };
             cmd.HelpOption("-?|-h|--help");
             var ipOption = cmd.Option<string>("-l|--listen <IPEndPoint>", "Set server listening address and port <127.0.0.1:2020>",
                 CommandOptionType.SingleValue);
