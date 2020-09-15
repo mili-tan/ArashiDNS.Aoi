@@ -90,7 +90,7 @@ If you wish to disable it, please enter EDNS-Client-Subnet IP `0.0.0.0` in your 
 
 > ReSharper is really amazing tool that made my development several times more efficient.
 
-Thanks to [JetBrains](https://www.jetbrains.com/?from=AuroraDNS) for providing the [ReSharper](https://www.jetbrains.com/ReSharper/) open source license for this project.
+Thanks to [JetBrains](https://www.jetbrains.com/?from=AuroraDNS) for providing the [ReSharper](https://www.jetbrains.com/ReSharper/?from=AuroraDNS) open source license for this project.
 
 ## Credits 
 
