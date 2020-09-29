@@ -56,8 +56,8 @@ namespace Arashi.Kestrel
                     .Cast<DnsRecordBase>().ToList())
             };
             dnsAMessage.Questions.AddRange(dnsMessage.Questions);
-            //dnsAMessage.AnswerRecords.Add(new TxtRecord(DomainName.Parse("china.doh.pp.ua"), 0,
-            //    "ArashiDNS.P ChinaList"));
+            dnsAMessage.AnswerRecords.Add(new TxtRecord(DomainName.Parse("china.arashi"), 0,
+                "ArashiDNS.P ChinaList"));
             return dnsAMessage;
         }
     }

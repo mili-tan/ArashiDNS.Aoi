@@ -67,8 +67,8 @@ namespace Arashi
                 dCacheMsg.AnswerRecords.AddRange(Get(
                     $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"));
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
-            //dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.doh.pp.ua"), 0,
-            //    "ArashiDNS.P Cached"));
+            dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi"), 0,
+                "ArashiDNS.P Cached"));
             return dCacheMsg;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Newtonsoft.Json.Linq;
 
@@ -34,8 +35,16 @@ namespace Arashi
             var tAnswer = Task.Run(() =>
             {
                 var dnsAnswersJArray = new JArray();
+                var dnsCommentJArray = new JArray();
                 foreach (var item in dnsMsg.AnswerRecords)
                 {
+                    if (item.Name.IsSubDomainOf(DomainName.Parse("arashi")) && item.RecordType == RecordType.Txt)
+                    {
+                        dnsCommentJArray.Add(new JObject
+                            {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
+                        continue;
+                    }
+
                     var dnsAjObject = new JObject
                     {
                         {"name", item.Name.ToString()},
@@ -70,6 +79,7 @@ namespace Arashi
                 }
 
                 if (dnsMsg.AnswerRecords.Count > 0) dnsJObject.Add("Answer", dnsAnswersJArray);
+                if (dnsCommentJArray.Count > 0) dnsJObject.Add("Comment", dnsCommentJArray);
             });
 
             var tAuthority = Task.Run(() =>
