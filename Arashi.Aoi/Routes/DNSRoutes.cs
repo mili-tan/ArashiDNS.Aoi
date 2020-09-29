@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using TechnitiumLibrary.Net.Dns;
 using static Arashi.AoiConfig;
+using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
 
 namespace Arashi.Aoi.Routes
 {
@@ -23,9 +26,10 @@ namespace Arashi.Aoi.Routes
             endpoints.Map(Config.QueryPerfix, async context =>
             {
                 var queryDictionary = context.Request.Query;
-                if (context.Request.Method == "POST" && context.Request.ContentType.Contains("dns-message") &&
-                    context.Request.BodyReader.TryRead(out var readResult))
-                    await ReturnContext(context, true, DnsQuery(DnsMessage.Parse(readResult.Buffer.ToArray()), context));
+                if (context.Request.Method == "POST")
+                    await ReturnContext(context, true,
+                        DnsQuery(DnsMessage.Parse((await context.Request.BodyReader.ReadAsync()).Buffer.ToArray()),
+                            context));
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
@@ -52,12 +56,20 @@ namespace Arashi.Aoi.Routes
                     await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                         type: "application/json", headers: Startup.HeaderDict);
                 else
-                    await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
+                {
+                    await using var memoryStream = new MemoryStream();
+                    DnsDatagram.ReadFromJson(DohJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                    await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
+                }
             }
             else
             {
                 if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
-                    await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
+                {
+                    await using var memoryStream = new MemoryStream();
+                    DnsDatagram.ReadFromJson(DohJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                    await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
+                }
                 else
                     await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                         type: "application/json", headers: Startup.HeaderDict);
