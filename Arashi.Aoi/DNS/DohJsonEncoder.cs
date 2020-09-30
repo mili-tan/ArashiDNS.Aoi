@@ -35,12 +35,12 @@ namespace Arashi
             var tAnswer = Task.Run(() =>
             {
                 var dnsAnswersJArray = new JArray();
-                var dnsCommentJArray = new JArray();
+                var dnsNotesJArray = new JArray();
                 foreach (var item in dnsMsg.AnswerRecords)
                 {
                     if (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) && item.RecordType == RecordType.Txt)
                     {
-                        dnsCommentJArray.Add(new JObject
+                        dnsNotesJArray.Add(new JObject
                             {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
                         continue;
                     }
@@ -79,7 +79,7 @@ namespace Arashi
                 }
 
                 if (dnsMsg.AnswerRecords.Count > 0) dnsJObject.Add("Answer", dnsAnswersJArray);
-                if (dnsCommentJArray.Count > 0) dnsJObject.Add("Comment", dnsCommentJArray);
+                if (dnsNotesJArray.Count > 0) dnsJObject.Add("Notes", dnsNotesJArray);
             });
 
             var tAuthority = Task.Run(() =>
