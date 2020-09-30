@@ -38,7 +38,7 @@ namespace Arashi
                 var dnsCommentJArray = new JArray();
                 foreach (var item in dnsMsg.AnswerRecords)
                 {
-                    if (item.Name.IsSubDomainOf(DomainName.Parse("arashi")) && item.RecordType == RecordType.Txt)
+                    if (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) && item.RecordType == RecordType.Txt)
                     {
                         dnsCommentJArray.Add(new JObject
                             {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
