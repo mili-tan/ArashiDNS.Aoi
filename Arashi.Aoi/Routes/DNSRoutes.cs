@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static Arashi.AoiConfig;
-using RecordType = ARSoft.Tools.Net.Dns.RecordType;
 
 namespace Arashi.Aoi.Routes
 {
