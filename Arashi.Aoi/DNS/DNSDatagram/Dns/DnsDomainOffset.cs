@@ -27,8 +27,6 @@ namespace TechnitiumLibrary.Net.Dns
             Domain = domain;
         }
 
-        public override string ToString() => Domain;
-
         public ushort Offset { get; }
 
         public string Domain { get; }

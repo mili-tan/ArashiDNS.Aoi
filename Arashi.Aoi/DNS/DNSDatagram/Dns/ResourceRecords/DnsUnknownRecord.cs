@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
@@ -32,52 +31,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public DnsUnknownRecord(dynamic jsonResourceRecord)
         {
             _length = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
             _data = Encoding.ASCII.GetBytes(jsonResourceRecord.data.Value as string);
-        }
-
-        protected virtual void Parse(Stream s)
-        {
-            _data = s.ReadBytes(_length);
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries)
         {
             s.Write(_data, 0, _data.Length);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            DnsUnknownRecord other = obj as DnsUnknownRecord;
-            if (other == null)
-                return false;
-
-            if (this._data.Length != other._data.Length)
-                return false;
-
-            for (int i = 0; i < this._data.Length; i++)
-            {
-                if (this._data[i] != other._data[i])
-                    return false;
-            }
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return _data.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return Convert.ToBase64String(_data);
         }
     }
 }

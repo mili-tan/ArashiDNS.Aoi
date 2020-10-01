@@ -23,7 +23,7 @@ using System.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
-    public class DnsMXRecord : DnsResourceRecordData, IComparable<DnsMXRecord>
+    public class DnsMXRecord : DnsResourceRecordData
     {
         ushort _preference;
         string _exchange;
@@ -31,53 +31,15 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public DnsMXRecord(dynamic jsonResourceRecord)
         {
             _length = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
             string[] parts = (jsonResourceRecord.data.Value as string).Split(' ');
-
             _preference = ushort.Parse(parts[0]);
             _exchange = parts[1].TrimEnd('.');
-        }
-
-        protected virtual void Parse(Stream s)
-        {
-            _preference = DnsDatagram.ReadUInt16NetworkOrder(s);
-            _exchange = DnsDatagram.DeserializeDomainName(s);
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries)
         {
             DnsDatagram.WriteUInt16NetworkOrder(_preference, s);
             DnsDatagram.SerializeDomainName(_exchange, s, domainEntries);
-        }
-
-        public int CompareTo(DnsMXRecord other)
-        {
-            return _preference.CompareTo(other._preference);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            DnsMXRecord other = obj as DnsMXRecord;
-            if (other == null)
-                return false;
-
-            return this._exchange.Equals(other._exchange, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override int GetHashCode()
-        {
-            return _exchange.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return _preference + " " + _exchange + ".";
         }
     }
 }

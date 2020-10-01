@@ -30,43 +30,12 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         public DnsNSRecord(dynamic jsonResourceRecord)
         {
             _length = Convert.ToUInt16(jsonResourceRecord.data.Value.Length);
-
             _nameServer = (jsonResourceRecord.data.Value as string).TrimEnd('.');
-        }
-
-        protected virtual void Parse(Stream s)
-        {
-            _nameServer = DnsDatagram.DeserializeDomainName(s);
         }
 
         protected override void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries)
         {
             DnsDatagram.SerializeDomainName(_nameServer, s, domainEntries);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            DnsNSRecord other = obj as DnsNSRecord;
-            if (other == null)
-                return false;
-
-            return this._nameServer.Equals(other._nameServer, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override int GetHashCode()
-        {
-            return _nameServer.GetHashCode();
-        }
-
-        public override string ToString()
-        {
-            return _nameServer + ".";
         }
     }
 }

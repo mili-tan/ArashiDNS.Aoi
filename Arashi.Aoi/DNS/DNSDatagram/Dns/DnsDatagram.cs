@@ -157,13 +157,6 @@ namespace TechnitiumLibrary.Net.Dns
             return datagram;
         }
 
-        internal static ushort ReadUInt16NetworkOrder(Stream s)
-        {
-            byte[] b = s.ReadBytes(2);
-            Array.Reverse(b);
-            return BitConverter.ToUInt16(b, 0);
-        }
-
         internal static void WriteUInt16NetworkOrder(ushort value, Stream s)
         {
             byte[] b = BitConverter.GetBytes(value);
@@ -220,7 +213,7 @@ namespace TechnitiumLibrary.Net.Dns
 
                 byte[] labelBytes = Encoding.ASCII.GetBytes(label);
                 if (labelBytes.Length > 63)
-                    throw new DnsClientException("ConvertDomainToLabel: Invalid domain name. Label cannot exceed 63 bytes.");
+                    throw new Exception("ConvertDomainToLabel: Invalid domain name. Label cannot exceed 63 bytes.");
 
                 s.WriteByte(Convert.ToByte(labelBytes.Length));
                 s.Write(labelBytes, 0, labelBytes.Length);
@@ -232,7 +225,7 @@ namespace TechnitiumLibrary.Net.Dns
         public static string DeserializeDomainName(Stream s, int maxDepth = 10)
         {
             if (maxDepth < 0)
-                throw new DnsClientException("Error while reading domain name: max depth for decompression reached");
+                throw new Exception("Error while reading domain name: max depth for decompression reached");
 
             StringBuilder domain = new StringBuilder();
             byte labelLength = s.ReadBytes(1)[0];
@@ -264,14 +257,6 @@ namespace TechnitiumLibrary.Net.Dns
                 domain.Length--;
 
             return domain.ToString();
-        }
-
-        internal static string EncodeCharacterString(string value)
-        {
-            if (value.Contains(" ") || value.Contains("\t"))
-                value = "\"" + value.Replace("\"", "\\\"") + "\"";
-
-            return value;
         }
 
         internal static string DecodeCharacterString(string value)

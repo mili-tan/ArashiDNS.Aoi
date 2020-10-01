@@ -17,10 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 
 namespace TechnitiumLibrary.Net.Dns
 {
@@ -29,18 +27,9 @@ namespace TechnitiumLibrary.Net.Dns
 
     public class DnsQuestionRecord
     {
-        #region variables
-
         readonly string _name;
         readonly DnsResourceRecordType _type;
         readonly DnsClass _class;
-
-        //QNAME Minimization
-        const int MAX_MINIMISE_COUNT = 10;
-        string _zoneCut;
-        string _minimizedName;
-
-        #endregion
 
         public DnsQuestionRecord(dynamic jsonQuestionRecord)
         {
@@ -51,66 +40,9 @@ namespace TechnitiumLibrary.Net.Dns
 
         public void WriteTo(Stream s, List<DnsDomainOffset> domainEntries)
         {
-            if (_minimizedName == null)
-            {
-                DnsDatagram.SerializeDomainName(_name, s, domainEntries);
-                DnsDatagram.WriteUInt16NetworkOrder((ushort)_type, s);
-                DnsDatagram.WriteUInt16NetworkOrder((ushort)_class, s);
-            }
-            else
-            {
-                DnsDatagram.SerializeDomainName(_minimizedName, s, domainEntries);
-                DnsDatagram.WriteUInt16NetworkOrder((ushort)MinimizedType, s);
-                DnsDatagram.WriteUInt16NetworkOrder((ushort)_class, s);
-            }
+            DnsDatagram.SerializeDomainName(_name, s, domainEntries);
+            DnsDatagram.WriteUInt16NetworkOrder((ushort) _type, s);
+            DnsDatagram.WriteUInt16NetworkOrder((ushort) _class, s);
         }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            DnsQuestionRecord other = obj as DnsQuestionRecord;
-            if (other == null)
-                return false;
-
-            if (!_name.Equals(other._name, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            if (_type != other._type)
-                return false;
-
-            if (_class != other._class)
-                return false;
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return _name.GetHashCode();
-        }
-
-        #region properties
-
-        public string Name
-        { get { return _name; } }
-
-        [IgnoreDataMember]
-        public DnsResourceRecordType MinimizedType
-        {
-            get
-            {
-                if (_type == DnsResourceRecordType.AAAA)
-                    return DnsResourceRecordType.AAAA;
-
-                return DnsResourceRecordType.A;
-            }
-        }
-
-        #endregion
     }
 }

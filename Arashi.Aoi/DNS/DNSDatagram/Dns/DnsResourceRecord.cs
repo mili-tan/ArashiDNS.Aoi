@@ -17,10 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using TechnitiumLibrary.Net.Dns.ResourceRecords;
 
 namespace TechnitiumLibrary.Net.Dns
@@ -126,192 +124,64 @@ namespace TechnitiumLibrary.Net.Dns
         ANY = 255
     }
 
-    public sealed class DnsResourceRecord : IComparable<DnsResourceRecord>
+    public sealed class DnsResourceRecord
     {
-        #region variables
-
-        readonly string _name;
-        readonly DnsResourceRecordType _type;
-        readonly DnsClass _class;
-        uint _ttl;
-        readonly DnsResourceRecordData _data;
-
-        bool _setExpiry = false;
-        DateTime _ttlExpires;
-        DateTime _serveStaleTtlExpires;
-
-        #endregion
+        readonly string Name;
+        readonly DnsResourceRecordType Type;
+        readonly DnsClass Class;
+        uint Ttl;
+        readonly DnsResourceRecordData Data;
 
         public DnsResourceRecord(dynamic jsonResourceRecord)
         {
-            _name = (jsonResourceRecord.name.Value as string).TrimEnd('.');
-            _type = (DnsResourceRecordType)jsonResourceRecord.type;
-            _class = DnsClass.IN;
-            _ttl = jsonResourceRecord.TTL;
+            Name = (jsonResourceRecord.name.Value as string).TrimEnd('.');
+            Type = (DnsResourceRecordType)jsonResourceRecord.type;
+            Class = DnsClass.IN;
+            Ttl = jsonResourceRecord.TTL;
 
-            switch (_type)
+            switch (Type)
             {
                 case DnsResourceRecordType.A:
-                    _data = new DnsARecord(jsonResourceRecord);
+                    Data = new DnsARecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.NS:
-                    _data = new DnsNSRecord(jsonResourceRecord);
+                    Data = new DnsNSRecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.CNAME:
-                    _data = new DnsCNAMERecord(jsonResourceRecord);
+                    Data = new DnsCNAMERecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.PTR:
-                    _data = new DnsPTRRecord(jsonResourceRecord);
+                    Data = new DnsPTRRecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.MX:
-                    _data = new DnsMXRecord(jsonResourceRecord);
+                    Data = new DnsMXRecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.TXT:
-                    _data = new DnsTXTRecord(jsonResourceRecord);
+                    Data = new DnsTXTRecord(jsonResourceRecord);
                     break;
 
                 case DnsResourceRecordType.AAAA:
-                    _data = new DnsAAAARecord(jsonResourceRecord);
+                    Data = new DnsAAAARecord(jsonResourceRecord);
                     break;
 
                 default:
-                    _data = new DnsUnknownRecord(jsonResourceRecord);
+                    Data = new DnsUnknownRecord(jsonResourceRecord);
                     break;
             }
-        }
-
-        public static Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>> GroupRecords(IReadOnlyCollection<DnsResourceRecord> records)
-        {
-            Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>> groupedByDomainRecords = new Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>>();
-
-            foreach (DnsResourceRecord record in records)
-            {
-                Dictionary<DnsResourceRecordType, List<DnsResourceRecord>> groupedByTypeRecords;
-                string recordName = record.Name.ToLower();
-
-                if (groupedByDomainRecords.ContainsKey(recordName))
-                {
-                    groupedByTypeRecords = groupedByDomainRecords[recordName];
-                }
-                else
-                {
-                    groupedByTypeRecords = new Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>();
-                    groupedByDomainRecords.Add(recordName, groupedByTypeRecords);
-                }
-
-                List<DnsResourceRecord> groupedRecords;
-
-                if (groupedByTypeRecords.ContainsKey(record.Type))
-                {
-                    groupedRecords = groupedByTypeRecords[record.Type];
-                }
-                else
-                {
-                    groupedRecords = new List<DnsResourceRecord>();
-                    groupedByTypeRecords.Add(record.Type, groupedRecords);
-                }
-
-                groupedRecords.Add(record);
-            }
-
-            return groupedByDomainRecords;
         }
 
         public void WriteTo(Stream s, List<DnsDomainOffset> domainEntries)
         {
-            DnsDatagram.SerializeDomainName(_name, s, domainEntries);
-            DnsDatagram.WriteUInt16NetworkOrder((ushort)_type, s);
-            DnsDatagram.WriteUInt16NetworkOrder((ushort)_class, s);
-            DnsDatagram.WriteUInt32NetworkOrder(TtlValue, s);
-
-            _data.WriteTo(s, domainEntries);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is null)
-                return false;
-
-            if (ReferenceEquals(this, obj))
-                return true;
-
-            DnsResourceRecord other = obj as DnsResourceRecord;
-            if (other == null)
-                return false;
-
-            if (!this._name.Equals(other._name, StringComparison.OrdinalIgnoreCase))
-                return false;
-
-            if (this._type != other._type)
-                return false;
-
-            if (this._class != other._class)
-                return false;
-
-            if (this._ttl != other._ttl)
-                return false;
-
-            return this._data.Equals(other._data);
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = -205127651;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_name);
-            hashCode = hashCode * -1521134295 + _type.GetHashCode();
-            hashCode = hashCode * -1521134295 + _class.GetHashCode();
-            hashCode = hashCode * -1521134295 + _ttl.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<DnsResourceRecordData>.Default.GetHashCode(_data);
-            return hashCode;
-        }
-
-        public int CompareTo(DnsResourceRecord other)
-        {
-            int value;
-
-            value = this._name.CompareTo(other._name);
-            if (value != 0)
-                return value;
-
-            value = this._type.CompareTo(other._type);
-            if (value != 0)
-                return value;
-
-            return this._ttl.CompareTo(other._ttl);
-        }
-
-        public string Name
-        { get { return _name; } }
-
-        public DnsResourceRecordType Type
-        { get { return _type; } }
-
-        [IgnoreDataMember]
-        public uint TtlValue
-        {
-            get
-            {
-                if (_setExpiry)
-                {
-                    DateTime utcNow = DateTime.UtcNow;
-
-                    if (Convert.ToInt32((_serveStaleTtlExpires - utcNow).TotalSeconds) < 1)
-                        return 0u;
-
-                    int ttl = Convert.ToInt32((_ttlExpires - utcNow).TotalSeconds);
-                    if (ttl < 1)
-                        return 30u;
-
-                    return Convert.ToUInt32(ttl);
-                }
-
-                return _ttl;
-            }
+            DnsDatagram.SerializeDomainName(Name, s, domainEntries);
+            DnsDatagram.WriteUInt16NetworkOrder((ushort)Type, s);
+            DnsDatagram.WriteUInt16NetworkOrder((ushort)Class, s);
+            DnsDatagram.WriteUInt32NetworkOrder(Ttl, s);
+            Data.WriteTo(s, domainEntries);
         }
     }
 }
