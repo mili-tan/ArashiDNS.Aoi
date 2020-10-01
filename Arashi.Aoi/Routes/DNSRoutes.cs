@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Arashi.Azure;
 using Arashi.Kestrel;
-using Arashi.Kestrel.DNS;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -54,12 +53,12 @@ namespace Arashi.Aoi.Routes
                 if (returnMsg)
                 {
                     if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("json"))
-                        await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                     {
                         await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromJson(DohJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                        DnsDatagram.ReadFromJson(DnsJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
                         await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
                     }
                 }
@@ -68,11 +67,11 @@ namespace Arashi.Aoi.Routes
                     if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
                     {
                         await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromJson(DohJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                        DnsDatagram.ReadFromJson(DnsJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
                         await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
                     }
                     else
-                        await context.WriteResponseAsync(DohJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                 }
 

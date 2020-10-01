@@ -6,7 +6,7 @@ using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
 using static Arashi.AoiConfig;
 
-namespace Arashi.Kestrel.DNS
+namespace Arashi.Kestrel
 {
     class DNSGet
     {

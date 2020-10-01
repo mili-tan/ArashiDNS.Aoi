@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Arashi
 {
-    public class DohJsonEncoder
+    public class DnsJsonEncoder
     {
         public static JObject Encode(DnsMessage dnsMsg)
         {

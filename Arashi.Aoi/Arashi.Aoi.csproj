@@ -31,12 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="TechnitiumLibrary.Net">
-      <HintPath>..\TechnitiumLibrary.Net.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
     <TrimmerRootAssembly Include="System.Threading.Tasks" />
     <TrimmerRootAssembly Include="System.Threading.Tasks.Parallel" />
