@@ -52,7 +52,8 @@ namespace Arashi
         {
             try
             {
-                if (!IPAddress.TryParse(ipAddress, out var ip) || IPAddress.IsLoopback(ip)) return string.Empty;
+                if (!IPAddress.TryParse(ipAddress, out var ip) || IPAddress.IsLoopback(ip) || Equals(ip, IPAddress.Any))
+                    return string.Empty;
                 var i = GetAsnCityValueTuple(ipAddress);
                 var cnisp = GetCnISP(i.Item1, i.Item2);
                 if (!string.IsNullOrEmpty(cnisp))
