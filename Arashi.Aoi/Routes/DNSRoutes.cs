@@ -12,9 +12,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TechnitiumLibrary.Net.Dns;
 using static Arashi.AoiConfig;
-using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
+using RecordType = ARSoft.Tools.Net.Dns.RecordType;
 
 namespace Arashi.Aoi.Routes
 {
