@@ -25,17 +25,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
     public class DnsPTRRecord : DnsResourceRecordData
     {
-        #region variables
-
         string _domain;
-
-        #endregion
-
-        #region constructor
-
-        public DnsPTRRecord(Stream s)
-            : base(s)
-        { }
 
         public DnsPTRRecord(dynamic jsonResourceRecord)
         {
@@ -44,11 +34,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _domain = (jsonResourceRecord.data.Value as string).TrimEnd('.');
         }
 
-        #endregion
-
-        #region protected
-
-        protected override void Parse(Stream s)
+        protected virtual void Parse(Stream s)
         {
             _domain = DnsDatagram.DeserializeDomainName(s);
         }
@@ -57,10 +43,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             DnsDatagram.SerializeDomainName(_domain, s, domainEntries);
         }
-
-        #endregion
-
-        #region public
 
         public override bool Equals(object obj)
         {
@@ -87,13 +69,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             return _domain + ".";
         }
 
-        #endregion
-
-        #region properties
-
         public string Domain
         { get { return _domain; } }
-
-        #endregion
     }
 }

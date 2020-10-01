@@ -25,18 +25,8 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
     public class DnsMXRecord : DnsResourceRecordData, IComparable<DnsMXRecord>
     {
-        #region variables
-
         ushort _preference;
         string _exchange;
-
-        #endregion
-
-        #region constructor
-
-        public DnsMXRecord(Stream s)
-            : base(s)
-        { }
 
         public DnsMXRecord(dynamic jsonResourceRecord)
         {
@@ -48,11 +38,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _exchange = parts[1].TrimEnd('.');
         }
 
-        #endregion
-
-        #region protected
-
-        protected override void Parse(Stream s)
+        protected virtual void Parse(Stream s)
         {
             _preference = DnsDatagram.ReadUInt16NetworkOrder(s);
             _exchange = DnsDatagram.DeserializeDomainName(s);
@@ -63,10 +49,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             DnsDatagram.WriteUInt16NetworkOrder(_preference, s);
             DnsDatagram.SerializeDomainName(_exchange, s, domainEntries);
         }
-
-        #endregion
-
-        #region public
 
         public int CompareTo(DnsMXRecord other)
         {
@@ -97,17 +79,5 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             return _preference + " " + _exchange + ".";
         }
-
-        #endregion
-
-        #region properties
-
-        public ushort Preference
-        { get { return _preference; } }
-
-        public string Exchange
-        { get { return _exchange; } }
-
-        #endregion
     }
 }

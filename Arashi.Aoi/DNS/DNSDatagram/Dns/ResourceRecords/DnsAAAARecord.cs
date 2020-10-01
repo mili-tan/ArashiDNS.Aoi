@@ -21,32 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Runtime.Serialization;
 using TechnitiumLibrary.IO;
 
 namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
     public class DnsAAAARecord : DnsResourceRecordData
     {
-        #region variables
-
         IPAddress _address;
-
-        #endregion
-
-        #region constructor
-
-        public DnsAAAARecord(IPAddress address)
-        {
-            _address = address;
-
-            if (_address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetworkV6)
-                throw new DnsClientException("Invalid IP address family.");
-        }
-
-        public DnsAAAARecord(Stream s)
-            : base(s)
-        { }
 
         public DnsAAAARecord(dynamic jsonResourceRecord)
         {
@@ -55,11 +36,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _address = System.Net.IPAddress.Parse(jsonResourceRecord.data.Value);
         }
 
-        #endregion
-
-        #region protected
-
-        protected override void Parse(Stream s)
+        protected virtual void Parse(Stream s)
         {
             _address = new IPAddress(s.ReadBytes(16));
         }
@@ -68,10 +45,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             s.Write(_address.GetAddressBytes());
         }
-
-        #endregion
-
-        #region public
 
         public override bool Equals(object obj)
         {
@@ -97,18 +70,5 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             return _address.ToString();
         }
-
-        #endregion
-
-        #region properties
-
-        [IgnoreDataMember]
-        public IPAddress Address
-        { get { return _address; } }
-
-        public string IPAddress
-        { get { return _address.ToString(); } }
-
-        #endregion
     }
 }

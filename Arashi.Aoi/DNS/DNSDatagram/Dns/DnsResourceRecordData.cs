@@ -20,48 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 
 namespace TechnitiumLibrary.Net.Dns
 {
     public abstract class DnsResourceRecordData
     {
-        #region variables
-
         protected ushort _length;
 
-        #endregion
-
-        #region constructor
-
-        protected DnsResourceRecordData()
-        { }
-
-        protected DnsResourceRecordData(Stream s)
-        {
-            //read RDLENGTH
-            _length = DnsDatagram.ReadUInt16NetworkOrder(s);
-
-            //read RDATA
-            Parse(s);
-        }
-
-        #endregion
-
-        #region protected
-
-        protected abstract void Parse(Stream s);
-
         protected abstract void WriteRecordData(Stream s, List<DnsDomainOffset> domainEntries);
-
-        #endregion
-
-        #region public
-
-        public void WriteTo(Stream s)
-        {
-            WriteTo(s, null);
-        }
 
         public void WriteTo(Stream s, List<DnsDomainOffset> domainEntries)
         {
@@ -88,15 +54,5 @@ namespace TechnitiumLibrary.Net.Dns
         public override abstract int GetHashCode();
 
         public override abstract string ToString();
-
-        #endregion
-
-        #region properties
-
-        [IgnoreDataMember]
-        public ushort RDLENGTH
-        { get { return _length; } }
-
-        #endregion
     }
 }

@@ -23,24 +23,6 @@ namespace TechnitiumLibrary.Net.Dns
 {
     public class DnsClientException : Exception
     {
-        #region constructors
-
-        public DnsClientException()
-            : base()
-        { }
-
-        public DnsClientException(string message)
-            : base(message)
-        { }
-
-        public DnsClientException(string message, Exception innerException)
-            : base(message, innerException)
-        { }
-
-        protected DnsClientException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
-            : base(info, context)
-        { }
-
-        #endregion
+        public DnsClientException(string message) : base(message) { }
     }
 }

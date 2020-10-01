@@ -21,40 +21,16 @@ namespace TechnitiumLibrary.Net.Dns
 {
     public class DnsDomainOffset
     {
-        #region variables
-
-        readonly ushort _offset;
-        readonly string _domain;
-
-        #endregion
-
-        #region constructor
-
         public DnsDomainOffset(ushort offset, string domain)
         {
-            _offset = offset;
-            _domain = domain;
+            Offset = offset;
+            Domain = domain;
         }
 
-        #endregion
+        public override string ToString() => Domain;
 
-        #region public
+        public ushort Offset { get; }
 
-        public override string ToString()
-        {
-            return _domain;
-        }
-
-        #endregion
-
-        #region properties
-
-        public ushort Offset
-        { get { return _offset; } }
-
-        public string Domain
-        { get { return _domain; } }
-
-        #endregion
+        public string Domain { get; }
     }
 }

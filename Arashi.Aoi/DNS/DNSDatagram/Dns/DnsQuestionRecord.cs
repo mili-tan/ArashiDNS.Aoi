@@ -20,8 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Runtime.Serialization;
 
 namespace TechnitiumLibrary.Net.Dns
@@ -44,75 +42,12 @@ namespace TechnitiumLibrary.Net.Dns
 
         #endregion
 
-        #region constructor
-
-        public DnsQuestionRecord(IPAddress ip, DnsClass @class)
-        {
-            _type = DnsResourceRecordType.PTR;
-            _class = @class;
-
-            byte[] ipBytes = ip.GetAddressBytes();
-
-            switch (ip.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                    for (int i = ipBytes.Length - 1; i >= 0; i--)
-                        _name += ipBytes[i] + ".";
-
-                    _name += "in-addr.arpa";
-                    break;
-
-                case AddressFamily.InterNetworkV6:
-                    for (int i = ipBytes.Length - 1; i >= 0; i--)
-                        _name += (ipBytes[i] & 0x0F).ToString("X") + "." + (ipBytes[i] >> 4).ToString("X") + ".";
-
-                    _name += "ip6.arpa";
-                    break;
-
-                default:
-                    throw new DnsClientException("IP address family not supported for PTR query.");
-            }
-        }
-
-        public DnsQuestionRecord(Stream s)
-        {
-            _name = DnsDatagram.DeserializeDomainName(s);
-            _type = (DnsResourceRecordType)DnsDatagram.ReadUInt16NetworkOrder(s);
-            _class = (DnsClass)DnsDatagram.ReadUInt16NetworkOrder(s);
-        }
-
         public DnsQuestionRecord(dynamic jsonQuestionRecord)
         {
             _name = (jsonQuestionRecord.name.Value as string).TrimEnd('.');
             _type = (DnsResourceRecordType)jsonQuestionRecord.type;
             _class = DnsClass.IN;
         }
-
-        #endregion
-
-        #region private
-
-        private static string GetMinimizedName(string name, string zoneCut)
-        {
-            //www.example.com
-            //com
-
-            if ((zoneCut != null) && (zoneCut.Length < name.Length))
-            {
-                int i = name.LastIndexOf('.', name.Length - zoneCut.Length - 2);
-                if (i < 0)
-                    return name;
-
-                //return minimized QNAME
-                return name.Substring(i + 1);
-            }
-
-            return null;
-        }
-
-        #endregion
-
-        #region public
 
         public void WriteTo(Stream s, List<DnsDomainOffset> domainEntries)
         {
@@ -159,39 +94,10 @@ namespace TechnitiumLibrary.Net.Dns
             return _name.GetHashCode();
         }
 
-        #endregion
-
         #region properties
 
         public string Name
         { get { return _name; } }
-
-        public DnsResourceRecordType Type
-        { get { return _type; } }
-
-        public DnsClass Class
-        { get { return _class; } }
-
-        [IgnoreDataMember]
-        public string ZoneCut
-        {
-            get { return _zoneCut; }
-            set
-            {
-                _zoneCut = value;
-                _minimizedName = GetMinimizedName(_name, _zoneCut);
-                if ((_minimizedName == null) || (_minimizedName.Split('.').Length > MAX_MINIMISE_COUNT))
-                {
-                    //auto disable QNAME minimization
-                    _zoneCut = null;
-                    _minimizedName = null;
-                }
-            }
-        }
-
-        [IgnoreDataMember]
-        public string MinimizedName
-        { get { return _minimizedName; } }
 
         [IgnoreDataMember]
         public DnsResourceRecordType MinimizedType

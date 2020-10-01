@@ -27,22 +27,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
 {
     public class DnsUnknownRecord : DnsResourceRecordData
     {
-        #region variables
-
         byte[] _data;
-
-        #endregion
-
-        #region constructor
-
-        public DnsUnknownRecord(byte[] data)
-        {
-            _data = data;
-        }
-
-        public DnsUnknownRecord(Stream s)
-            : base(s)
-        { }
 
         public DnsUnknownRecord(dynamic jsonResourceRecord)
         {
@@ -51,11 +36,7 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
             _data = Encoding.ASCII.GetBytes(jsonResourceRecord.data.Value as string);
         }
 
-        #endregion
-
-        #region protected
-
-        protected override void Parse(Stream s)
+        protected virtual void Parse(Stream s)
         {
             _data = s.ReadBytes(_length);
         }
@@ -64,10 +45,6 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             s.Write(_data, 0, _data.Length);
         }
-
-        #endregion
-
-        #region public
 
         public override bool Equals(object obj)
         {
@@ -102,14 +79,5 @@ namespace TechnitiumLibrary.Net.Dns.ResourceRecords
         {
             return Convert.ToBase64String(_data);
         }
-
-        #endregion
-
-        #region properties
-
-        public byte[] DATA
-        { get { return _data; } }
-
-        #endregion
     }
 }

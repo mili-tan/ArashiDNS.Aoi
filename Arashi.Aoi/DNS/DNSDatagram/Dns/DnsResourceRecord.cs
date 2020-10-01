@@ -142,60 +142,6 @@ namespace TechnitiumLibrary.Net.Dns
 
         #endregion
 
-        #region constructor
-
-        public DnsResourceRecord(string name, DnsResourceRecordType type, DnsClass @class, uint ttl, DnsResourceRecordData data)
-        {
-            _name = name.ToLower();
-            _type = type;
-            _class = @class;
-            _ttl = ttl;
-            _data = data;
-        }
-
-        public DnsResourceRecord(Stream s)
-        {
-            _name = DnsDatagram.DeserializeDomainName(s);
-            _type = (DnsResourceRecordType)DnsDatagram.ReadUInt16NetworkOrder(s);
-            _class = (DnsClass)DnsDatagram.ReadUInt16NetworkOrder(s);
-            _ttl = DnsDatagram.ReadUInt32NetworkOrder(s);
-
-            switch (_type)
-            {
-                case DnsResourceRecordType.A:
-                    _data = new DnsARecord(s);
-                    break;
-
-                case DnsResourceRecordType.NS:
-                    _data = new DnsNSRecord(s);
-                    break;
-
-                case DnsResourceRecordType.CNAME:
-                    _data = new DnsCNAMERecord(s);
-                    break;
-
-                case DnsResourceRecordType.PTR:
-                    _data = new DnsPTRRecord(s);
-                    break;
-
-                case DnsResourceRecordType.MX:
-                    _data = new DnsMXRecord(s);
-                    break;
-
-                case DnsResourceRecordType.TXT:
-                    _data = new DnsTXTRecord(s);
-                    break;
-
-                case DnsResourceRecordType.AAAA:
-                    _data = new DnsAAAARecord(s);
-                    break;
-
-                default:
-                    _data = new DnsUnknownRecord(s);
-                    break;
-            }
-        }
-
         public DnsResourceRecord(dynamic jsonResourceRecord)
         {
             _name = (jsonResourceRecord.name.Value as string).TrimEnd('.');
@@ -239,10 +185,6 @@ namespace TechnitiumLibrary.Net.Dns
             }
         }
 
-        #endregion
-
-        #region static
-
         public static Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>> GroupRecords(IReadOnlyCollection<DnsResourceRecord> records)
         {
             Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>> groupedByDomainRecords = new Dictionary<string, Dictionary<DnsResourceRecordType, List<DnsResourceRecord>>>();
@@ -278,38 +220,6 @@ namespace TechnitiumLibrary.Net.Dns
             }
 
             return groupedByDomainRecords;
-        }
-
-        #endregion
-
-        #region public
-
-        public void SetExpiry(uint minimumTtl, uint serveStaleTtl)
-        {
-            if (_ttl < minimumTtl)
-                _ttl = minimumTtl; //to help keep record in cache for a minimum time
-
-            _setExpiry = true;
-            _ttlExpires = DateTime.UtcNow.AddSeconds(_ttl);
-            _serveStaleTtlExpires = _ttlExpires.AddSeconds(serveStaleTtl);
-        }
-
-        public void ResetExpiry(int seconds)
-        {
-            if (!_setExpiry)
-                throw new InvalidOperationException("Must call SetExpiry() before ResetExpiry().");
-
-            _ttlExpires = DateTime.UtcNow.AddSeconds(seconds);
-        }
-
-        public void RemoveExpiry()
-        {
-            _setExpiry = false;
-        }
-
-        public void WriteTo(Stream s)
-        {
-            WriteTo(s, null);
         }
 
         public void WriteTo(Stream s, List<DnsDomainOffset> domainEntries)
@@ -375,18 +285,11 @@ namespace TechnitiumLibrary.Net.Dns
             return this._ttl.CompareTo(other._ttl);
         }
 
-        #endregion
-
-        #region properties
-
         public string Name
         { get { return _name; } }
 
         public DnsResourceRecordType Type
         { get { return _type; } }
-
-        public DnsClass Class
-        { get { return _class; } }
 
         [IgnoreDataMember]
         public uint TtlValue
@@ -410,41 +313,5 @@ namespace TechnitiumLibrary.Net.Dns
                 return _ttl;
             }
         }
-
-        [IgnoreDataMember]
-        public bool IsStale
-        {
-            get
-            {
-                if (_setExpiry)
-                {
-                    DateTime utcNow = DateTime.UtcNow;
-
-                    if (Convert.ToInt32((_serveStaleTtlExpires - utcNow).TotalSeconds) < 1)
-                        return true;
-
-                    int ttl = Convert.ToInt32((_ttlExpires - utcNow).TotalSeconds);
-
-                    return ttl < 1;
-                }
-
-                return false;
-            }
-        }
-
-        [IgnoreDataMember]
-        public uint OriginalTtlValue
-        { get { return _ttl; } }
-
-        public string RDLENGTH
-        { get { return _data.RDLENGTH + " bytes"; } }
-
-        public DnsResourceRecordData RDATA
-        { get { return _data; } }
-
-        [IgnoreDataMember]
-        public object Tag { get; set; }
-
-        #endregion
     }
 }
