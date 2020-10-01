@@ -189,9 +189,6 @@ namespace TechnitiumLibrary.Net.Dns
                 case DnsResourceRecordType.AAAA:
                     _data = new DnsAAAARecord(s);
                     break;
-                case DnsResourceRecordType.ANAME:
-                    _data = new DnsANAMERecord(s);
-                    break;
 
                 default:
                     _data = new DnsUnknownRecord(s);
@@ -234,10 +231,6 @@ namespace TechnitiumLibrary.Net.Dns
 
                 case DnsResourceRecordType.AAAA:
                     _data = new DnsAAAARecord(jsonResourceRecord);
-                    break;
-
-                case DnsResourceRecordType.ANAME:
-                    _data = new DnsANAMERecord(jsonResourceRecord);
                     break;
 
                 default:
