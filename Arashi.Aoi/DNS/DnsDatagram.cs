@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using static Arashi.Azure.DnsRecords;
 
 namespace Arashi.Azure
 {
@@ -168,17 +169,17 @@ namespace Arashi.Azure
             WriteUInt16NetworkOrder(Convert.ToUInt16(nscount), s);
             WriteUInt16NetworkOrder(Convert.ToUInt16(arcount), s);
         }
-    }
 
-    public class DnsDomainOffset
-    {
-        public DnsDomainOffset(ushort offset, string domain)
+        public class DnsDomainOffset
         {
-            Offset = offset;
-            Domain = domain;
-        }
+            public DnsDomainOffset(ushort offset, string domain)
+            {
+                Offset = offset;
+                Domain = domain;
+            }
 
-        public ushort Offset { get; }
-        public string Domain { get; }
+            public ushort Offset { get; }
+            public string Domain { get; }
+        }
     }
 }
