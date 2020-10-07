@@ -28,17 +28,17 @@ namespace Arashi.Aoi.Routes
             });
             endpoints.Map(Config.IpPerfix + "/json", async context =>
             {
-                var jObject = new JObject();
-                var asnCity = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
+                var (responseAsn, responseCity) = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
                     ? context.Request.Query["ip"].ToString()
                     : RealIP.Get(context));
-                var responseAsn = asnCity.Item1;
-                var responseCity = asnCity.Item2;
-                jObject.Add("IP", responseAsn.IPAddress);
-                jObject.Add("ASN", responseAsn.AutonomousSystemNumber);
-                jObject.Add("Organization", responseAsn.AutonomousSystemOrganization);
-                jObject.Add("CountryCode", responseCity.Country.IsoCode);
-                jObject.Add("Country", responseCity.Country.Name);
+                var jObject = new JObject
+                {
+                    {"IP", responseAsn.IPAddress},
+                    {"ASN", responseAsn.AutonomousSystemNumber},
+                    {"Organization", responseAsn.AutonomousSystemOrganization},
+                    {"CountryCode", responseCity.Country.IsoCode},
+                    {"Country", responseCity.Country.Name}
+                };
                 if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.IsoCode))
                     jObject.Add("ProvinceCode", responseCity.MostSpecificSubdivision.IsoCode);
                 if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.Name))

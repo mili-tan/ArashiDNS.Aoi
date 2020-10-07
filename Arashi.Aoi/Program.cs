@@ -96,31 +96,31 @@ namespace Arashi.Aoi
                 }
                 if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue())
                 {
-                    var SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+                    var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
                     Console.WriteLine("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
                     if (syncmmdbOption.HasValue())
                     {
-                        if (File.Exists(SetupBasePath+"GeoLite2-ASN.mmdb")) File.Delete(SetupBasePath + "GeoLite2-ASN.mmdb");
-                        if (File.Exists(SetupBasePath + "GeoLite2-City.mmdb")) File.Delete(SetupBasePath + "GeoLite2-City.mmdb");
+                        if (File.Exists(setupBasePath+"GeoLite2-ASN.mmdb")) File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
+                        if (File.Exists(setupBasePath + "GeoLite2-City.mmdb")) File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
-                    if (!File.Exists(SetupBasePath + "GeoLite2-ASN.mmdb"))
+                    if (!File.Exists(setupBasePath + "GeoLite2-ASN.mmdb"))
                         Task.Run(() =>
                         {
                             Console.WriteLine("Downloading GeoLite2-ASN.mmdb...");
                             new WebClient().DownloadFile(
                                 "https://gh.mili.one/" +
                                 "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb",
-                                SetupBasePath + "GeoLite2-ASN.mmdb");
+                                setupBasePath + "GeoLite2-ASN.mmdb");
                             Console.WriteLine("GeoLite2-ASN.mmdb Download Done");
                         });
-                    if (!File.Exists(SetupBasePath + "GeoLite2-City.mmdb"))
+                    if (!File.Exists(setupBasePath + "GeoLite2-City.mmdb"))
                         Task.Run(() =>
                         {
                             Console.WriteLine("Downloading GeoLite2-City.mmdb...");
                             new WebClient().DownloadFile(
                                 "https://gh.mili.one/" +
                                 "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb",
-                                SetupBasePath + "GeoLite2-City.mmdb");
+                                setupBasePath + "GeoLite2-City.mmdb");
                             Console.WriteLine("GeoLite2-City.mmdb Download Done");
                         });
                 }
