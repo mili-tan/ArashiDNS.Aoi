@@ -32,14 +32,11 @@ namespace Arashi.Azure
             if (loggerFactory != null) LoggerFactory = loggerFactory;
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
 
-            app.UseRouting().UseEndpoints(endpoints =>
+            app.UseRouting().UseEndpoints(endpoints => endpoints.MapGet("/", async context =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync(IndexStr);
-                });
-            }).UseEndpoints(DNSRoutes.DnsQueryRoute);
+                context.Response.ContentType = "text/html";
+                await context.Response.WriteAsync(IndexStr);
+            })).UseEndpoints(DNSRoutes.DnsQueryRoute);
 
             if (Config.UseIpRoute) app.UseEndpoints(IPRoutes.GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoutes.AdminRoute);
