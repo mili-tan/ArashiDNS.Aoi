@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ARSoft.Tools.Net.Dns;
 using static Arashi.Azure.DnsRecords;
 
 namespace Arashi.Azure
@@ -78,6 +79,63 @@ namespace Arashi.Azure
                 var additional = new List<RecordItem>(Convert.ToUInt16(jsonResponse.Additional.Count));
                 datagram.Additional = additional;
                 foreach (var jsonAdditionalRecord in jsonResponse.Additional)
+                    additional.Add(new RecordItem(jsonAdditionalRecord));
+            }
+
+            return datagram;
+        }
+
+        public static DnsDatagram ReadFromDnsMessage(DnsMessage dnsResponse)
+        {
+            DnsDatagram datagram = new DnsDatagram
+            {
+                QR = 1,//Is Response
+                OPCODE = 0,//StandardQuery
+                TC = (byte)(dnsResponse.IsTruncated ? 1 : 0),
+                RD = (byte)(dnsResponse.IsRecursionDesired ? 1 : 0),
+                RA = (byte)(dnsResponse.IsRecursionAllowed ? 1 : 0),
+                AD = (byte)(dnsResponse.IsAuthenticData ? 1 : 0),
+                CD = (byte)(dnsResponse.IsCheckingDisabled ? 1 : 0),
+                RCODE = (byte)dnsResponse.ReturnCode
+            };
+
+            if (dnsResponse.Questions == null)
+                datagram.Question = Array.Empty<QuestionItem>();
+            else
+            {
+                var question = new List<QuestionItem>(Convert.ToUInt16(dnsResponse.Questions.Count));
+                datagram.Question = question;
+                foreach (dynamic jsonQuestionRecord in dnsResponse.Questions)
+                    question.Add(new QuestionItem(jsonQuestionRecord));
+            }
+
+            if (dnsResponse.AnswerRecords == null)
+                datagram.Answer = Array.Empty<RecordItem>();
+            else
+            {
+                var answer = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AnswerRecords.Count));
+                datagram.Answer = answer;
+                foreach (var jsonAnswerRecord in dnsResponse.AnswerRecords)
+                    answer.Add(new RecordItem(jsonAnswerRecord));
+            }
+
+            if (dnsResponse.AuthorityRecords == null)
+                datagram.Authority = Array.Empty<RecordItem>();
+            else
+            {
+                var authority = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AuthorityRecords.Count));
+                datagram.Authority = authority;
+                foreach (var jsonAuthorityRecord in dnsResponse.AuthorityRecords)
+                    authority.Add(new RecordItem(jsonAuthorityRecord));
+            }
+
+            if (dnsResponse.AdditionalRecords == null)
+                datagram.Additional = Array.Empty<RecordItem>();
+            else
+            {
+                var additional = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AdditionalRecords.Count));
+                datagram.Additional = additional;
+                foreach (var jsonAdditionalRecord in dnsResponse.AdditionalRecords)
                     additional.Add(new RecordItem(jsonAdditionalRecord));
             }
 

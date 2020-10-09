@@ -77,6 +77,13 @@ namespace Arashi.Azure
                 Class = 1;
             }
 
+            public QuestionItem(DnsQuestion questionRecord)
+            {
+                Name = questionRecord.Name.ToString().TrimEnd('.');
+                Type = questionRecord.RecordType;
+                Class = 1;
+            }
+
             public void WriteTo(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries)
             {
                 DnsDatagram.SerializeDomainName(Name, s, domainEntries);
