@@ -54,20 +54,12 @@ namespace Arashi.Aoi.Routes
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
-                    {
-                        await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
-                        await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
-                    }
+                        await context.WriteResponseAsync(await DnsMsgToBytes(dnsMsg), type: "application/dns-message");
                 }
                 else
                 {
                     if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
-                    {
-                        await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
-                        await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
-                    }
+                        await context.WriteResponseAsync(await DnsMsgToBytes(dnsMsg), type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
@@ -78,6 +70,23 @@ namespace Arashi.Aoi.Routes
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+        }
+
+        public static async Task<byte[]> DnsMsgToBytes(DnsMessage dnsMsg)
+        {
+            try
+            {
+                await using var memoryStream = new MemoryStream();
+                DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
+                return memoryStream.ToArray();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await using var memoryStream = new MemoryStream();
+                DnsDatagram.ReadFromJson(DnsJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                return memoryStream.ToArray();
             }
         }
 
