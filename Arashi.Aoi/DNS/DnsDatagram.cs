@@ -30,7 +30,7 @@ namespace Arashi.Azure
 
         public static DnsDatagram ReadFromJson(dynamic jsonResponse)
         {
-            DnsDatagram datagram = new DnsDatagram
+            var datagram = new DnsDatagram
             {
                 QR = 1,//Is Response
                 OPCODE = 0,//StandardQuery
@@ -87,7 +87,11 @@ namespace Arashi.Azure
 
         public static DnsDatagram ReadFromDnsMessage(DnsMessage dnsResponse)
         {
-            DnsDatagram datagram = new DnsDatagram
+            dnsResponse.IsEDnsEnabled = false;
+            dnsResponse.EDnsOptions = null;
+            dnsResponse.TSigOptions = null;
+
+            var datagram = new DnsDatagram
             {
                 QR = 1,//Is Response
                 OPCODE = 0,//StandardQuery

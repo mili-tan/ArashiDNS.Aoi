@@ -56,7 +56,7 @@ namespace Arashi.Aoi.Routes
                     else
                     {
                         await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromJson(dnsMsg).WriteToUdp(memoryStream);
+                        DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
                         await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
                     }
                 }
@@ -65,7 +65,7 @@ namespace Arashi.Aoi.Routes
                     if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
                     {
                         await using var memoryStream = new MemoryStream();
-                        DnsDatagram.ReadFromJson(dnsMsg).WriteToUdp(memoryStream);
+                        DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
                         await context.WriteResponseAsync(memoryStream.ToArray(), type: "application/dns-message");
                     }
                     else
