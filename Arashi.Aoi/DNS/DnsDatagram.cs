@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using static Arashi.Azure.DnsRecords;
 
@@ -109,8 +111,8 @@ namespace Arashi.Azure
             {
                 var question = new List<QuestionItem>(Convert.ToUInt16(dnsResponse.Questions.Count));
                 datagram.Question = question;
-                foreach (dynamic jsonQuestionRecord in dnsResponse.Questions)
-                    question.Add(new QuestionItem(jsonQuestionRecord));
+                question.AddRange(from dynamic jsonQuestionRecord in dnsResponse.Questions
+                    select new QuestionItem(jsonQuestionRecord));
             }
 
             if (dnsResponse.AnswerRecords == null)
@@ -119,8 +121,11 @@ namespace Arashi.Azure
             {
                 var answer = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AnswerRecords.Count));
                 datagram.Answer = answer;
-                foreach (var jsonAnswerRecord in dnsResponse.AnswerRecords)
-                    answer.Add(new RecordItem(jsonAnswerRecord));
+                answer.AddRange(from jsonAnswerRecord in dnsResponse.AnswerRecords
+                    where !jsonAnswerRecord.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) &&
+                          !jsonAnswerRecord.Name.IsSubDomainOf(DomainName.Parse("nova-msg")) ||
+                          jsonAnswerRecord.RecordType != RecordType.Txt
+                    select new RecordItem(jsonAnswerRecord));
             }
 
             if (dnsResponse.AuthorityRecords == null)
@@ -129,8 +134,8 @@ namespace Arashi.Azure
             {
                 var authority = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AuthorityRecords.Count));
                 datagram.Authority = authority;
-                foreach (var jsonAuthorityRecord in dnsResponse.AuthorityRecords)
-                    authority.Add(new RecordItem(jsonAuthorityRecord));
+                authority.AddRange(dnsResponse.AuthorityRecords.Select(jsonAuthorityRecord =>
+                    new RecordItem(jsonAuthorityRecord)));
             }
 
             if (dnsResponse.AdditionalRecords == null)
@@ -139,8 +144,8 @@ namespace Arashi.Azure
             {
                 var additional = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AdditionalRecords.Count));
                 datagram.Additional = additional;
-                foreach (var jsonAdditionalRecord in dnsResponse.AdditionalRecords)
-                    additional.Add(new RecordItem(jsonAdditionalRecord));
+                additional.AddRange(dnsResponse.AdditionalRecords.Select(jsonAdditionalRecord =>
+                    new RecordItem(jsonAdditionalRecord)));
             }
 
             return datagram;
