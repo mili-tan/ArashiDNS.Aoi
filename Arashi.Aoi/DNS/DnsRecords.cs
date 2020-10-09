@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using ARSoft.Tools.Net.Dns;
+using ArDns = ARSoft.Tools.Net.Dns;
 
 namespace Arashi.Azure
 {
@@ -38,6 +39,27 @@ namespace Arashi.Azure
                 };
             }
 
+            public RecordItem(DnsRecordBase dnsRecord)
+            {
+                Name = dnsRecord.Name.ToString().TrimEnd('.');
+                Type = dnsRecord.RecordType;
+                Class = 1;//DnsClass.IN Internet 
+                Ttl = Convert.ToUInt16(dnsRecord.TimeToLive);
+                //Type = Enum.TryParse(jsonRecord.type, out RecordType type) ? type : (RecordType) jsonRecord.type;
+
+                Data = Type switch
+                {
+                    RecordType.A => new ARecord(dnsRecord),
+                    RecordType.Ns => new NsRecord(dnsRecord),
+                    RecordType.CName => new CnameRecord(dnsRecord),
+                    RecordType.Ptr => new PtrRecord(dnsRecord),
+                    RecordType.Mx => new MxRecord(dnsRecord),
+                    RecordType.Txt => new TxtRecord(dnsRecord),
+                    RecordType.Aaaa => new DnsAaaaRecord(dnsRecord),
+                    _ => new UnknownRecord(dnsRecord)
+                };
+            }
+
             public void WriteTo(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries)
             {
                 DnsDatagram.SerializeDomainName(Name, s, domainEntries);
@@ -49,14 +71,13 @@ namespace Arashi.Azure
         }
         public abstract class RecordData
         {
-            protected ushort Length;
             protected abstract void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries);
 
             public void WriteTo(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries)
             {
                 var originalPosition = s.Position;
                 s.Write(new byte[] { 0, 0 }, 0, 2);
-                WriteRecordData(s, domainEntries);//RDATA
+                WriteRecordData(s, domainEntries); //RDATA
                 var finalPosition = s.Position;
                 var length = Convert.ToUInt16(finalPosition - originalPosition - 2);
                 s.Position = originalPosition;
@@ -97,7 +118,6 @@ namespace Arashi.Azure
 
             public DnsAaaaRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Address = IPAddress.Parse(jsonRecord.data.Value);
             }
 
@@ -111,8 +131,12 @@ namespace Arashi.Azure
 
             public ARecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Address = IPAddress.Parse(jsonRecord.data.Value);
+            }
+
+            public ARecord(ArDns.ARecord dnsRecord)
+            {
+                Address = dnsRecord.Address;
             }
 
             protected override void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries) =>
@@ -125,7 +149,6 @@ namespace Arashi.Azure
 
             public CnameRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Domain = (jsonRecord.data.Value as string).TrimEnd('.');
             }
 
@@ -140,7 +163,6 @@ namespace Arashi.Azure
 
             public MxRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 var parts = (jsonRecord.data.Value as string).Split(' ');
                 Preference = ushort.Parse(parts[0]);
                 Exchange = parts[1].TrimEnd('.');
@@ -159,8 +181,12 @@ namespace Arashi.Azure
 
             public NsRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 NameServer = (jsonRecord.data.Value as string).TrimEnd('.');
+            }
+
+            public NsRecord(ArDns.NsRecord dnsRecord)
+            {
+                NameServer = dnsRecord.NameServer.ToString().TrimEnd('.');
             }
 
             protected override void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries) =>
@@ -173,8 +199,12 @@ namespace Arashi.Azure
 
             public PtrRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Domain = (jsonRecord.data.Value as string).TrimEnd('.');
+            }
+
+            public PtrRecord(ArDns.PtrRecord dnsRecord)
+            {
+                Domain = dnsRecord.PointerDomainName.ToString().TrimEnd('.');
             }
 
             protected override void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries) => DnsDatagram.SerializeDomainName(Domain, s, domainEntries);
@@ -186,8 +216,12 @@ namespace Arashi.Azure
 
             public TxtRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Text = DnsDatagram.DecodeCharacterString(jsonRecord.data.Value);
+            }
+
+            public TxtRecord(ArDns.TxtRecord dnsRecord)
+            {
+                Text = DnsDatagram.DecodeCharacterString(dnsRecord.TextData);
             }
 
             protected override void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries)
@@ -212,8 +246,12 @@ namespace Arashi.Azure
 
             public UnknownRecord(dynamic jsonRecord)
             {
-                Length = Convert.ToUInt16(jsonRecord.data.Value.Length);
                 Data = Encoding.ASCII.GetBytes(jsonRecord.data.Value as string);
+            }
+
+            public UnknownRecord(ArDns.UnknownRecord dnsRecord)
+            {
+                Data = dnsRecord.RecordData;
             }
 
             protected override void WriteRecordData(Stream s, List<DnsDatagram.DnsDomainOffset> domainEntries) => s.Write(Data, 0, Data.Length);
