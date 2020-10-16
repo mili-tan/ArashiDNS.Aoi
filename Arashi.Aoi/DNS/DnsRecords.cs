@@ -22,7 +22,7 @@ namespace Arashi.Azure
             {
                 Name = dnsRecord.Name.ToString().TrimEnd('.');
                 Type = dnsRecord.RecordType;
-                Class = 1;//DnsClass.IN Internet 
+                Class = 1; //DnsClass.IN Internet 
                 Ttl = Convert.ToUInt16(dnsRecord.TimeToLive);
                 //Type = Enum.TryParse(jsonRecord.type, out RecordType type) ? type : (RecordType) jsonRecord.type;
 
@@ -43,7 +43,7 @@ namespace Arashi.Azure
             {
                 Name = (jsonRecord.name.Value as string).TrimEnd('.');
                 Type = (RecordType)jsonRecord.type;
-                Class = 1;//DnsClass.IN Internet 
+                Class = 1; //DnsClass.IN Internet 
                 Ttl = jsonRecord.TTL;
                 //Type = Enum.TryParse(jsonRecord.type, out RecordType type) ? type : (RecordType) jsonRecord.type;
 

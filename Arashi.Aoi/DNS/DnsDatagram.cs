@@ -32,10 +32,10 @@ namespace Arashi.Azure
 
         public static DnsDatagram ReadFromJson(dynamic jsonResponse)
         {
-            var datagram = new DnsDatagram
+            var data = new DnsDatagram
             {
-                QR = 1,//Is Response
-                OPCODE = 0,//StandardQuery
+                QR = 1, //Is Response
+                OPCODE = 0, //StandardQuery
                 TC = (byte) (jsonResponse.TC.Value ? 1 : 0),
                 RD = (byte) (jsonResponse.RD.Value ? 1 : 0),
                 RA = (byte) (jsonResponse.RA.Value ? 1 : 0),
@@ -45,46 +45,46 @@ namespace Arashi.Azure
             };
 
             if (jsonResponse.Question == null)
-                datagram.Question = Array.Empty<QuestionItem>();
+                data.Question = Array.Empty<QuestionItem>();
             else
             {
                 var question = new List<QuestionItem>(Convert.ToUInt16(jsonResponse.Question.Count));
-                datagram.Question = question;
-                foreach (dynamic jsonQuestionRecord in jsonResponse.Question)
+                data.Question = question;
+                foreach (var jsonQuestionRecord in jsonResponse.Question)
                     question.Add(new QuestionItem(jsonQuestionRecord));
             }
 
             if (jsonResponse.Answer == null)
-                datagram.Answer = Array.Empty<RecordItem>();
+                data.Answer = Array.Empty<RecordItem>();
             else
             {
                 var answer = new List<RecordItem>(Convert.ToUInt16(jsonResponse.Answer.Count));
-                datagram.Answer = answer;
+                data.Answer = answer;
                 foreach (var jsonAnswerRecord in jsonResponse.Answer)
                     answer.Add(new RecordItem(jsonAnswerRecord));
             }
 
             if (jsonResponse.Authority == null)
-                datagram.Authority = Array.Empty<RecordItem>();
+                data.Authority = Array.Empty<RecordItem>();
             else
             {
                 var authority = new List<RecordItem>(Convert.ToUInt16(jsonResponse.Authority.Count));
-                datagram.Authority = authority;
+                data.Authority = authority;
                 foreach (var jsonAuthorityRecord in jsonResponse.Authority)
                     authority.Add(new RecordItem(jsonAuthorityRecord));
             }
 
             if (jsonResponse.Additional == null)
-                datagram.Additional = Array.Empty<RecordItem>();
+                data.Additional = Array.Empty<RecordItem>();
             else
             {
                 var additional = new List<RecordItem>(Convert.ToUInt16(jsonResponse.Additional.Count));
-                datagram.Additional = additional;
+                data.Additional = additional;
                 foreach (var jsonAdditionalRecord in jsonResponse.Additional)
                     additional.Add(new RecordItem(jsonAdditionalRecord));
             }
 
-            return datagram;
+            return data;
         }
 
         public static DnsDatagram ReadFromDnsMessage(DnsMessage dnsResponse)
@@ -93,34 +93,34 @@ namespace Arashi.Azure
             dnsResponse.EDnsOptions = null;
             dnsResponse.TSigOptions = null;
 
-            var datagram = new DnsDatagram
+            var data = new DnsDatagram
             {
-                QR = 1,//Is Response
-                OPCODE = 0,//StandardQuery
-                TC = (byte)(dnsResponse.IsTruncated ? 1 : 0),
-                RD = (byte)(dnsResponse.IsRecursionDesired ? 1 : 0),
-                RA = (byte)(dnsResponse.IsRecursionAllowed ? 1 : 0),
-                AD = (byte)(dnsResponse.IsAuthenticData ? 1 : 0),
-                CD = (byte)(dnsResponse.IsCheckingDisabled ? 1 : 0),
-                RCODE = (byte)dnsResponse.ReturnCode
+                QR = 1,
+                OPCODE = 0,
+                TC = (byte) (dnsResponse.IsTruncated ? 1 : 0),
+                RD = (byte) (dnsResponse.IsRecursionDesired ? 1 : 0),
+                RA = (byte) (dnsResponse.IsRecursionAllowed ? 1 : 0),
+                AD = (byte) (dnsResponse.IsAuthenticData ? 1 : 0),
+                CD = (byte) (dnsResponse.IsCheckingDisabled ? 1 : 0),
+                RCODE = (byte) dnsResponse.ReturnCode
             };
 
             if (dnsResponse.Questions == null)
-                datagram.Question = Array.Empty<QuestionItem>();
+                data.Question = Array.Empty<QuestionItem>();
             else
             {
                 var question = new List<QuestionItem>(Convert.ToUInt16(dnsResponse.Questions.Count));
-                datagram.Question = question;
+                data.Question = question;
                 question.AddRange(from dynamic jsonQuestionRecord in dnsResponse.Questions
                     select new QuestionItem(jsonQuestionRecord));
             }
 
             if (dnsResponse.AnswerRecords == null)
-                datagram.Answer = Array.Empty<RecordItem>();
+                data.Answer = Array.Empty<RecordItem>();
             else
             {
                 var answer = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AnswerRecords.Count));
-                datagram.Answer = answer;
+                data.Answer = answer;
                 answer.AddRange(from jsonAnswerRecord in dnsResponse.AnswerRecords
                     where !jsonAnswerRecord.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) &&
                           !jsonAnswerRecord.Name.IsSubDomainOf(DomainName.Parse("nova-msg")) ||
@@ -129,26 +129,26 @@ namespace Arashi.Azure
             }
 
             if (dnsResponse.AuthorityRecords == null)
-                datagram.Authority = Array.Empty<RecordItem>();
+                data.Authority = Array.Empty<RecordItem>();
             else
             {
                 var authority = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AuthorityRecords.Count));
-                datagram.Authority = authority;
+                data.Authority = authority;
                 authority.AddRange(dnsResponse.AuthorityRecords.Select(jsonAuthorityRecord =>
                     new RecordItem(jsonAuthorityRecord)));
             }
 
             if (dnsResponse.AdditionalRecords == null)
-                datagram.Additional = Array.Empty<RecordItem>();
+                data.Additional = Array.Empty<RecordItem>();
             else
             {
                 var additional = new List<RecordItem>(Convert.ToUInt16(dnsResponse.AdditionalRecords.Count));
-                datagram.Additional = additional;
+                data.Additional = additional;
                 additional.AddRange(dnsResponse.AdditionalRecords.Select(jsonAdditionalRecord =>
                     new RecordItem(jsonAdditionalRecord)));
             }
 
-            return datagram;
+            return data;
         }
 
         internal static void WriteUInt16NetworkOrder(ushort value, Stream s)
@@ -226,15 +226,15 @@ namespace Arashi.Azure
             foreach (var t in Additional) t.WriteTo(s, domainEntries);
         }
 
-        private void WriteHeaders(Stream s, int qdcount, int ancount, int nscount, int arcount)
+        private void WriteHeaders(Stream s, int qdCount, int anCount, int nsCount, int arCount)
         {
             WriteUInt16NetworkOrder(ID, s);
             s.WriteByte(Convert.ToByte((QR << 7) | (OPCODE << 3) | (AA << 2) | (TC << 1) | RD));
             s.WriteByte(Convert.ToByte((RA << 7) | (MZ << 6) | (AD << 5) | (CD << 4) | RCODE));
-            WriteUInt16NetworkOrder(Convert.ToUInt16(qdcount), s);
-            WriteUInt16NetworkOrder(Convert.ToUInt16(ancount), s);
-            WriteUInt16NetworkOrder(Convert.ToUInt16(nscount), s);
-            WriteUInt16NetworkOrder(Convert.ToUInt16(arcount), s);
+            WriteUInt16NetworkOrder(Convert.ToUInt16(qdCount), s);
+            WriteUInt16NetworkOrder(Convert.ToUInt16(anCount), s);
+            WriteUInt16NetworkOrder(Convert.ToUInt16(nsCount), s);
+            WriteUInt16NetworkOrder(Convert.ToUInt16(arCount), s);
         }
 
         public class DnsDomainOffset
