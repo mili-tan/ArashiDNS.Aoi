@@ -79,7 +79,7 @@ If you wish to disable it, please enter EDNS-Client-Subnet IP `0.0.0.0` in your 
 
 ## Feedback
 
-- Please kindly be informed that beginner-friendliness is not prioritized and a steep learning curve is expected.
+- As a beginner, I seek your kind understanding of the issues in the project.
 - If you have bug reports or feature request, please feel free to send issues.
 - PRs of new feature implementations or bug fixes are greatly appreciated.
 - I am not a native English speaker, so please forgive my typo and grammatical errors. Communication in Chinese is preferred if possible.
