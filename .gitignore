@@ -338,3 +338,4 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/Arashi.Azure/Properties/ServiceDependencies/arashi-eu - Web Deploy

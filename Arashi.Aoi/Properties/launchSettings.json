@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Arashi.Aoi": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

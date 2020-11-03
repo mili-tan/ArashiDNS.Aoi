@@ -6,6 +6,7 @@
     <AssemblyName>Arashi.Aoi</AssemblyName>
     <RootNamespace>Arashi.Aoi</RootNamespace>
     <PublishTrimmed>true</PublishTrimmed>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
     <PackageReference Include="ARSoft.Tools.Net" Version="2.2.9" />
     <PackageReference Include="IPNetwork2" Version="2.5.211" />
     <PackageReference Include="MaxMind.GeoIP2" Version="3.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
   </ItemGroup>
