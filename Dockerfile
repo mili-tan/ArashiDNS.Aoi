@@ -9,10 +9,10 @@ COPY ["Arashi.Aoi/Arashi.Aoi.csproj", "Arashi.Aoi/"]
 RUN dotnet restore "Arashi.Aoi/Arashi.Aoi.csproj"
 COPY . .
 WORKDIR "/src/Arashi.Aoi"
-RUN dotnet build "Arashi.Aoi.csproj" -c Release -o /app/build
+RUN dotnet build "Arashi.Aoi.csproj" -c Release -o /app/build --self-contained=false /p:PublishSingleFile=false /p:PublishTrimmed=false
 
 FROM build AS publish
-RUN dotnet publish "Arashi.Aoi.csproj" -c Release -o /app/publish
+RUN dotnet publish "Arashi.Aoi.csproj" -c Release -o /app/publish --self-contained=false /p:PublishSingleFile=false /p:PublishTrimmed=false
 
 FROM base AS final
 WORKDIR /app
