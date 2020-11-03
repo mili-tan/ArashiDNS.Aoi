@@ -18,4 +18,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 2020
-ENTRYPOINT ["dotnet", "Arashi.Aoi.dll"]
+ENTRYPOINT ["dotnet", "Arashi.Aoi.dll", "--listen", "0.0.0.0:2020"]
