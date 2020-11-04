@@ -111,7 +111,7 @@ namespace Arashi.Aoi
                             Console.WriteLine("Downloading GeoLite2-ASN.mmdb...");
                             new WebClient().DownloadFile(
                                 "https://gh.mili.one/" +
-                                "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb",
+                                "github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb",
                                 setupBasePath + "GeoLite2-ASN.mmdb");
                             Console.WriteLine("GeoLite2-ASN.mmdb Download Done");
                         });
@@ -121,7 +121,7 @@ namespace Arashi.Aoi
                             Console.WriteLine("Downloading GeoLite2-City.mmdb...");
                             new WebClient().DownloadFile(
                                 "https://gh.mili.one/" +
-                                "https:/github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb",
+                                "github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb",
                                 setupBasePath + "GeoLite2-City.mmdb");
                             Console.WriteLine("GeoLite2-City.mmdb Download Done");
                         });
