@@ -46,6 +46,7 @@ namespace Arashi.Aoi
             var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set your pfx certificate file path <./cert.pfx>[@<password>]",
                 CommandOptionType.SingleValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
+            var synccnlsOption = cmd.Option<string>("--synccnls", "Sync China White List", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
             var showOption = cmd.Option("--show", "Show current active configuration", CommandOptionType.NoValue);
             var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
@@ -57,6 +58,7 @@ namespace Arashi.Aoi
             ipipOption.ShowInHelpText = false;
             adminOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
+            synccnlsOption.ShowInHelpText = false;
 
             cmd.OnExecute(() =>
             {
@@ -123,6 +125,18 @@ namespace Arashi.Aoi
                                 setupBasePath + "GeoLite2-City.mmdb");
                             Console.WriteLine("GeoLite2-City.mmdb Download Done");
                         });
+                }
+
+                if (synccnlsOption.HasValue())
+                {
+                    Task.Run(() =>
+                    {
+                        Console.WriteLine("Downloading China_WhiteList.List...");
+                        new WebClient().DownloadFile(
+                            "https://mili.one/china_whitelist.txt",
+                            AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "china_whitelist.list");
+                        Console.WriteLine("China_WhiteList.List Download Done");
+                    });
                 }
 
                 if (Config.UseAdminRoute) Console.WriteLine(
