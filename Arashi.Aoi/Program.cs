@@ -130,7 +130,6 @@ namespace Arashi.Aoi
 
                 if (File.Exists("/.dockerenv"))
                 {
-                    Console.WriteLine("Running in Docker Container");
                     ipEndPoint.Address = IPAddress.Any;
                     try
                     {
@@ -176,7 +175,19 @@ namespace Arashi.Aoi
                 host.Run();
             });
 
-            cmd.Execute(args);
+            if (File.Exists("/.dockerenv"))
+            {
+                Console.WriteLine("Running in Docker Container");
+                try
+                {
+                    cmd.Execute(Environment.GetEnvironmentVariable("VAR").Split(' '));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Failed to get $VAR Environment Variable");
+                }
+            }
+            else cmd.Execute(args);
         }
     }
 }
