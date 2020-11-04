@@ -128,6 +128,20 @@ namespace Arashi.Aoi
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
+                if (File.Exists("/.dockerenv"))
+                {
+                    Console.WriteLine("Running in Docker Container");
+                    ipEndPoint.Address = IPAddress.Any;
+                    try
+                    {
+                        ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Failed to get $PORT Environment Variable");
+                    }
+                }
+
                 var host = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
