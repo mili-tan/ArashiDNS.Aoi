@@ -185,6 +185,7 @@ namespace Arashi.Aoi
                 catch (Exception)
                 {
                     Console.WriteLine("Failed to get $VAR Environment Variable");
+                    cmd.Execute(args);
                 }
             }
             else cmd.Execute(args);
