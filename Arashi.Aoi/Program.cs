@@ -147,10 +147,12 @@ namespace Arashi.Aoi
                     ipEndPoint.Address = IPAddress.Any;
                     try
                     {
-                        ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
+                        Console.WriteLine("$PORT:" + Environment.GetEnvironmentVariable("PORT"));
+                        //ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
                     }
                     catch (Exception)
                     {
+                        ipEndPoint.Port = 2020;
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
                 }
