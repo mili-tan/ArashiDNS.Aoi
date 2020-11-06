@@ -147,8 +147,9 @@ namespace Arashi.Aoi
                     ipEndPoint.Address = IPAddress.Any;
                     try
                     {
-                        Console.WriteLine("$PORT:" + Environment.GetEnvironmentVariable("PORT"));
-                        //ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
+                        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
+                            throw new Exception();
+                        ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
                     }
                     catch (Exception)
                     {
