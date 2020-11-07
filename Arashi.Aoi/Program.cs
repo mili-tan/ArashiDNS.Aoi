@@ -206,7 +206,18 @@ namespace Arashi.Aoi
                     cmd.Execute(args);
                 }
             }
-            else cmd.Execute(args);
+            else
+            {
+                try
+                {
+                    cmd.Execute(args);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    cmd.Execute();
+                }
+            }
         }
     }
 }
