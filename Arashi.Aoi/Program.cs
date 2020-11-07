@@ -153,7 +153,6 @@ namespace Arashi.Aoi
                     }
                     catch (Exception)
                     {
-                        ipEndPoint.Port = 2020;
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
                 }
@@ -197,6 +196,8 @@ namespace Arashi.Aoi
                 Console.WriteLine("Running in Docker Container");
                 try
                 {
+                    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VAR"))) 
+                        throw new Exception();
                     cmd.Execute(Environment.GetEnvironmentVariable("VAR").Split(' '));
                 }
                 catch (Exception)
