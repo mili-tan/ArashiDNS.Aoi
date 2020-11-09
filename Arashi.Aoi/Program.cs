@@ -142,10 +142,11 @@ namespace Arashi.Aoi
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
-                if (File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("") ||
-                    Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) ipEndPoint.Address = IPAddress.Any;
+                if ((File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("") ||
+                     Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) &&
+                    !ipOption.HasValue()) ipEndPoint.Address = IPAddress.Any;
 
-                if (Environment.GetEnvironmentVariables().Contains("PORT"))
+                if (Environment.GetEnvironmentVariables().Contains("PORT") && !ipOption.HasValue())
                     try
                     {
                         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
