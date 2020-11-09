@@ -142,9 +142,10 @@ namespace Arashi.Aoi
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
-                if (File.Exists("/.dockerenv"))
-                {
-                    ipEndPoint.Address = IPAddress.Any;
+                if (File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("") ||
+                    Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) ipEndPoint.Address = IPAddress.Any;
+
+                if (Environment.GetEnvironmentVariables().Contains("PORT"))
                     try
                     {
                         if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
@@ -155,7 +156,6 @@ namespace Arashi.Aoi
                     {
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
-                }
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
@@ -191,32 +191,23 @@ namespace Arashi.Aoi
                 host.Run();
             });
 
-            if (File.Exists("/.dockerenv"))
+            if (File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER"))
+                Console.WriteLine("ArashiDNS Running in Docker Container");
+            try
             {
-                Console.WriteLine("Running in Docker Container");
-                try
+                if (Environment.GetEnvironmentVariables().Contains("ARASHI_VAR"))
                 {
-                    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("VAR"))) 
+                    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARASHI_VAR")))
                         throw new Exception();
-                    cmd.Execute(Environment.GetEnvironmentVariable("VAR").Split(' '));
+                    cmd.Execute(Environment.GetEnvironmentVariable("ARASHI_VAR").Split(' '));
                 }
-                catch (Exception)
-                {
-                    Console.WriteLine("Failed to get $VAR Environment Variable");
+                else
                     cmd.Execute(args);
-                }
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    cmd.Execute(args);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    cmd.Execute();
-                }
+                Console.WriteLine(e);
+                cmd.Execute();
             }
         }
     }
