@@ -142,7 +142,8 @@ namespace Arashi.Aoi
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
-                if ((File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
+                if ((File.Exists("/.dockerenv") ||
+                     Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
                      Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) &&
                     !ipOption.HasValue()) ipEndPoint.Address = IPAddress.Any;
 
