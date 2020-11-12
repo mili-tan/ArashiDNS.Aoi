@@ -73,6 +73,24 @@ namespace Arashi.Aoi
                     : httpsOption.HasValue()
                         ? new IPEndPoint(IPAddress.Loopback, 443)
                         : new IPEndPoint(IPAddress.Loopback, 2020);
+
+                if ((File.Exists("/.dockerenv") ||
+                     Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
+                     Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) &&
+                    !ipOption.HasValue()) ipEndPoint.Address = IPAddress.Any;
+
+                if (Environment.GetEnvironmentVariables().Contains("PORT") && !ipOption.HasValue())
+                    try
+                    {
+                        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
+                            throw new Exception();
+                        ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Failed to get $PORT Environment Variable");
+                    }
+
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
@@ -142,23 +160,6 @@ namespace Arashi.Aoi
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
-                if ((File.Exists("/.dockerenv") ||
-                     Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
-                     Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) &&
-                    !ipOption.HasValue()) ipEndPoint.Address = IPAddress.Any;
-
-                if (Environment.GetEnvironmentVariables().Contains("PORT") && !ipOption.HasValue())
-                    try
-                    {
-                        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PORT")))
-                            throw new Exception();
-                        ipEndPoint.Port = Convert.ToInt32(Environment.GetEnvironmentVariable("PORT"));
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("Failed to get $PORT Environment Variable");
-                    }
-
                 var host = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
@@ -193,10 +194,11 @@ namespace Arashi.Aoi
                 host.Run();
             });
 
-            if (File.Exists("/.dockerenv") || Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER"))
-                Console.WriteLine("ArashiDNS Running in Docker Container");
             try
             {
+                if (File.Exists("/.dockerenv") ||
+                    Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER"))
+                    Console.WriteLine("ArashiDNS Running in Docker Container");
                 if (Environment.GetEnvironmentVariables().Contains("ARASHI_VAR"))
                 {
                     if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ARASHI_VAR")))
