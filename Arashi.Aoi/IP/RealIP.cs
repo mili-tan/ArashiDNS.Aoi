@@ -13,14 +13,14 @@ namespace Arashi.Kestrel
             try
             {
                 var request = context.Request;
+                if (request.Headers.ContainsKey("X-Forwarded-For"))
+                    return request.Headers["X-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault()?.Trim();
+                if (request.Headers.ContainsKey("X-Vercel-Forwarded-For"))
+                    return request.Headers["X-Vercel-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault().Trim();
                 if (request.Headers.ContainsKey("CF-Connecting-IP"))
                     return request.Headers["CF-Connecting-IP"].ToString();
                 if (request.Headers.ContainsKey("X-Real-IP"))
                     return request.Headers["X-Real-IP"].ToString();
-                if (request.Headers.ContainsKey("X-Real-IP"))
-                    return request.Headers["X-Real-IP"].ToString();
-                if (request.Headers.ContainsKey("X-Forwarded-For"))
-                    return (request.Headers["X-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault().Trim());
                 return context.Connection.RemoteIpAddress.ToString();
             }
             catch (Exception e)
