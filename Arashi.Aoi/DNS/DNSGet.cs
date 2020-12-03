@@ -16,7 +16,7 @@ namespace Arashi.Kestrel
             return Convert.FromBase64String(base64.Replace("-", "+").Replace("_", "/"));
         }
 
-        public static DnsMessage FromQueryContext(HttpContext context)
+        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true)
         {
             var queryDictionary = context.Request.Query;
             var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]), RecordType.A,
@@ -35,7 +35,7 @@ namespace Arashi.Kestrel
                 TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 99))
             };
             dnsQMsg.Questions.Add(dnsQuestion);
-            if (!Config.EcsEnable) return dnsQMsg;
+            if (!Config.EcsEnable || !ActiveEcs) return dnsQMsg;
             if (queryDictionary.ContainsKey("edns_client_subnet"))
             {
                 var ipStr = queryDictionary["edns_client_subnet"].ToString();
@@ -51,11 +51,11 @@ namespace Arashi.Kestrel
 
         public static DnsMessage FromWebBase64(string base64) => DnsMessage.Parse(DecodeWebBase64(base64));
 
-        public static DnsMessage FromWebBase64(HttpContext context)
+        public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true)
         {
             var queryDictionary = context.Request.Query;
             var msg = FromWebBase64(queryDictionary["dns"].ToString());
-            if (!Config.EcsEnable) return msg;
+            if (!Config.EcsEnable || !ActiveEcs) return msg;
             if (msg.IsEDnsEnabled && msg.EDnsOptions.Options.ToArray().OfType<ClientSubnetOption>().Any()) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
