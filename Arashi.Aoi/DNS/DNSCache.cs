@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.Caching;
-using System.Text;
 using Arashi.Kestrel;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
@@ -81,7 +79,27 @@ namespace Arashi
                 ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"
                 : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}";
             var cacheEntity = Get(getName);
-            dCacheMsg.AnswerRecords.AddRange(cacheEntity.List);
+            var ttl = Convert.ToInt32((cacheEntity.ExpiredTime - DateTime.Now).TotalSeconds);
+            foreach (var item in cacheEntity.List)
+            {
+                switch (item)
+                {
+                    case ARecord aRecord:
+                        dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name, ttl, aRecord.Address));
+                        break;
+                    case AaaaRecord aaaaRecord:
+                        dCacheMsg.AnswerRecords.Add(new AaaaRecord(aaaaRecord.Name, ttl, aaaaRecord.Address));
+                        break;
+                    case CNameRecord cNameRecord:
+                        dCacheMsg.AnswerRecords.Add(new CNameRecord(cNameRecord.Name, ttl, cNameRecord.CanonicalName));
+                        break;
+                    default:
+                        dCacheMsg.AnswerRecords.Add(item);
+                        break;
+                }
+            }
+
+            //dCacheMsg.AnswerRecords.AddRange(cacheEntity.List);
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
                 "ArashiDNS.P Cached"));
