@@ -24,7 +24,7 @@ namespace Arashi.Aoi.Routes
                     (current, item) =>
                         current +
                         $"{item.Key.ToUpper()}:" +
-                        $"{(item.Value as List<DnsRecordBase> ?? new List<DnsRecordBase> {new TxtRecord(DomainName.Parse("PASS"), 600, item.Value.ToString())}).FirstOrDefault()}" +
+                        $"{((item.Value as DnsCache.CacheEntity).List ?? new List<DnsRecordBase> {new TxtRecord(DomainName.Parse("PASS"), 600, item.Value.ToString())}).FirstOrDefault()}" +
                         Environment.NewLine));
             });
             endpoints.Map(Config.AdminPerfix + "/cache/keys", async context =>
