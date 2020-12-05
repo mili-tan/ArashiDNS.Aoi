@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Token.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Arashi.Aoi\Arashi.Aoi.csproj" />  
   </ItemGroup>
 
