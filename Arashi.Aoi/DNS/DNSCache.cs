@@ -82,28 +82,21 @@ namespace Arashi
             var ttl = Convert.ToInt32((cacheEntity.ExpiredTime - DateTime.Now).TotalSeconds);
             foreach (var item in cacheEntity.List)
             {
-                switch (item)
-                {
-                    case ARecord aRecord:
-                        dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name, ttl, aRecord.Address));
-                        break;
-                    case AaaaRecord aaaaRecord:
-                        dCacheMsg.AnswerRecords.Add(new AaaaRecord(aaaaRecord.Name, ttl, aaaaRecord.Address));
-                        break;
-                    case CNameRecord cNameRecord:
-                        dCacheMsg.AnswerRecords.Add(new CNameRecord(cNameRecord.Name, ttl, cNameRecord.CanonicalName));
-                        break;
-                    default:
-                        dCacheMsg.AnswerRecords.Add(item);
-                        break;
-                }
+                if (item is ARecord aRecord)
+                    dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name, ttl, aRecord.Address));
+                else if (item is AaaaRecord aaaaRecord)
+                    dCacheMsg.AnswerRecords.Add(new AaaaRecord(aaaaRecord.Name, ttl, aaaaRecord.Address));
+                else if (item is CNameRecord cNameRecord)
+                    dCacheMsg.AnswerRecords.Add(new CNameRecord(cNameRecord.Name, ttl, cNameRecord.CanonicalName));
+                else
+                    dCacheMsg.AnswerRecords.Add(item);
             }
 
-            //dCacheMsg.AnswerRecords.AddRange(cacheEntity.List);
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
+            //dCacheMsg.AnswerRecords.AddRange(cacheEntity.List);
+            //dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
+            //    "ArashiDNS.P Cached"));
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
-                "ArashiDNS.P Cached"));
-            dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.expires.arashi-msg"), 0,
                 cacheEntity.ExpiredTime.ToString("r")));
             return dCacheMsg;
         }
