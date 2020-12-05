@@ -85,8 +85,8 @@ namespace Arashi
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
                 "ArashiDNS.P Cached"));
-            dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.expired"), 0,
-                cacheEntity.ExpiredTime.ToString(CultureInfo.CurrentCulture)));
+            dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.expires.arashi-msg"), 0,
+                cacheEntity.ExpiredTime.ToString("r")));
             return dCacheMsg;
         }
 
