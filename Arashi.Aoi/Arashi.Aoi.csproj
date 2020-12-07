@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Arashi.Aoi</AssemblyName>
     <RootNamespace>Arashi.Aoi</RootNamespace>
     <PublishTrimmed>true</PublishTrimmed>
@@ -18,17 +18,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LettuceEncrypt" Version="1.0.0" />
+    <PackageReference Include="LettuceEncrypt" Version="1.0.1" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="ARSoft.Tools.Net" Version="2.2.9" />
-    <PackageReference Include="IPNetwork2" Version="2.5.211" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="3.2.0" />
+    <PackageReference Include="IPNetwork2" Version="2.5.240" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Runtime.Caching" Version="5.0.0-preview.3.20214.6" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
