@@ -3,7 +3,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["Arashi.Aoi/Arashi.Aoi.csproj", "Arashi.Aoi/"]
 RUN dotnet restore "Arashi.Aoi/Arashi.Aoi.csproj"
