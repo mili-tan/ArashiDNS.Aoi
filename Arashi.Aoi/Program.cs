@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Arashi.Azure;
@@ -66,6 +67,12 @@ namespace Arashi.Aoi
             adminOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
             synccnlsOption.ShowInHelpText = false;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                pemOption.ShowInHelpText = false;
+                keyOption.ShowInHelpText = false;
+            }
 
             cmd.OnExecute(() =>
             {
