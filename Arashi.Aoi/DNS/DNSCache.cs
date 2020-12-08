@@ -19,7 +19,7 @@ namespace Arashi
                     new CacheEntity
                     {
                         List = dnsMessage.AnswerRecords.ToList(),
-                        ExpiredTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                        Time = DateTime.Now, ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
                     }),
                 dnsRecordBase.TimeToLive);
         }
@@ -34,7 +34,8 @@ namespace Arashi
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
-                            ExpiredTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                            Time = DateTime.Now,
+                            ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
                         }),
                     dnsRecordBase.TimeToLive);
             else
@@ -42,7 +43,8 @@ namespace Arashi
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
-                            ExpiredTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                            Time = DateTime.Now,
+                            ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
                         }),
                     dnsRecordBase.TimeToLive);
         }
@@ -79,15 +81,21 @@ namespace Arashi
                 ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"
                 : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}";
             var cacheEntity = Get(getName);
-            var ttl = Convert.ToInt32((cacheEntity.ExpiredTime - DateTime.Now).TotalSeconds);
+            //var ttl = Convert.ToInt32((cacheEntity.ExpiredTime - DateTime.Now).TotalSeconds);
             foreach (var item in cacheEntity.List)
             {
                 if (item is ARecord aRecord)
-                    dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name, ttl, aRecord.Address));
+                    dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name,
+                        Convert.ToInt32((cacheEntity.Time.AddSeconds(item.TimeToLive) - DateTime.Now)
+                            .TotalSeconds), aRecord.Address));
                 else if (item is AaaaRecord aaaaRecord)
-                    dCacheMsg.AnswerRecords.Add(new AaaaRecord(aaaaRecord.Name, ttl, aaaaRecord.Address));
+                    dCacheMsg.AnswerRecords.Add(new AaaaRecord(aaaaRecord.Name,
+                        Convert.ToInt32((cacheEntity.Time.AddSeconds(item.TimeToLive) - DateTime.Now)
+                            .TotalSeconds), aaaaRecord.Address));
                 else if (item is CNameRecord cNameRecord)
-                    dCacheMsg.AnswerRecords.Add(new CNameRecord(cNameRecord.Name, ttl, cNameRecord.CanonicalName));
+                    dCacheMsg.AnswerRecords.Add(new CNameRecord(cNameRecord.Name,
+                        Convert.ToInt32((cacheEntity.Time.AddSeconds(item.TimeToLive) - DateTime.Now)
+                            .TotalSeconds), cNameRecord.CanonicalName));
                 else
                     dCacheMsg.AnswerRecords.Add(item);
             }
@@ -97,7 +105,7 @@ namespace Arashi
             //dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
             //    "ArashiDNS.P Cached"));
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
-                cacheEntity.ExpiredTime.ToString("r")));
+                cacheEntity.ExpiresTime.ToString("r")));
             return dCacheMsg;
         }
 
@@ -110,7 +118,8 @@ namespace Arashi
         public class CacheEntity
         {
             public List<DnsRecordBase> List;
-            public DateTime ExpiredTime;
+            public DateTime Time;
+            public DateTime ExpiresTime;
         }
     }
 }
