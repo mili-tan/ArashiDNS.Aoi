@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Arashi.Azure;
 using McMaster.Extensions.CommandLineUtils;
@@ -43,8 +44,14 @@ namespace Arashi.Aoi
             var chinaListOption = cmd.Option("-cn|--chinalist", "Set enable ChinaList", CommandOptionType.NoValue);
             var tcpOption = cmd.Option("--tcp", "Set enable upstream DNS query using TCP only", CommandOptionType.NoValue);
             var httpsOption = cmd.Option("-s|--https", "Set enable HTTPS", CommandOptionType.NoValue);
-            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set your pfx certificate file path <./cert.pfx>[@<password>]",
-                CommandOptionType.SingleValue);
+            var pfxOption = cmd.Option<string>("-pfx|--pfxfile <FilePath>", "Set your pfx certificate file path <./cert.pfx>",
+                CommandOptionType.SingleOrNoValue);
+            var pfxPassOption = cmd.Option<string>("-pass|--pfxpass <Password>", "Set your pfx certificate password <password>",
+                CommandOptionType.SingleOrNoValue);
+            var pemOption = cmd.Option<string>("-pem|--pemfile <FilePath>", "Set your pem certificate file path <./cert.pem>",
+                CommandOptionType.SingleOrNoValue);
+            var keyOption = cmd.Option<string>("-key|--keyfile <FilePath>", "Set your key certificate password <./cert.key>",
+                CommandOptionType.SingleOrNoValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var synccnlsOption = cmd.Option<string>("--synccnls", "Sync China White List", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
@@ -175,14 +182,14 @@ namespace Arashi.Aoi
                         {
                             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                             if (!httpsOption.HasValue()) return;
-                            if (!pfxOption.HasValue()) listenOptions.UseHttps();
-                            else
-                            {
-                                var pfxStrings = pfxOption.Value().Split('@');
-                                if (pfxStrings.Length > 1)
-                                    listenOptions.UseHttps(pfxStrings[0].Trim(), pfxStrings[1].Trim());
+                            if (!pfxOption.HasValue() && !pemOption.HasValue()) listenOptions.UseHttps();
+                            if (pfxOption.HasValue())
+                                if (pfxPassOption.HasValue())
+                                    listenOptions.UseHttps(pfxOption.Value(), pfxPassOption.Value());
                                 else listenOptions.UseHttps(pfxOption.Value());
-                            }
+                            if (pemOption.HasValue() && keyOption.HasValue())
+                                listenOptions.UseHttps(X509Certificate2.CreateFromPem(
+                                    File.ReadAllText(pemOption.Value()), File.ReadAllText(keyOption.Value())));
                         });
                     })
                     .UseStartup<Startup>()
