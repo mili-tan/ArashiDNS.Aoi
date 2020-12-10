@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
@@ -105,6 +107,7 @@ namespace Arashi.Aoi
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
 
+                if (PortIsUse(53)) Config.UpStream = IPAddress.Loopback.ToString();
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
@@ -227,6 +230,15 @@ namespace Arashi.Aoi
                 Console.WriteLine(e);
                 cmd.Execute();
             }
+        }
+
+        public static bool PortIsUse(int port)
+        {
+            IPEndPoint[] ipEndPointsTcp = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            IPEndPoint[] ipEndPointsUdp = IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners();
+
+            return ipEndPointsTcp.Any(endPoint => endPoint.Port == port)
+                   || ipEndPointsUdp.Any(endPoint => endPoint.Port == port);
         }
     }
 }
