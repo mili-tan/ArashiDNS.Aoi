@@ -58,10 +58,15 @@ namespace Arashi.Kestrel
             var queryDictionary = context.Request.Query;
             var msg = FromWebBase64(queryDictionary["dns"].ToString());
             if (!Config.EcsEnable || !ActiveEcs) return msg;
-            if (msg.IsEDnsEnabled && msg.EDnsOptions.Options.ToArray().OfType<ClientSubnetOption>().Any()) return msg;
+            if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
             return msg;
+        }
+
+        public static bool IsEcsEnable(DnsMessage msg)
+        {
+            return msg.IsEDnsEnabled && msg.EDnsOptions.Options.ToArray().OfType<ClientSubnetOption>().Any();
         }
     }
 }
