@@ -39,30 +39,28 @@ namespace Arashi
                         }),
                     dnsRecordBase.TimeToLive);
             else
-                try
-                {
-                    Add(new CacheItem(
-                            $"DNS:{GeoIP.GetGeoStr(RealIP.Get(context))}{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
-                            new CacheEntity
-                            {
-                                List = dnsMessage.AnswerRecords.ToList(),
-                                Time = DateTime.Now,
-                                ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
-                            }),
-                        dnsRecordBase.TimeToLive);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
-                            new CacheEntity
-                            {
-                                List = dnsMessage.AnswerRecords.ToList(),
-                                Time = DateTime.Now,
-                                ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
-                            }),
-                        dnsRecordBase.TimeToLive);
-                }
+                //try
+                //{
+                //    Add(new CacheItem(
+                //            $"DNS:{GeoIP.GetGeoStr(RealIP.Get(context))}{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                //            new CacheEntity
+                //            {
+                //                List = dnsMessage.AnswerRecords.ToList(),
+                //                Time = DateTime.Now,
+                //                ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                //            }),
+                //        dnsRecordBase.TimeToLive);
+                //}
+                //catch (Exception e)
+                //{
+                Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                        new CacheEntity
+                        {
+                            List = dnsMessage.AnswerRecords.ToList(),
+                            Time = DateTime.Now,
+                            ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                        }),
+                    dnsRecordBase.TimeToLive);
         }
 
         public static void Add(CacheItem cacheItem, int ttl)
