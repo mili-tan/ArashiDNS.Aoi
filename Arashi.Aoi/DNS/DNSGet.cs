@@ -16,7 +16,7 @@ namespace Arashi.Kestrel
             return Convert.FromBase64String(base64.Replace("-", "+").Replace("_", "/"));
         }
 
-        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true)
+        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true,byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
             var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]), RecordType.A,
@@ -39,7 +39,9 @@ namespace Arashi.Kestrel
             if (queryDictionary.ContainsKey("edns_client_subnet"))
             {
                 var ipStr = queryDictionary["edns_client_subnet"].ToString();
-                var ipNetwork = ipStr.Contains("/") ? IPNetwork.Parse(ipStr) : IPNetwork.Parse(ipStr, 24);
+                var ipNetwork = ipStr.Contains("/")
+                    ? IPNetwork.Parse(ipStr)
+                    : IPNetwork.Parse(ipStr, EcsDefaultMask);
                 dnsQMsg.EDnsOptions.Options.Add(new ClientSubnetOption(ipNetwork.Cidr, ipNetwork.Network));
             }
             else

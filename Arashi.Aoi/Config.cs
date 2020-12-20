@@ -11,6 +11,7 @@ namespace Arashi
         public string IpPerfix = "/ip";
         public int Retries = 4;
         public int TimeOut = 500;
+        public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
         public bool LogEnable = false;
         public bool FullLogEnable = false;

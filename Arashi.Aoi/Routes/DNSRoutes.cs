@@ -30,7 +30,8 @@ namespace Arashi.Aoi.Routes
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
                 else if (queryDictionary.ContainsKey("name"))
-                    await ReturnContext(context, false, DnsQuery(DNSGet.FromQueryContext(context), context));
+                    await ReturnContext(context, false,
+                        DnsQuery(DNSGet.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask), context));
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
