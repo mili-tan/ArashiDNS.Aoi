@@ -41,9 +41,9 @@ It is that easy. Use `--help` / `-?` to discover more parameters and get help in
 | `--tcp`                | Set enable upstream DNS query using TCP only                 |                               |
 | `--noecs`              | Set force disable active EDNS Client Subnet                  |                               |
 | `-s` / `--https`       | Set enable HTTPS (Self-Signed Certificate by default, **Not Recommended**) |                 |
-| `-pfx` / `--pfxfile`   | Set your .pfx certificate file path (with optional password) |"./cert.pfx"      |
-| `-pass` / `--pfxpass`   | Set your .pfx certificate password |"*passw0rd* "      |
-| `-pem` / `--pemfile`   | Set your .pem certificate file path|"./cert.pem"      |
+| `-pfx` / `--pfxfile`   | Set your pfx certificate file path (with optional password) |"./cert.pfx"      |
+| `-pass` / `--pfxpass`   | Set your pfx certificate password |"*passw0rd* "      |
+| `-pem` / `--pemfile`   | Set your pem certificate file path|"./cert.pem"      |
 | `-key` / `--keyfile`   | Set your pem certificate key file path|"./cert.key"      |
 ### Run in Background
 

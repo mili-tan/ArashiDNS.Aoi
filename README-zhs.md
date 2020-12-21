@@ -41,8 +41,11 @@
 | `--tcp`                | 启用向上游仅TCP查询                          |                               |
 | `--noecs`              | 强制停用主动EDNS Client Subnet               |                               |
 | `-s` / `--https`       | 启用 HTTPS（默认使用自签名证书，**不推荐**） |                               |
-| `-pfx` / `--pfxfile`   | 设置你的 .pfx 证书文件路径（可选传入密码） |"./cert.pfx *@passw0rd* "        |
 | `--chinalist` | 使用 DNSPod D+ 分流，需要目录中包含 `china_whitelist.list` |                          |
+| `-pfx` / `--pfxfile`   | 设置 pfx 证书文件路径（可选密码）。 |"./cert.pfx"      |
+| `-pass` / `--pfxpass`   | 设置 pfx 证书密码 |"*passw0rd* "      |
+| `-pem` / `--pemfile`   | 设置 pem 证书文件路径 |"./cert.pem"      |
+| `-key` / `--keyfile`   | 设置 pem 证书密钥文件路径 |"./cert.key"      |
 
 ### 后台运行
 
