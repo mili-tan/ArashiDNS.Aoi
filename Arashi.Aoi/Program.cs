@@ -62,6 +62,7 @@ namespace Arashi.Aoi
             var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
             var loadOption = cmd.Option<string>("--load:<FilePath>", "Load existing configuration from config.json file [./config.json]",
                 CommandOptionType.SingleOrNoValue);
+            var testOption = cmd.Option("-e|--test", "Exit after passing the test", CommandOptionType.NoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
@@ -225,7 +226,14 @@ namespace Arashi.Aoi
                     })
                     .UseStartup<Startup>()
                     .Build();
-
+                if (testOption.HasValue())
+                    Task.Run(() =>
+                    {
+                        for (int i = 0; i < 100; i++)
+                            if (PortIsUse(ipEndPoint.Port))
+                                host.StopAsync().Wait(5000);
+                        Environment.Exit(0);
+                    });
                 if (saveOption.HasValue())
                     File.WriteAllText("config.json", JsonConvert.SerializeObject(Config, Formatting.Indented));
                 if (showOption.HasValue()) Console.WriteLine(JsonConvert.SerializeObject(Config, Formatting.Indented));
