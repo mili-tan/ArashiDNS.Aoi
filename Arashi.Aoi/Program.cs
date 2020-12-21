@@ -53,7 +53,7 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleOrNoValue);
             var pemOption = cmd.Option<string>("-pem|--pemfile <FilePath>", "Set your pem certificate file path <./cert.pem>",
                 CommandOptionType.SingleOrNoValue);
-            var keyOption = cmd.Option<string>("-key|--keyfile <FilePath>", "Set your key certificate password <./cert.key>",
+            var keyOption = cmd.Option<string>("-key|--keyfile <FilePath>", "Set your pem certificate key file path <./cert.key>",
                 CommandOptionType.SingleOrNoValue);
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var synccnlsOption = cmd.Option<string>("--synccnls", "Sync China White List", CommandOptionType.NoValue);
