@@ -144,57 +144,18 @@ namespace Arashi.Aoi
                         if (File.Exists(setupBasePath + "GeoLite2-City.mmdb")) File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
 
-                    Console.Write("GeoLite2-ASN.mmdb Last updated: " +
-                                      new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc);
-                    if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb") &&
-                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc)
-                        .TotalDays > 7)
-                    {
-                        Console.WriteLine(
-                            $" : Expired {(DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc).TotalDays:0} days");
-                        File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
-                    }
-                    else Console.WriteLine();
-
-                    Console.Write("GeoLite2-City.mmdb Last updated: " +
-                                      new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc);
-                    if (File.Exists(setupBasePath + "GeoLite2-City.mmdb") &&
-                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc)
-                        .TotalDays > 7)
-                    {
-                        Console.WriteLine(
-                            $" : Expired {(DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc).TotalDays:0} days");
-                        File.Delete(setupBasePath + "GeoLite2-City.mmdb");
-                    }
-                    else Console.WriteLine();
-
-                    if (!File.Exists(setupBasePath + "GeoLite2-ASN.mmdb"))
-                        Task.Run(() =>
-                        {
-                            Console.WriteLine("Downloading GeoLite2-ASN.mmdb...");
-                            new WebClient().DownloadFile(Config.MaxmindAsnDbUrl, setupBasePath + "GeoLite2-ASN.mmdb");
-                            Console.WriteLine("GeoLite2-ASN.mmdb Download Done");
-                        });
-                    if (!File.Exists(setupBasePath + "GeoLite2-City.mmdb"))
-                        Task.Run(() =>
-                        {
-                            Console.WriteLine("Downloading GeoLite2-City.mmdb...");
-                            new WebClient().DownloadFile(Config.MaxmindCityDbUrl, setupBasePath + "GeoLite2-City.mmdb");
-                            Console.WriteLine("GeoLite2-City.mmdb Download Done");
-                        });
+                    GetFileUpdate("GeoLite2-ASN.mmdb", Config.MaxmindAsnDbUrl);
+                    GetFileUpdate("GeoLite2-City.mmdb", Config.MaxmindCityDbUrl);
                 }
 
                 if (synccnlsOption.HasValue())
                 {
-                    Task.Run(() =>
-                    {
-                        Console.WriteLine("Downloading China_WhiteList.List...");
-                        new WebClient().DownloadFile(
-                            "https://mili.one/china_whitelist.txt",
-                            AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "china_whitelist.list");
-                        Console.WriteLine("China_WhiteList.List Download Done");
-                    });
+                    if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
+                        File.Delete(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List");
+                    GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
                 }
+                else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
+                    GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
 
                 if (Config.UseAdminRoute) Console.WriteLine(
                     $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
@@ -268,6 +229,31 @@ namespace Arashi.Aoi
 
             return ipEndPointsTcp.Any(endPoint => endPoint.Port == port)
                    || ipEndPointsUdp.Any(endPoint => endPoint.Port == port);
+        }
+
+        public static void GetFileUpdate(string file, string url)
+        {
+            var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+            if (File.Exists(setupBasePath + file))
+                Console.Write(file + " Last updated: " + new FileInfo(setupBasePath + file).LastWriteTimeUtc);
+            else Console.Write(file + " Not Exist");
+            if (File.Exists(setupBasePath + file) &&
+                (DateTime.UtcNow - new FileInfo(setupBasePath + file).LastWriteTimeUtc)
+                .TotalDays > 7)
+            {
+                Console.WriteLine(
+                    $" : Expired {(DateTime.UtcNow - new FileInfo(setupBasePath + file).LastWriteTimeUtc).TotalDays:0} days");
+                File.Delete(setupBasePath + file);
+            }
+            else Console.WriteLine();
+
+            if (!File.Exists(setupBasePath + file))
+                Task.Run(() =>
+                {
+                    Console.WriteLine($"Downloading {file}...");
+                    new WebClient().DownloadFile(url, setupBasePath + file);
+                    Console.WriteLine(file + " Download Done");
+                });
         }
     }
 }
