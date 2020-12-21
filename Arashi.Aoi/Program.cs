@@ -143,23 +143,29 @@ namespace Arashi.Aoi
                         if (File.Exists(setupBasePath + "GeoLite2-City.mmdb")) File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
 
+                    Console.Write("GeoLite2-ASN.mmdb Last updated: " +
+                                      new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc);
                     if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb") &&
-                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").CreationTimeUtc)
+                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc)
                         .TotalDays > 7)
                     {
-                        Console.WriteLine("GeoLite2-ASN.mmdb Has Expired: " +
-                                          new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").CreationTimeUtc);
+                        Console.WriteLine(
+                            $" : Expired {(DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").LastWriteTimeUtc).TotalDays:0} days");
                         File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
                     }
+                    else Console.WriteLine();
 
+                    Console.Write("GeoLite2-City.mmdb Last updated: " +
+                                      new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc);
                     if (File.Exists(setupBasePath + "GeoLite2-City.mmdb") &&
-                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").CreationTimeUtc)
+                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc)
                         .TotalDays > 7)
                     {
-                        Console.WriteLine("GeoLite2-City.mmdb Has Expired" +
-                                          new FileInfo(setupBasePath + "GeoLite2-City.mmdb").CreationTimeUtc);
+                        Console.WriteLine(
+                            $" : Expired {(DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").LastWriteTimeUtc).TotalDays:0} days");
                         File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
+                    else Console.WriteLine();
 
                     if (!File.Exists(setupBasePath + "GeoLite2-ASN.mmdb"))
                         Task.Run(() =>
