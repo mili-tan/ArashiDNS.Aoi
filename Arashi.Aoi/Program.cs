@@ -131,33 +131,48 @@ namespace Arashi.Aoi
                     if (val == "full") Config.GeoCacheEnable = false;
                     if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
                 }
+
                 if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue())
                 {
                     var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-                    Console.WriteLine("This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
+                    Console.WriteLine(
+                        "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
                     if (syncmmdbOption.HasValue())
                     {
-                        if (File.Exists(setupBasePath+"GeoLite2-ASN.mmdb")) File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
+                        if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb")) File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
                         if (File.Exists(setupBasePath + "GeoLite2-City.mmdb")) File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
+
+                    if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb") &&
+                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").CreationTimeUtc)
+                        .TotalDays > 7)
+                    {
+                        Console.WriteLine("GeoLite2-ASN.mmdb Has Expired: " +
+                                          new FileInfo(setupBasePath + "GeoLite2-ASN.mmdb").CreationTimeUtc);
+                        File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
+                    }
+
+                    if (File.Exists(setupBasePath + "GeoLite2-City.mmdb") &&
+                        (DateTime.UtcNow - new FileInfo(setupBasePath + "GeoLite2-City.mmdb").CreationTimeUtc)
+                        .TotalDays > 7)
+                    {
+                        Console.WriteLine("GeoLite2-City.mmdb Has Expired" +
+                                          new FileInfo(setupBasePath + "GeoLite2-City.mmdb").CreationTimeUtc);
+                        File.Delete(setupBasePath + "GeoLite2-City.mmdb");
+                    }
+
                     if (!File.Exists(setupBasePath + "GeoLite2-ASN.mmdb"))
                         Task.Run(() =>
                         {
                             Console.WriteLine("Downloading GeoLite2-ASN.mmdb...");
-                            new WebClient().DownloadFile(
-                                "https://gh.mili.one/" +
-                                "github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb",
-                                setupBasePath + "GeoLite2-ASN.mmdb");
+                            new WebClient().DownloadFile(Config.MaxmindAsnDbUrl, setupBasePath + "GeoLite2-ASN.mmdb");
                             Console.WriteLine("GeoLite2-ASN.mmdb Download Done");
                         });
                     if (!File.Exists(setupBasePath + "GeoLite2-City.mmdb"))
                         Task.Run(() =>
                         {
                             Console.WriteLine("Downloading GeoLite2-City.mmdb...");
-                            new WebClient().DownloadFile(
-                                "https://gh.mili.one/" +
-                                "github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb",
-                                setupBasePath + "GeoLite2-City.mmdb");
+                            new WebClient().DownloadFile(Config.MaxmindCityDbUrl, setupBasePath + "GeoLite2-City.mmdb");
                             Console.WriteLine("GeoLite2-City.mmdb Download Done");
                         });
                 }
