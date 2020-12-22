@@ -236,7 +236,7 @@ namespace Arashi.Aoi
             var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
             if (File.Exists(setupBasePath + file))
                 Console.Write(file + " Last updated: " + new FileInfo(setupBasePath + file).LastWriteTimeUtc);
-            else Console.Write(file + " Not Exist");
+            else Console.Write(file + " Not Exist or being Updating");
             if (File.Exists(setupBasePath + file) &&
                 (DateTime.UtcNow - new FileInfo(setupBasePath + file).LastWriteTimeUtc)
                 .TotalDays > 7)
