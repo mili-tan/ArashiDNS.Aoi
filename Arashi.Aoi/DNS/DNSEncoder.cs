@@ -19,11 +19,17 @@ namespace Arashi
 
         public static byte[] Encode(DnsMessage dnsQMsg)
         {
+            dnsQMsg.IsRecursionAllowed = true;
+            dnsQMsg.IsRecursionDesired = true;
+            dnsQMsg.IsQuery = false;
+            dnsQMsg.IsEDnsEnabled = false;
+            dnsQMsg.AdditionalRecords.Clear();
+            
             if (info == null) Init();
             var args = new object[] {false, null};
             if (info != null) info.Invoke(dnsQMsg, args);
             var dnsBytes = args[1] as byte[];
-            if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
+            //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             return dnsBytes;
         }
     }
