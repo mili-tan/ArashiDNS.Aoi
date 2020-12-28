@@ -14,7 +14,7 @@ namespace Arashi.Azure
     {
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
         public static ILoggerFactory LoggerFactory;
-        public static HeaderDictionary HeaderDict = new HeaderDictionary();
+        public static HeaderDictionary HeaderDict = new();
         public static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
             : "Welcome to ArashiDNS.P ONE.Aoi Azure";

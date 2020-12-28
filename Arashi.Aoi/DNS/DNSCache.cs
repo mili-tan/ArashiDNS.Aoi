@@ -47,18 +47,6 @@ namespace Arashi
                             ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
                         }),
                     dnsRecordBase.TimeToLive);
-            //try
-            //{
-            //    Add(new CacheItem(
-            //            $"DNS:{GeoIP.GetGeoStr(RealIP.Get(context))}{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
-            //            new CacheEntity
-            //            {
-            //                List = dnsMessage.AnswerRecords.ToList(),
-            //                Time = DateTime.Now,
-            //                ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
-            //            }),
-            //        dnsRecordBase.TimeToLive);
-            //}
         }
 
         public static void Add(CacheItem cacheItem, int ttl)
@@ -93,7 +81,6 @@ namespace Arashi
                 ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}"
                 : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}";
             var cacheEntity = Get(getName);
-            //var ttl = Convert.ToInt32((cacheEntity.ExpiredTime - DateTime.Now).TotalSeconds);
             foreach (var item in cacheEntity.List)
             {
                 if (item is ARecord aRecord)
@@ -113,9 +100,6 @@ namespace Arashi
             }
 
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
-            //dCacheMsg.AnswerRecords.AddRange(cacheEntity.List);
-            //dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
-            //    "ArashiDNS.P Cached"));
             dCacheMsg.AnswerRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
                 cacheEntity.ExpiresTime.ToString("r")));
             return dCacheMsg;

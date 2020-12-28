@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
-using Newtonsoft.Json.Linq;
 
 namespace Arashi
 {
