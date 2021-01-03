@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,6 +9,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Timers;
 using Arashi.Azure;
+using Arashi.Kestrel;
+using ARSoft.Tools.Net;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -168,6 +171,10 @@ namespace Arashi.Aoi
                     {
                         timer.Interval = 3600000 * 24;
                         GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                        DNSChina.ChinaList = File.Exists(DNSChinaConfig.Config.ChinaListPath)
+                            ? File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
+                                .ConvertAll(DomainName.Parse)
+                            : new List<DomainName>();
                     };
                 }
                 else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
