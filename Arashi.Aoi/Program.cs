@@ -6,8 +6,8 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Arashi.Azure;
 using Arashi.Kestrel;
 using ARSoft.Tools.Net;
@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static Arashi.AoiConfig;
+using Timer = System.Timers.Timer;
 
 namespace Arashi.Aoi
 {
@@ -171,10 +172,19 @@ namespace Arashi.Aoi
                     {
                         timer.Interval = 3600000 * 24;
                         GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
-                        DNSChina.ChinaList = File.Exists(DNSChinaConfig.Config.ChinaListPath)
-                            ? File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
-                                .ConvertAll(DomainName.Parse)
-                            : new List<DomainName>();
+                        Task.Run(() =>
+                        {
+                            while (true)
+                            {
+                                if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
+                                {
+                                    File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
+                                        .ConvertAll(DomainName.Parse);
+                                    break;
+                                }
+                                Thread.Sleep(1000);
+                            }
+                        });
                     };
                 }
                 else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
