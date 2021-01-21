@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -114,7 +115,18 @@ namespace Arashi.Aoi
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
 
-                if (PortIsUse(53)) Config.UpStream = IPAddress.Loopback.ToString();
+                if (!Socket.OSSupportsIPv4)
+                {
+                    Config.UpStream = "2001:4860:4860::8888";
+                    Console.WriteLine("May run on IPv6 single stack network");
+                }
+
+                if (PortIsUse(53))
+                {
+                    Config.UpStream = IPAddress.Loopback.ToString();
+                    Console.WriteLine("Use localhost:53 dns server as upstream");
+                }
+
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
@@ -132,6 +144,7 @@ namespace Arashi.Aoi
                     if (val == "full") Config.FullLogEnable = true;
                     if (val == "none" || val == "null" || val == "off") Config.LogEnable = false;
                 }
+
                 if (cacheOption.HasValue() && !string.IsNullOrWhiteSpace(cacheOption.Value()))
                 {
                     var val = cacheOption.Value().ToLower().Trim();
@@ -146,13 +159,15 @@ namespace Arashi.Aoi
                         "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
                     if (syncmmdbOption.HasValue())
                     {
-                        if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb")) File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
-                        if (File.Exists(setupBasePath + "GeoLite2-City.mmdb")) File.Delete(setupBasePath + "GeoLite2-City.mmdb");
+                        if (File.Exists(setupBasePath + "GeoLite2-ASN.mmdb"))
+                            File.Delete(setupBasePath + "GeoLite2-ASN.mmdb");
+                        if (File.Exists(setupBasePath + "GeoLite2-City.mmdb"))
+                            File.Delete(setupBasePath + "GeoLite2-City.mmdb");
                     }
 
                     if (!noUpdateOption.HasValue())
                     {
-                        var timer = new Timer(100) { Enabled = true, AutoReset = true };
+                        var timer = new Timer(100) {Enabled = true, AutoReset = true};
                         timer.Elapsed += (_, _) =>
                         {
                             timer.Interval = 3600000 * 24;
@@ -181,6 +196,7 @@ namespace Arashi.Aoi
                                         .ConvertAll(DomainName.Parse);
                                     break;
                                 }
+
                                 Thread.Sleep(1000);
                             }
                         });
@@ -189,8 +205,9 @@ namespace Arashi.Aoi
                 else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
                     GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
 
-                if (Config.UseAdminRoute) Console.WriteLine(
-                    $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
+                if (Config.UseAdminRoute)
+                    Console.WriteLine(
+                        $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
