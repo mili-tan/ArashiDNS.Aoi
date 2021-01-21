@@ -115,7 +115,7 @@ namespace Arashi.Aoi
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
 
-                if (!Socket.OSSupportsIPv4)
+                if (IsIpv6Only())
                 {
                     Config.UpStream = "2001:4860:4860::8888";
                     Console.WriteLine("May run on IPv6 single stack network");
@@ -278,6 +278,12 @@ namespace Arashi.Aoi
 
             return ipEndPointsTcp.Any(endPoint => endPoint.Port == port)
                    || ipEndPointsUdp.Any(endPoint => endPoint.Port == port);
+        }
+
+        public static bool IsIpv6Only()
+        {
+            var addresses = Dns.GetHostAddresses(Dns.GetHostName());
+            return addresses.All(ip => IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6);
         }
 
         public static void GetFileUpdate(string file, string url)
