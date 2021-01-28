@@ -9,8 +9,8 @@ namespace Arashi
     public class GeoIP
     {
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-        public static DatabaseReader AsnReader = new DatabaseReader(SetupBasePath + "GeoLite2-ASN.mmdb");
-        public static DatabaseReader CityReader = new DatabaseReader(SetupBasePath + "GeoLite2-City.mmdb");
+        public static DatabaseReader AsnReader = new(SetupBasePath + "GeoLite2-ASN.mmdb");
+        public static DatabaseReader CityReader = new(SetupBasePath + "GeoLite2-City.mmdb");
         public static AsnResponse GetAsnResponse(string ipAddress) => AsnReader.Asn(ipAddress);
         public static CityResponse GetCityResponse(string ipAddress) => CityReader.City(ipAddress);
 
