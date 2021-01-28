@@ -1,5 +1,4 @@
-﻿using Arashi.Kestrel;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
 using static Arashi.AoiConfig;

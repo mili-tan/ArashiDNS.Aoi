@@ -114,7 +114,8 @@ namespace Arashi.Aoi
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
 
-                if (IsIpv6Only())
+                if (Dns.GetHostAddresses(Dns.GetHostName()).All(ip =>
+                    IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6))
                 {
                     Config.UpStream = "2001:4860:4860::8888";
                     Console.WriteLine("May run on IPv6 single stack network");
@@ -272,17 +273,11 @@ namespace Arashi.Aoi
 
         public static bool PortIsUse(int port)
         {
-            IPEndPoint[] ipEndPointsTcp = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
-            IPEndPoint[] ipEndPointsUdp = IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners();
+            var ipEndPointsTcp = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            var ipEndPointsUdp = IPGlobalProperties.GetIPGlobalProperties().GetActiveUdpListeners();
 
             return ipEndPointsTcp.Any(endPoint => endPoint.Port == port)
                    || ipEndPointsUdp.Any(endPoint => endPoint.Port == port);
-        }
-
-        public static bool IsIpv6Only()
-        {
-            var addresses = Dns.GetHostAddresses(Dns.GetHostName());
-            return addresses.All(ip => IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6);
         }
 
         public static void GetFileUpdate(string file, string url)

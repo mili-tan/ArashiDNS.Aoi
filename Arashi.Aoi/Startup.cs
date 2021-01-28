@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using static Arashi.AoiConfig;
 
-namespace Arashi.Azure
+namespace Arashi
 {
     public class Startup
     {

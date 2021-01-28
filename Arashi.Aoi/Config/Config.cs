@@ -4,7 +4,7 @@ namespace Arashi
 {
     public class AoiConfig
     {
-        public static AoiConfig Config = new AoiConfig();
+        public static AoiConfig Config = new();
         public string UpStream = "8.8.8.8";
         public string QueryPerfix = "/dns-query";
         public string AdminPerfix = "/dns-admin";

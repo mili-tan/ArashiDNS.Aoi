@@ -6,7 +6,7 @@ using System.Net;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 
-namespace Arashi.Aoi
+namespace Arashi
 {
     class DNSChina
     {

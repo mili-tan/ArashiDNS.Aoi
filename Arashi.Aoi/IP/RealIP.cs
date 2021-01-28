@@ -4,7 +4,7 @@ using System.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
 
-namespace Arashi.Kestrel
+namespace Arashi
 {
     public class RealIP
     {
