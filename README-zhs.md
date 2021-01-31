@@ -22,6 +22,8 @@
 
 如果你得到了 `Permission denied`，请运行 `chmod +x ./Arashi.Aoi` 来给予可执行权限。
 
+或者使用 Docker。`docker run milkey/arashidns.aoi`
+
 就这么简单，使用 `--help` / `-?` 来探索更多参数和获取帮助信息。
 
 ## 介绍
@@ -46,6 +48,17 @@
 | `-pass` / `--pfxpass`   | 设置 pfx 证书密码 |"*passw0rd* "      |
 | `-pem` / `--pemfile`   | 设置 pem 证书文件路径 |"./cert.pem"      |
 | `-key` / `--keyfile`   | 设置 pem 证书密钥文件路径 |"./cert.key"      |
+
+### 环境变量
+
+通常只有在容器环境（如Docker）中运行时才需要设置它们，而且一般只需要设置 `ARASHI_VAR` 和 `PORT`。
+
+| 变量                          | 说明                                           | 示例                |
+| ----------------------------- | ---------------------------------------------- | ------------------- |
+| `PORT`                        | 设置服务器监听端口                             | 2020                |
+| `ARASHI_ANY`                  | 设置服务器监听任意地址（0.0.0.0）              | true                |
+| `ARASHI_VAR`                  | 设置启动参数（见上文）                         | `-u 127.0.0.1 -r 3` |
+| `ARASHI_RUNNING_IN_CONTAINER` | 只在没能正确识别容器环境情况下，才需要手动设置 | true                |
 
 ### 后台运行
 

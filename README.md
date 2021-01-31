@@ -58,7 +58,7 @@ And generally only `ARASHI_VAR`  and `PORT` need to be set.
 | ----------------------------- | ------------------------------------------------------------ | -------------------------- |
 | `PORT`                        | Set the server listening port                                | 2020                       |
 | `ARASHI_ANY`                  | Set the server listening any address                         | true                       |
-| `ARASHI_VAR`                  | Set start-up parameters (see above)                          | `-u 127.0.0.1 -t 100`      |
+| `ARASHI_VAR`                  | Set start-up parameters (see above)                          | `-u 127.0.0.1 -r 3`        |
 | `ARASHI_RUNNING_IN_CONTAINER` | Manual setting is required only if the container is not identified | true                 |
 
 ### Run in Background
