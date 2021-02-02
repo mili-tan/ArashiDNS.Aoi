@@ -136,6 +136,12 @@ namespace Arashi.Aoi.Routes
                     else DnsCache.Add(dnsMessage);
                 });
 
+            if (Config.RankEnable)
+                Task.Run(() =>
+                {
+                    var name = dnsMessage.AnswerRecords.FirstOrDefault().Name;
+                });
+
             if (Config.LogEnable)
                 Task.Run(() =>
                 {
