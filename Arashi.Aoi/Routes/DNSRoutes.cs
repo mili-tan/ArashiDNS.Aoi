@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Arashi.Aoi.DNS;
 using Arashi.Azure;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
@@ -139,7 +140,7 @@ namespace Arashi.Aoi.Routes
             if (Config.RankEnable)
                 Task.Run(() =>
                 {
-                    var name = dnsMessage.AnswerRecords.FirstOrDefault().Name;
+                    DNSRank.AddUp(dnsMessage.AnswerRecords.FirstOrDefault().Name);
                 });
 
             if (Config.LogEnable)
