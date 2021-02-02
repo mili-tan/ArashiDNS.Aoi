@@ -7,25 +7,19 @@ namespace Arashi.Aoi.DNS
     class DNSRank
     {
         private static LiteDatabase database = new(@"rank.db");
-        private static ILiteCollection<Rank> collection = database.GetCollection<Rank>("FullRank");
-        private class Rank
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public int Count { get; set; }
-        }
+        private static ILiteCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("FullRank");
 
         public static void AddUp(DomainName name)
         {
-            var find = collection.Find(x => x.Name == name.ToString()).ToList();
+            var find = collection.Find(x => x["Name"] == name.ToString()).ToList();
             if (find.Any())
             {
-                find.FirstOrDefault().Count += 1;
+                find.FirstOrDefault()["Count"] += 1;
                 collection.Update(find.FirstOrDefault());
             }
             else
             {
-                collection.Insert(new Rank {Name = name.ToString(), Count = 1});
+                collection.Insert(new BsonDocument { ["Name"] = name.ToString(), ["Count"] = 1 });
             }
         }
     }
