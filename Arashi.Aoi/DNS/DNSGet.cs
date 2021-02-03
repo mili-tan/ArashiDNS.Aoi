@@ -46,7 +46,7 @@ namespace Arashi
             }
             else
                 dnsQMsg.EDnsOptions.Options.Add(
-                    new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
+                    new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context).ToString(), 24).Network));
 
             return dnsQMsg;
         }
@@ -60,7 +60,7 @@ namespace Arashi
             if (!Config.EcsEnable || !ActiveEcs) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
-            msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context), 24).Network));
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context).ToString(), 24).Network));
             return msg;
         }
 

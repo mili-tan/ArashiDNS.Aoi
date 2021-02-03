@@ -8,57 +8,57 @@ namespace Arashi
 {
     public class RealIP
     {
-        public static string Get(HttpContext context)
+        public static IPAddress Get(HttpContext context)
         {
             try
             {
                 var request = context.Request;
                 if (request.Headers.ContainsKey("X-Forwarded-For"))
-                    return request.Headers["X-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault()?.Trim();
+                    return IPAddress.Parse(request.Headers["X-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault()?.Trim());
                 if (request.Headers.ContainsKey("X-Vercel-Forwarded-For"))
-                    return request.Headers["X-Vercel-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault().Trim();
+                    return IPAddress.Parse(request.Headers["X-Vercel-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault().Trim());
                 if (request.Headers.ContainsKey("CF-Connecting-IP"))
-                    return request.Headers["CF-Connecting-IP"].ToString();
+                    return IPAddress.Parse(request.Headers["CF-Connecting-IP"].ToString());
                 if (request.Headers.ContainsKey("X-Real-IP"))
-                    return request.Headers["X-Real-IP"].ToString();
-                return context.Connection.RemoteIpAddress.ToString();
+                    return IPAddress.Parse(request.Headers["X-Real-IP"].ToString());
+                return context.Connection.RemoteIpAddress;
             }
             catch (Exception e)
             {
                 try
                 {
                     Console.WriteLine(e);
-                    return context.Connection.RemoteIpAddress.ToString();
+                    return context.Connection.RemoteIpAddress;
                 }
                 catch (Exception)
                 {
-                    return IPAddress.Any.ToString();
+                    return IPAddress.Any;
                 }
             }
         }
 
-        public static string GetFromDns(DnsMessage dnsMsg, HttpContext context)
+        public static IPAddress GetFromDns(DnsMessage dnsMsg, HttpContext context)
         {
             if (!dnsMsg.IsEDnsEnabled) return Get(context);
             foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
             {
                 if (eDnsOptionBase is ClientSubnetOption option)
-                    return option.Address.ToString();
+                    return option.Address;
             }
 
             return Get(context);
         }
 
-        public static bool TryGetFromDns(DnsMessage dnsMsg, out string ipAddress)
+        public static bool TryGetFromDns(DnsMessage dnsMsg, out IPAddress ipAddress)
         {
-            ipAddress = IPAddress.Any.ToString();
+            ipAddress = IPAddress.Any;
 
             if (!dnsMsg.IsEDnsEnabled) return false;
             foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
             {
                 if (!(eDnsOptionBase is ClientSubnetOption option)) continue;
-                ipAddress = option.Address.ToString();
-                return true;
+                ipAddress = option.Address;
+                return !Equals(option.Address, IPAddress.Any) && !Equals(option.Address, IPAddress.Loopback);
             }
 
             return false;

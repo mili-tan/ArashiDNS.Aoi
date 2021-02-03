@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Net;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
 using static Arashi.AoiConfig;
@@ -15,7 +16,7 @@ namespace Arashi.Aoi.Routes
             {
                 var jObject = new JObject
                 {
-                    {"IP", RealIP.Get(context)}, {"UserHostAddress", context.Connection.RemoteIpAddress.ToString()}
+                    {"IP", RealIP.Get(context).ToString()}, {"UserHostAddress", context.Connection.RemoteIpAddress.ToString()}
                 };
                 if (context.Request.Headers.TryGetValue("X-Forwarded-For", out var xFwdValue))
                     jObject.Add("X-Forwarded-For", xFwdValue.ToString());
@@ -28,7 +29,7 @@ namespace Arashi.Aoi.Routes
             endpoints.Map(Config.IpPerfix + "/json", async context =>
             {
                 var (responseAsn, responseCity) = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
-                    ? context.Request.Query["ip"].ToString()
+                    ? IPAddress.Parse(context.Request.Query["ip"].ToString())
                     : RealIP.Get(context));
                 var jObject = new JObject
                 {

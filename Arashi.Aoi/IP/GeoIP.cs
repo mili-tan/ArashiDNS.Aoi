@@ -11,10 +11,10 @@ namespace Arashi
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
         public static DatabaseReader AsnReader = new(SetupBasePath + "GeoLite2-ASN.mmdb");
         public static DatabaseReader CityReader = new(SetupBasePath + "GeoLite2-City.mmdb");
-        public static AsnResponse GetAsnResponse(string ipAddress) => AsnReader.Asn(ipAddress);
-        public static CityResponse GetCityResponse(string ipAddress) => CityReader.City(ipAddress);
+        public static AsnResponse GetAsnResponse(IPAddress ipAddress) => AsnReader.Asn(ipAddress);
+        public static CityResponse GetCityResponse(IPAddress ipAddress) => CityReader.City(ipAddress);
 
-        public static (AsnResponse, CityResponse) GetAsnCityValueTuple(string ipAddress)
+        public static (AsnResponse, CityResponse) GetAsnCityValueTuple(IPAddress ipAddress)
         {
             var asn = new AsnResponse();
             var city = new CityResponse();
@@ -48,11 +48,11 @@ namespace Arashi
             return string.Empty;
         }
 
-        public static string GetGeoStr(string ipAddress)
+        public static string GetGeoStr(IPAddress ipAddress)
         {
             try
             {
-                if (!IPAddress.TryParse(ipAddress, out var ip) || IPAddress.IsLoopback(ip) || Equals(ip, IPAddress.Any))
+                if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
                     return string.Empty;
                 var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
                 var cnIsp = GetCnISP(asnResponse, cityResponse);

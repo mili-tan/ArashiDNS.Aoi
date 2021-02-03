@@ -10,10 +10,9 @@ namespace Arashi.Aoi.DNS
 {
     class DNSRank
     {
-        private static LiteDatabase database = new(@"rank.db");
-        private static ILiteCollection<BsonDocument> collection = database.GetCollection<BsonDocument>("FullRank");
-        private static ILiteCollection<BsonDocument> geoCollection = database.GetCollection<BsonDocument>("GeoRank");
-
+        public static LiteDatabase Database = new(@"rank.db");
+        private static ILiteCollection<BsonDocument> collection = Database.GetCollection<BsonDocument>("FullRank");
+        private static ILiteCollection<BsonDocument> geoCollection = Database.GetCollection<BsonDocument>("GeoRank");
 
         public static void AddUp(DomainName name)
         {
@@ -36,7 +35,7 @@ namespace Arashi.Aoi.DNS
                 if (dnsMessage.AnswerRecords.Count <= 0) return;
                 var name = dnsMessage.AnswerRecords.FirstOrDefault().Name;
                 if (!RealIP.TryGetFromDns(dnsMessage, out var ipaddr)) ipaddr = RealIP.Get(context);
-                if (string.IsNullOrWhiteSpace(ipaddr) || ipaddr == IPAddress.Any.ToString()) return;
+                if (Equals(ipaddr, IPAddress.Any) || IPAddress.IsLoopback(ipaddr)) return;
                 var asn = GeoIP.AsnReader.Asn(ipaddr).AutonomousSystemNumber.ToString();
                 var country = GeoIP.CityReader.City(ipaddr).Country.IsoCode;
                 var find = geoCollection
