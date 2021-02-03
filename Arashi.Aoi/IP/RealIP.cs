@@ -25,8 +25,15 @@ namespace Arashi
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                return context.Connection.RemoteIpAddress.ToString();
+                try
+                {
+                    Console.WriteLine(e);
+                    return context.Connection.RemoteIpAddress.ToString();
+                }
+                catch (Exception)
+                {
+                    return IPAddress.Any.ToString();
+                }
             }
         }
 
@@ -42,9 +49,10 @@ namespace Arashi
             return Get(context);
         }
 
-        public static bool TryGetFromDns(DnsMessage dnsMsg,out string ipAddress)
+        public static bool TryGetFromDns(DnsMessage dnsMsg, out string ipAddress)
         {
             ipAddress = IPAddress.Any.ToString();
+
             if (!dnsMsg.IsEDnsEnabled) return false;
             foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
             {
