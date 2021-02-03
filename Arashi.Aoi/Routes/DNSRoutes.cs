@@ -141,7 +141,7 @@ namespace Arashi.Aoi.Routes
                 Task.Run(() =>
                 {
                     DNSRank.AddUp(dnsMessage.AnswerRecords.FirstOrDefault().Name);
-                    if (context != null && Config.GeoCacheEnable) DNSRank.AddUpGeo(dnsMessage, context);
+                    //if (context != null && Config.GeoCacheEnable) DNSRank.AddUpGeo(dnsMessage, context);
                 });
 
             if (Config.LogEnable)
