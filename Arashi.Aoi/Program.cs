@@ -153,7 +153,7 @@ namespace Arashi.Aoi
                     if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
                 }
 
-                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue())
+                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() || Config.RankEnable)
                 {
                     var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
                     Console.WriteLine(
