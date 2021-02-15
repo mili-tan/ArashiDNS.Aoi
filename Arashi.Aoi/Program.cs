@@ -254,6 +254,7 @@ namespace Arashi.Aoi
             try
             {
                 if (File.Exists("/.dockerenv") ||
+                    Environment.GetEnvironmentVariables().Contains("DOTNET_RUNNING_IN_CONTAINER") ||
                     Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER"))
                     Console.WriteLine("ArashiDNS Running in Docker Container");
                 if (Environment.GetEnvironmentVariables().Contains("ARASHI_VAR"))
