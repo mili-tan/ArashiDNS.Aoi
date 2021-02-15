@@ -21,6 +21,8 @@ namespace Arashi
 
         public static byte[] Encode(DnsMessage dnsMsg)
         {
+            if (info == null) Init();
+
             dnsMsg.IsRecursionAllowed = true;
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
@@ -33,12 +35,23 @@ namespace Arashi
                  item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt))
                 dnsMsg.AnswerRecords.Remove(item);
 
-            if (info == null) Init();
+            //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             var args = new object[] {false, null};
             if (info != null) info.Invoke(dnsMsg, args);
-            var dnsBytes = args[1] as byte[];
-            //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
-            return dnsBytes;
+            return bytesTrimEnd(args[1] as byte[]);
+        }
+
+        private static byte[] bytesTrimEnd(byte[] bytes)
+        {
+            var list = bytes.ToList();
+            for (var i = bytes.Length - 1; i >= 0; i--)
+            {
+                if (bytes[i] == 0x00)
+                    list.RemoveAt(i);
+                else
+                    break;
+            }
+            return list.ToArray();
         }
     }
 }
