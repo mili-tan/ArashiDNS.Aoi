@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
@@ -30,9 +31,10 @@ namespace Arashi
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
 
-            foreach (var item in dnsMsg.AnswerRecords.Where(item =>
-                (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt))
+
+            foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
+                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))))
                 dnsMsg.AnswerRecords.Remove(item);
 
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
