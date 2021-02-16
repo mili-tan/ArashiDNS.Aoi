@@ -55,12 +55,12 @@ namespace Arashi.Aoi.Routes
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
-                        await context.WriteResponseAsync(await DnsMsgToBytes(dnsMsg), type: "application/dns-message");
+                        await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
                 }
                 else
                 {
                     if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
-                        await context.WriteResponseAsync(await DnsMsgToBytes(dnsMsg), type: "application/dns-message");
+                        await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
