@@ -24,24 +24,24 @@ namespace Arashi.Aoi.Routes
                         current +
                         $"{item.Key.ToUpper()}:" +
                         $"{((item.Value as DnsCache.CacheEntity).List ?? new List<DnsRecordBase> {new TxtRecord(DomainName.Parse("PASS"), 600, item.Value.ToString())}).FirstOrDefault()}" +
-                        Environment.NewLine));
+                        Environment.NewLine), headers: Startup.HeaderDict);
             });
             endpoints.Map(Config.AdminPerfix + "/cache/keys", async context =>
             {
                 if (!await CheckAdminToken(context)) return;
                 await context.WriteResponseAsync(string.Join(Environment.NewLine,
-                    MemoryCache.Default.Select(item => $"{item.Key}:{item.Value}").ToList()));
+                    MemoryCache.Default.Select(item => $"{item.Key}:{item.Value}").ToList()), headers: Startup.HeaderDict);
             });
             endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
             {
                 if (!await CheckAdminToken(context)) return;
-                await context.WriteResponseAsync(string.Join(Environment.NewLine, DNSChina.ChinaList));
+                await context.WriteResponseAsync(string.Join(Environment.NewLine, DNSChina.ChinaList), headers: Startup.HeaderDict);
             });
             endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
                 if (!await CheckAdminToken(context)) return;
                 MemoryCache.Default.Trim(100);
-                await context.WriteResponseAsync("Trim OK");
+                await context.WriteResponseAsync("Trim OK", headers: Startup.HeaderDict);
             });
             endpoints.Map(Config.AdminPerfix + "/set-token", async context =>
             {
@@ -58,9 +58,9 @@ namespace Arashi.Aoi.Routes
                         });
                     await context.WriteResponseAsync(
                         "<!DOCTYPE html><html><script language=\"javascript\">window.opener=null;window.close();</script></html>",
-                        type: "text/html");
+                        type: "text/html", headers: Startup.HeaderDict);
                 }
-                else await context.WriteResponseAsync("Token Required", StatusCodes.Status400BadRequest);
+                else await context.WriteResponseAsync("Token Required", StatusCodes.Status400BadRequest, headers: Startup.HeaderDict);
             });
         }
 
@@ -69,7 +69,7 @@ namespace Arashi.Aoi.Routes
             if (context.Request.Cookies.TryGetValue("atoken", out var tokenValue) &&
                 tokenValue.Equals(Config.AdminToken) && Config.UseAdminRoute) return true;
             context.Response.ContentType = "text/plain";
-            await context.WriteResponseAsync("Token NotFound", StatusCodes.Status404NotFound);
+            await context.WriteResponseAsync("Token NotFound", StatusCodes.Status404NotFound, headers: Startup.HeaderDict);
             return false;
         }
     }
