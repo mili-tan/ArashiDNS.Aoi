@@ -111,10 +111,15 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(IPAddress.Parse(Config.UpStream), dnsMessage);
+            return DnsQuery(IPEndPoint.Parse(Config.UpStream), dnsMessage);
         }
 
-        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage)
+        public static DnsMessage DnsQuery(IPEndPoint ipEndPoint, DnsMessage dnsMessage)
+        {
+            return DnsQuery(ipEndPoint.Address, dnsMessage, ipEndPoint.Port == 0 ? 53 : ipEndPoint.Port);
+        }
+
+        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53)
         {
             var client = new DnsClient(ipAddress, Config.TimeOut)
                 {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
@@ -124,7 +129,7 @@ namespace Arashi.Aoi.Routes
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, Config.TimeOut)
+            return new DnsClient(ipAddress, Config.TimeOut, port)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 

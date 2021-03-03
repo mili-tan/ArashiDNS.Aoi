@@ -121,7 +121,7 @@ namespace Arashi.Aoi
                     Console.WriteLine("May run on IPv6 single stack network");
                 }
 
-                if (PortIsUse(53))
+                if (PortIsUse(53) && !upOption.HasValue())
                 {
                     Config.UpStream = IPAddress.Loopback.ToString();
                     Console.WriteLine("Use localhost:53 dns server as upstream");
