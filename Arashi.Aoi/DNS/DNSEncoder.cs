@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,11 +14,12 @@ namespace Arashi
 
         public static void Init()
         {
-            Parallel.ForEach(new DnsMessage().GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic), mInfo =>
-            {
-                if (mInfo.ToString() == "Int32 Encode(Boolean, Byte[] ByRef)")
-                    info = mInfo;
-            });
+            Parallel.ForEach(new DnsMessage().GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic),
+                mInfo =>
+                {
+                    if (mInfo.ToString() == "Int32 Encode(Boolean, Byte[] ByRef)")
+                        info = mInfo;
+                });
         }
 
         public static byte[] Encode(DnsMessage dnsMsg)
@@ -30,7 +32,6 @@ namespace Arashi
             dnsMsg.TransactionID = 0;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
-
 
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
                 item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
@@ -53,7 +54,19 @@ namespace Arashi
                 else
                     break;
             }
+
             return list.ToArray();
+        }
+
+        public static byte[] EncodeQuery(DnsMessage dnsQMsg)
+        {
+            if (info == null) Init();
+            dnsQMsg.IsRecursionAllowed = true;
+            dnsQMsg.IsRecursionDesired = true;
+            dnsQMsg.TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 10));
+            var args = new object[] {false, null};
+            info.Invoke(dnsQMsg, args);
+            return args[1] as byte[];
         }
     }
 }
