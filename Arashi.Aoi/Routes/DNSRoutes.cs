@@ -92,16 +92,13 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(IPEndPoint.Parse(Config.UpStream), dnsMessage);
-        }
-
-        public static DnsMessage DnsQuery(IPEndPoint ipEndPoint, DnsMessage dnsMessage)
-        {
-            return DnsQuery(ipEndPoint.Address, dnsMessage, ipEndPoint.Port == 0 ? 53 : ipEndPoint.Port);
+            var ipEndPoint = IPEndPoint.Parse(Config.UpStream);
+            return DnsQuery(ipEndPoint.Address, dnsMessage, ipEndPoint.Port);
         }
 
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53)
         {
+            if (port == 0) port = 53;
             var client = new DnsClient(ipAddress, Config.TimeOut)
                 {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
             for (var i = 0; i < Config.Retries; i++)
