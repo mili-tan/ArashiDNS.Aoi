@@ -13,7 +13,7 @@ namespace Arashi
         public int TimeOut = 500;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
-        public bool RankEnable = true;
+        public bool RankEnable = false;
         public bool LogEnable = false;
         public bool FullLogEnable = false;
         public bool ChinaListEnable = true;

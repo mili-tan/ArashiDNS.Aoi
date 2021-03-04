@@ -17,6 +17,7 @@ namespace Arashi.Azure
         public static void Main(string[] args)
         {
             Config = new AoiConfig();
+            Config.RankEnable = true;
 
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
