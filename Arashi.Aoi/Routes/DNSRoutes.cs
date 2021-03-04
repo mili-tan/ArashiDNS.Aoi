@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Aoi.DNS;
-using Arashi.Azure;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -71,23 +69,6 @@ namespace Arashi.Aoi.Routes
             catch (Exception e)
             {
                 Console.WriteLine(e);
-            }
-        }
-
-        public static async Task<byte[]> DnsMsgToBytes(DnsMessage dnsMsg)
-        {
-            try
-            {
-                await using var memoryStream = new MemoryStream();
-                DnsDatagram.ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
-                return memoryStream.ToArray();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                await using var memoryStream = new MemoryStream();
-                DnsDatagram.ReadFromJson(DnsJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
-                return memoryStream.ToArray();
             }
         }
 

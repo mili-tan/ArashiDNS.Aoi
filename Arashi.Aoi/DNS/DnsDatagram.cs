@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using ArDns = ARSoft.Tools.Net.Dns;
@@ -30,6 +31,23 @@ namespace Arashi.Azure
         IReadOnlyList<DnsRecords.RecordItem> Additional;
 
         private DnsDatagram() { }
+
+        public static async Task<byte[]> DnsMsgToBytes(DnsMessage dnsMsg)
+        {
+            try
+            {
+                await using var memoryStream = new MemoryStream();
+                ReadFromDnsMessage(dnsMsg).WriteToUdp(memoryStream);
+                return memoryStream.ToArray();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await using var memoryStream = new MemoryStream();
+                ReadFromJson(DnsJsonEncoder.Encode(dnsMsg)).WriteToUdp(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
 
         public static DnsDatagram ReadFromJson(dynamic jsonResponse)
         {
