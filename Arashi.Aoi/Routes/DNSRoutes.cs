@@ -26,10 +26,13 @@ namespace Arashi.Aoi.Routes
                         DnsQuery(DnsMessage.Parse((await context.Request.BodyReader.ReadAsync()).Buffer.ToArray()),
                             context));
                 else if (queryDictionary.ContainsKey("dns"))
-                    await ReturnContext(context, true, DnsQuery(DNSGet.FromWebBase64(context), context));
+                    await ReturnContext(context, true,
+                        DnsQuery(DNSGet.FromWebBase64(context),
+                            context));
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
-                        DnsQuery(DNSGet.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask), context));
+                        DnsQuery(DNSGet.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask),
+                            context));
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
@@ -43,13 +46,14 @@ namespace Arashi.Aoi.Routes
                 var queryDictionary = context.Request.Query;
                 if (dnsMsg == null)
                 {
-                    await context.WriteResponseAsync("Remote DNS server timeout", StatusCodes.Status500InternalServerError);
+                    await context.WriteResponseAsync("Remote DNS server timeout",
+                        StatusCodes.Status500InternalServerError);
                     return;
                 }
 
                 if (returnMsg)
                 {
-                    if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("json"))
+                    if (GetClientType(queryDictionary, "json"))
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
@@ -57,7 +61,7 @@ namespace Arashi.Aoi.Routes
                 }
                 else
                 {
-                    if (queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains("message"))
+                    if (GetClientType(queryDictionary, "message"))
                         await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
@@ -109,6 +113,11 @@ namespace Arashi.Aoi.Routes
 
             return new DnsClient(ipAddress, Config.TimeOut, port)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
+        }
+
+        public static bool GetClientType(IQueryCollection queryDictionary, string key)
+        {
+            return queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains(key);
         }
 
         public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
