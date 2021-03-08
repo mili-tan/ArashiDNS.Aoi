@@ -99,7 +99,6 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-
             return DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
                    DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
