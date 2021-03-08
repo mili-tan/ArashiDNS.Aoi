@@ -16,6 +16,9 @@ namespace Arashi.Aoi.Routes
 {
     class DNSRoutes
     {
+        public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
+        public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
+
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
         {
             endpoints.Map(Config.QueryPerfix, async context =>
@@ -96,14 +99,15 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            var ipEndPoint = IPEndPoint.Parse(Config.UpStream);
-            return DnsQuery(ipEndPoint.Address, dnsMessage, ipEndPoint.Port);
+
+            return DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                   DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
 
-        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53)
+        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
         {
             if (port == 0) port = 53;
-            var client = new DnsClient(ipAddress, Config.TimeOut)
+            var client = new DnsClient(ipAddress, timeout)
                 {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
             for (var i = 0; i < Config.Retries; i++)
             {
@@ -111,7 +115,7 @@ namespace Arashi.Aoi.Routes
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, Config.TimeOut, port)
+            return new DnsClient(ipAddress, timeout, port)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 

@@ -6,11 +6,12 @@ namespace Arashi
     {
         public static AoiConfig Config = new();
         public string UpStream = "8.8.8.8";
+        public string BackUpStream = "8.8.4.4";
         public string QueryPerfix = "/dns-query";
         public string AdminPerfix = "/dns-admin";
         public string IpPerfix = "/ip";
         public int Retries = 4;
-        public int TimeOut = 500;
+        public int TimeOut = 250;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
         public bool RankEnable = false;

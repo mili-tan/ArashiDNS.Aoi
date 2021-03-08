@@ -38,6 +38,8 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var upOption = cmd.Option<string>("-u|--upstream <IPAddress>", "Set upstream origin DNS server IP address <8.8.8.8>",
                 CommandOptionType.SingleValue);
+            var buOption = cmd.Option<string>("-b|--backupstream <IPAddress>", "Set backup upstream DNS server IP address <8.8.8.8>",
+                CommandOptionType.SingleValue);
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set timeout for query to upstream DNS server <500>",
                 CommandOptionType.SingleValue);
             var retriesOption = cmd.Option<int>("-r|--retries <Int>", "Set number of retries for query to upstream DNS server <5>",
@@ -118,6 +120,7 @@ namespace Arashi.Aoi
                     IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6))
                 {
                     Config.UpStream = "2001:4860:4860::8888";
+                    Config.BackUpStream = "2001:4860:4860::8844";
                     Console.WriteLine("May run on IPv6 single stack network");
                 }
 
@@ -128,6 +131,7 @@ namespace Arashi.Aoi
                 }
 
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
+                if (buOption.HasValue()) Config.BackUpStream = buOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
