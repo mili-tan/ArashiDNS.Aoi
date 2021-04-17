@@ -30,11 +30,11 @@ namespace Arashi.Aoi.Routes
                             context));
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true,
-                        DnsQuery(DNSGet.FromWebBase64(context),
+                        DnsQuery(DNSParser.FromWebBase64(context),
                             context));
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
-                        DnsQuery(DNSGet.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask),
+                        DnsQuery(DNSParser.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask),
                             context));
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");

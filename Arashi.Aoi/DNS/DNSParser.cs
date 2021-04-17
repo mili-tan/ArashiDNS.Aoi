@@ -8,14 +8,8 @@ using static Arashi.AoiConfig;
 
 namespace Arashi
 {
-    class DNSGet
+    class DNSParser
     {
-        public static byte[] DecodeWebBase64(string base64)
-        {
-            if (base64.Length % 4 > 0) base64 = base64.PadRight(base64.Length + 4 - base64.Length % 4, '=');
-            return Convert.FromBase64String(base64.Replace("-", "+").Replace("_", "/"));
-        }
-
         public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
@@ -68,6 +62,11 @@ namespace Arashi
         public static bool IsEcsEnable(DnsMessage msg)
         {
             return msg.IsEDnsEnabled && msg.EDnsOptions.Options.ToArray().OfType<ClientSubnetOption>().Any();
+        }
+        public static byte[] DecodeWebBase64(string base64)
+        {
+            if (base64.Length % 4 > 0) base64 = base64.PadRight(base64.Length + 4 - base64.Length % 4, '=');
+            return Convert.FromBase64String(base64.Replace("-", "+").Replace("_", "/"));
         }
     }
 }
