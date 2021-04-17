@@ -16,7 +16,7 @@ namespace Arashi
             return Convert.FromBase64String(base64.Replace("-", "+").Replace("_", "/"));
         }
 
-        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true,byte EcsDefaultMask = 24)
+        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
             var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]), RecordType.A,
@@ -35,7 +35,8 @@ namespace Arashi
                 TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 99))
             };
             dnsQMsg.Questions.Add(dnsQuestion);
-            if (!Config.EcsEnable || !ActiveEcs) return dnsQMsg;
+            if (!Config.EcsEnable || !ActiveEcs || queryDictionary.ContainsKey("no-ecs")) return dnsQMsg;
+
             if (queryDictionary.ContainsKey("edns_client_subnet"))
             {
                 var ipStr = queryDictionary["edns_client_subnet"].ToString();
@@ -57,7 +58,7 @@ namespace Arashi
         {
             var queryDictionary = context.Request.Query;
             var msg = FromWebBase64(queryDictionary["dns"].ToString());
-            if (!Config.EcsEnable || !ActiveEcs) return msg;
+            if (!Config.EcsEnable || !ActiveEcs || queryDictionary.ContainsKey("no-ecs")) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context).ToString(), 24).Network));
