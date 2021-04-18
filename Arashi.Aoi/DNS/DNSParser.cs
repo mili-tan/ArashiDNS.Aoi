@@ -41,21 +41,23 @@ namespace Arashi
             }
             else
                 dnsQMsg.EDnsOptions.Options.Add(
-                    new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context).ToString(), 24).Network));
+                    new ClientSubnetOption(EcsDefaultMask,
+                        IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
 
             return dnsQMsg;
         }
 
         public static DnsMessage FromWebBase64(string base64) => DnsMessage.Parse(DecodeWebBase64(base64));
 
-        public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true)
+        public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
             var msg = FromWebBase64(queryDictionary["dns"].ToString());
             if (!Config.EcsEnable || !ActiveEcs || queryDictionary.ContainsKey("no-ecs")) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
-            msg.EDnsOptions.Options.Add(new ClientSubnetOption(24, IPNetwork.Parse(RealIP.Get(context).ToString(), 24).Network));
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
+                IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
             return msg;
         }
 
