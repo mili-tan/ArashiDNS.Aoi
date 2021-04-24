@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Buffers;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +12,7 @@ namespace Arashi
 {
     class DNSParser
     {
-        public static DnsMessage FromQueryContext(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
+        public static DnsMessage FromDnsJson(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
             var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]), RecordType.A,
@@ -51,9 +53,20 @@ namespace Arashi
 
         public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
-            var queryDictionary = context.Request.Query;
-            var msg = FromWebBase64(queryDictionary["dns"].ToString());
-            if (!Config.EcsEnable || !ActiveEcs || queryDictionary.ContainsKey("no-ecs")) return msg;
+            var msg = FromWebBase64(context.Request.Query["dns"].ToString());
+            if (!Config.EcsEnable || !ActiveEcs || context.Request.Query.ContainsKey("no-ecs")) return msg;
+            if (IsEcsEnable(msg)) return msg;
+            if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
+                IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
+            return msg;
+        }
+
+        public static async Task<DnsMessage> FromPostByteAsync(HttpContext context, bool ActiveEcs = true,
+            byte EcsDefaultMask = 24)
+        {
+            var msg = DnsMessage.Parse((await context.Request.BodyReader.ReadAsync()).Buffer.ToArray());
+            if (!Config.EcsEnable || !ActiveEcs || context.Request.Query.ContainsKey("no-ecs")) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,

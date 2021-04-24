@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -26,7 +25,7 @@ namespace Arashi.Aoi.Routes
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST")
                     await ReturnContext(context, true,
-                        DnsQuery(DnsMessage.Parse((await context.Request.BodyReader.ReadAsync()).Buffer.ToArray()),
+                        DnsQuery(await DNSParser.FromPostByteAsync(context, ActiveEcs: false),
                             context));
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true,
@@ -34,7 +33,7 @@ namespace Arashi.Aoi.Routes
                             context));
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
-                        DnsQuery(DNSParser.FromQueryContext(context, EcsDefaultMask: Config.EcsDefaultMask),
+                        DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask),
                             context));
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
