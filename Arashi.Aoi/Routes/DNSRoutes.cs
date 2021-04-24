@@ -25,7 +25,7 @@ namespace Arashi.Aoi.Routes
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST")
                     await ReturnContext(context, true,
-                        DnsQuery(await DNSParser.FromPostByteAsync(context, ActiveEcs: false),
+                        DnsQuery(await DNSParser.FromPostByteAsync(context),
                             context));
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true,
