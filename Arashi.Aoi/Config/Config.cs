@@ -17,7 +17,7 @@ namespace Arashi
         public bool RankEnable = false;
         public bool LogEnable = false;
         public bool FullLogEnable = false;
-        public bool ChinaListEnable = true;
+        public bool ChinaListEnable = false;
         public bool OnlyTcpEnable = false;
         public bool UseIpRoute = true;
         public bool UseAdminRoute = true;
