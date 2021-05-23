@@ -20,11 +20,9 @@ namespace Arashi
             ? "http://119.29.29.29/d?dn={0}&ttl=1"
             : "http://dopx.netlify.app/d?dn={0}&ttl=1";
 
-        private static bool IsIpv6Only()
-        {
-            return Dns.GetHostAddresses(Dns.GetHostName()).All(ip =>
+        private static bool IsIpv6Only() =>
+            Dns.GetHostAddresses(Dns.GetHostName()).All(ip =>
                 IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6);
-        }
     }
 
 }
