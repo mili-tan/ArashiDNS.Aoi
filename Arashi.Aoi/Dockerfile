@@ -18,4 +18,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 EXPOSE 2020
-ENTRYPOINT ["dotnet", "Arashi.Aoi.dll"]
+#ENTRYPOINT ["dotnet", "Arashi.Aoi.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet Arashi.Aoi.dll
