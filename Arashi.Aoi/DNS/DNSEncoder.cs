@@ -29,7 +29,7 @@ namespace Arashi
             dnsMsg.IsRecursionAllowed = true;
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
-            dnsMsg.TransactionID = 0;
+            //dnsMsg.TransactionID = 0;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
 

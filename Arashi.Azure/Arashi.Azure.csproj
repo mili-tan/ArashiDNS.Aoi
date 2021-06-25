@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Arashi.Azure</RootNamespace>
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
