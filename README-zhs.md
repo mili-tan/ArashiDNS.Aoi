@@ -1,6 +1,6 @@
 
 <p align="center">
-          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://mili.one/pics/arashiaoi1.png' width="50%" height="50%"/></a></p>
+          <a href='https://github.com/mili-tan/ArashiDNS.Aoi'><img src='https://mili.one/pics/ArashiAoi1.png' width="50%" height="50%"/></a></p>
 <p align="center">
           <a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zhs.md'><img src='https://mili.one/shields/zh-Hans-README.svg' alt='中文简体 Readme' referrerPolicy='no-referrer' /></a>
           <!--- a href='https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/README-zht.md'><img src='https://mili.one/shields/zh-Hant-README.svg' alt='中文繁體/正體 Readme' referrerPolicy='no-referrer' /></a --->
