@@ -18,6 +18,7 @@ namespace Arashi.Azure
         {
             Config = new AoiConfig();
             Config.RankEnable = true;
+            Config.ChinaListEnable = true;
 
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
