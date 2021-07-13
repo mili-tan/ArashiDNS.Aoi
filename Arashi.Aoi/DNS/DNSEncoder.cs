@@ -22,15 +22,14 @@ namespace Arashi
                 });
         }
 
-        public static byte[] Encode(DnsMessage dnsMsg)
+        public static byte[] Encode(DnsMessage dnsMsg, bool transId = true, bool appendZero = false)
         {
             if (info == null) Init();
 
             dnsMsg.IsRecursionAllowed = true;
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
-            //if (dnsMsg.ReturnCode != ReturnCode.NoError || dnsMsg.AnswerRecords.Count == 0) 
-            dnsMsg.TransactionID = 0;
+            if (!transId) dnsMsg.TransactionID = 0;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
 
@@ -42,10 +41,10 @@ namespace Arashi
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             var args = new object[] {false, null};
             if (info != null) info.Invoke(dnsMsg, args);
-            return bytesTrimEnd(args[1] as byte[]);
+            return bytesTrimEnd(args[1] as byte[], appendZero);
         }
 
-        private static byte[] bytesTrimEnd(byte[] bytes)
+        private static byte[] bytesTrimEnd(byte[] bytes, bool appendZero = false)
         {
             var list = bytes.ToList();
             for (var i = bytes.Length - 1; i >= 0; i--)
@@ -55,7 +54,8 @@ namespace Arashi
                 else
                     break;
             }
-            //list.Add(0x00);
+
+            if (appendZero) list.AddRange(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
             return list.ToArray();
         }
 
