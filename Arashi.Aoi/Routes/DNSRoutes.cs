@@ -162,27 +162,5 @@ namespace Arashi.Aoi.Routes
                     }
                 });
         }
-
-        public static void Dns2QueryRoute(IEndpointRouteBuilder endpoints)
-        {
-            endpoints.Map(Config.QueryPerfix+"2", async context =>
-            {
-                var queryDictionary = context.Request.Query;
-                if (context.Request.Method == "POST")
-                    await ReturnContext(context, true,
-                        DnsQuery(await DNSParser.FromPostByteAsync(context),
-                            context), datagram: true);
-                else if (queryDictionary.ContainsKey("dns"))
-                    await ReturnContext(context, true,
-                        DnsQuery(DNSParser.FromWebBase64(context),
-                            context), datagram: true);
-                else if (queryDictionary.ContainsKey("name"))
-                    await ReturnContext(context, false,
-                        DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask),
-                            context), datagram: true);
-                else
-                    await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
-            });
-        }
     }
 }
