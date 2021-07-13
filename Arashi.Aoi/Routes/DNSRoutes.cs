@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Aoi.DNS;
+using Arashi.Azure;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +42,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
-            bool cache = true)
+            bool cache = true, bool datagram = false)
         {
             try
             {
@@ -59,12 +60,16 @@ namespace Arashi.Aoi.Routes
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
-                        await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
+                        await context.WriteResponseAsync(
+                            datagram ? await DnsDatagram.DnsMsgToBytes(dnsMsg) : DnsEncoder.Encode(dnsMsg),
+                            type: "application/dns-message");
                 }
                 else
                 {
                     if (GetClientType(queryDictionary, "message"))
-                        await context.WriteResponseAsync(DnsEncoder.Encode(dnsMsg), type: "application/dns-message");
+                        await context.WriteResponseAsync(
+                            datagram ? await DnsDatagram.DnsMsgToBytes(dnsMsg) : DnsEncoder.Encode(dnsMsg),
+                            type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
@@ -156,6 +161,28 @@ namespace Arashi.Aoi.Routes
                         dnsMessage.AuthorityRecords.ForEach(o => Console.WriteLine(ip + ":Authority:" + o));
                     }
                 });
+        }
+
+        public static void Dns2QueryRoute(IEndpointRouteBuilder endpoints)
+        {
+            endpoints.Map(Config.QueryPerfix+"2", async context =>
+            {
+                var queryDictionary = context.Request.Query;
+                if (context.Request.Method == "POST")
+                    await ReturnContext(context, true,
+                        DnsQuery(await DNSParser.FromPostByteAsync(context),
+                            context), datagram: true);
+                else if (queryDictionary.ContainsKey("dns"))
+                    await ReturnContext(context, true,
+                        DnsQuery(DNSParser.FromWebBase64(context),
+                            context), datagram: true);
+                else if (queryDictionary.ContainsKey("name"))
+                    await ReturnContext(context, false,
+                        DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask),
+                            context), datagram: true);
+                else
+                    await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
+            });
         }
     }
 }
