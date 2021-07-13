@@ -22,7 +22,7 @@ namespace Arashi
                 });
         }
 
-        public static byte[] Encode(DnsMessage dnsMsg, bool transId = true, bool appendZero = false)
+        public static byte[] Encode(DnsMessage dnsMsg, bool transId = false, bool appendZero = false)
         {
             if (info == null) Init();
 
