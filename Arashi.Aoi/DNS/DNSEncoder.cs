@@ -22,7 +22,7 @@ namespace Arashi
                 });
         }
 
-        public static byte[] Encode(DnsMessage dnsMsg, bool transId = false, bool appendZero = false)
+        public static byte[] Encode(DnsMessage dnsMsg, bool transId = false)
         {
             if (info == null) Init();
 
@@ -41,7 +41,7 @@ namespace Arashi
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             var args = new object[] {false, null};
             if (info != null) info.Invoke(dnsMsg, args);
-            return bytesTrimEnd(args[1] as byte[], appendZero);
+            return bytesTrimEnd(args[1] as byte[]);
         }
 
         private static byte[] bytesTrimEnd(byte[] bytes, bool appendZero = false)
