@@ -24,6 +24,7 @@ namespace Arashi
         public bool UseExceptionPage = true;
         public bool GeoCacheEnable = true;
         public bool EcsEnable = true;
+        public bool TransIdEnable = true;
         public string AdminToken = Guid.NewGuid().ToString();
         public string MaxmindCityDbUrl = "https://t.mili.one/GeoLite2-City.mmdb";
         public string MaxmindAsnDbUrl = "https://t.mili.one/GeoLite2-ASN.mmdb";

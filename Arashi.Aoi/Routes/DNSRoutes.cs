@@ -26,15 +26,15 @@ namespace Arashi.Aoi.Routes
                 if (context.Request.Method == "POST")
                     await ReturnContext(context, true,
                         DnsQuery(await DNSParser.FromPostByteAsync(context),
-                            context));
+                            context), transId: Config.TransIdEnable);
                 else if (queryDictionary.ContainsKey("dns"))
                     await ReturnContext(context, true,
                         DnsQuery(DNSParser.FromWebBase64(context),
-                            context));
+                            context), transId: Config.TransIdEnable);
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
                         DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask),
-                            context));
+                            context), transId:Config.TransIdEnable);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
