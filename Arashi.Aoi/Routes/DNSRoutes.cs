@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Aoi.DNS;
-using Arashi.Azure;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +41,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
-            bool cache = true, bool datagram = false)
+            bool cache = true, bool transId = false)
         {
             try
             {
@@ -61,14 +60,14 @@ namespace Arashi.Aoi.Routes
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                         await context.WriteResponseAsync(
-                            datagram ? await DnsDatagram.DnsMsgToBytes(dnsMsg) : DnsEncoder.Encode(dnsMsg),
+                            DnsEncoder.Encode(dnsMsg, transId),
                             type: "application/dns-message");
                 }
                 else
                 {
                     if (GetClientType(queryDictionary, "message"))
                         await context.WriteResponseAsync(
-                            datagram ? await DnsDatagram.DnsMsgToBytes(dnsMsg) : DnsEncoder.Encode(dnsMsg),
+                            DnsEncoder.Encode(dnsMsg, transId),
                             type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
@@ -110,7 +109,7 @@ namespace Arashi.Aoi.Routes
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
         {
             if (port == 0) port = 53;
-            var client = new DnsClient(ipAddress, timeout)
+            var client = new ARSoft.Tools.Net.Dns.DnsClient(ipAddress, timeout)
                 {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
             for (var i = 0; i < Config.Retries; i++)
             {
@@ -118,7 +117,7 @@ namespace Arashi.Aoi.Routes
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, timeout, port)
+            return new ARSoft.Tools.Net.Dns.DnsClient(ipAddress, timeout, port)
                 {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
         }
 
