@@ -339,3 +339,4 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /Arashi.Azure/Properties/ServiceDependencies
+/Arashi.Azure/Token.txt

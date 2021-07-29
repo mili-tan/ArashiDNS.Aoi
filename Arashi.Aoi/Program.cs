@@ -63,6 +63,7 @@ namespace Arashi.Aoi
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var synccnlsOption = cmd.Option<string>("--synccnls", "Sync China White List", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
+            var transidOption = cmd.Option("--transid", "Set enable DNS Transaction ID", CommandOptionType.NoValue);
             var showOption = cmd.Option("--show", "Show current active configuration", CommandOptionType.NoValue);
             var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
             var loadOption = cmd.Option<string>("--load:<FilePath>", "Load existing configuration from config.json file [./config.json]",
@@ -143,6 +144,7 @@ namespace Arashi.Aoi
                 Config.EcsEnable = !noecsOption.HasValue();
                 Config.UseAdminRoute = adminOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
+                Config.TransIdEnable = transidOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {
                     var val = logOption.Value().ToLower().Trim();
