@@ -29,9 +29,9 @@ namespace Arashi
             dnsMsg.IsRecursionAllowed = true;
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
-            if (!transId) dnsMsg.TransactionID = 0;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
+            if (!transId) dnsMsg.TransactionID = 0;
 
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
                 item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
