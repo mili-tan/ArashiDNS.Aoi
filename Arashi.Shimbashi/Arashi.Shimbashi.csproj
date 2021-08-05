@@ -19,9 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-rc.1.21376.2" />
-    <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-rc.1.21376.2" />
-    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-rc.1.21376.2" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-rc.1.21405.1" />
   </ItemGroup>
 
 </Project>
