@@ -8,7 +8,7 @@ using ARSoft.Tools.Net.Dns;
 
 namespace Arashi
 {
-    class DNSChina
+    public class DNSChina
     {
         public static List<DomainName> ChinaList = File.Exists(DNSChinaConfig.Config.ChinaListPath)
             ? File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList().ConvertAll(DomainName.Parse)

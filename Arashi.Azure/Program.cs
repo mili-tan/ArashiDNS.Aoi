@@ -46,7 +46,7 @@ namespace Arashi.Azure
                         {
                             if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
                             {
-                                File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
+                                DNSChina.ChinaList = File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
                                     .ConvertAll(DomainName.Parse);
                                 break;
                             }

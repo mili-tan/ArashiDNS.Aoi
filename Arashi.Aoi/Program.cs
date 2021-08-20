@@ -101,6 +101,7 @@ namespace Arashi.Aoi
                         string.IsNullOrWhiteSpace(loadcnOption.Value())
                             ? File.ReadAllText("cnlist.json")
                             : File.ReadAllText(loadcnOption.Value()));
+
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
@@ -194,8 +195,9 @@ namespace Arashi.Aoi
 
                 if (synccnlsOption.HasValue())
                 {
-                    if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
-                        File.Delete(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List");
+                    var cnListPath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List";
+                    if (File.Exists(cnListPath))
+                        File.Delete(cnListPath);
                     var timer = new Timer(100) {Enabled = true, AutoReset = true};
                     timer.Elapsed += (_, _) =>
                     {
@@ -205,9 +207,9 @@ namespace Arashi.Aoi
                         {
                             while (true)
                             {
-                                if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
+                                if (File.Exists(cnListPath))
                                 {
-                                    File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
+                                    DNSChina.ChinaList = File.ReadAllLines(cnListPath).ToList()
                                         .ConvertAll(DomainName.Parse);
                                     break;
                                 }
@@ -251,10 +253,11 @@ namespace Arashi.Aoi
                     })
                     .UseStartup<Startup>()
                     .Build();
+
                 if (testOption.HasValue())
                     Task.Run(() =>
                     {
-                        for (int i = 0; i < 100; i++)
+                        for (var i = 0; i < 100; i++)
                             if (PortIsUse(ipEndPoint.Port))
                                 host.StopAsync().Wait(5000);
                         Environment.Exit(0);
@@ -265,6 +268,7 @@ namespace Arashi.Aoi
                     if (Config.ChinaListEnable)
                         File.WriteAllText("cnlist.json",
                             JsonConvert.SerializeObject(DNSChinaConfig.Config, Formatting.Indented));
+                    Console.WriteLine("Configuration Saved.");
                 }
 
                 if (showOption.HasValue()) Console.WriteLine(JsonConvert.SerializeObject(Config, Formatting.Indented));
