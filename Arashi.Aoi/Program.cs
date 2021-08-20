@@ -68,6 +68,8 @@ namespace Arashi.Aoi
             var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
             var loadOption = cmd.Option<string>("--load:<FilePath>", "Load existing configuration from config.json file [./config.json]",
                 CommandOptionType.SingleOrNoValue);
+            var loadcnOption = cmd.Option<string>("--loadcn:<FilePath>", "Load existing configuration from cnlist.json file [./cnlist.json]",
+                CommandOptionType.SingleOrNoValue);
             var testOption = cmd.Option("-e|--test", "Exit after passing the test", CommandOptionType.NoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
@@ -76,9 +78,10 @@ namespace Arashi.Aoi
             var noUpdateOption = cmd.Option("-nu|--noupdate", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             adminOption.ShowInHelpText = false;
-            chinaListOption.ShowInHelpText = false;
             synccnlsOption.ShowInHelpText = false;
             noUpdateOption.ShowInHelpText = false;
+            chinaListOption.ShowInHelpText = false;
+            loadcnOption.ShowInHelpText = false;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -93,6 +96,11 @@ namespace Arashi.Aoi
                         string.IsNullOrWhiteSpace(loadOption.Value())
                             ? File.ReadAllText("config.json")
                             : File.ReadAllText(loadOption.Value()));
+                if (loadcnOption.HasValue())
+                    DNSChinaConfig.Config = JsonConvert.DeserializeObject<DNSChinaConfig>(
+                        string.IsNullOrWhiteSpace(loadcnOption.Value())
+                            ? File.ReadAllText("cnlist.json")
+                            : File.ReadAllText(loadcnOption.Value()));
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
@@ -192,7 +200,7 @@ namespace Arashi.Aoi
                     timer.Elapsed += (_, _) =>
                     {
                         timer.Interval = 3600000 * 24;
-                        GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                        GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
                         Task.Run(() =>
                         {
                             while (true)
@@ -210,7 +218,7 @@ namespace Arashi.Aoi
                     };
                 }
                 else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
-                    GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                    GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
 
                 if (Config.UseAdminRoute)
                     Console.WriteLine(
@@ -252,7 +260,13 @@ namespace Arashi.Aoi
                         Environment.Exit(0);
                     });
                 if (saveOption.HasValue())
+                {
                     File.WriteAllText("config.json", JsonConvert.SerializeObject(Config, Formatting.Indented));
+                    if (Config.ChinaListEnable)
+                        File.WriteAllText("cnlist.json",
+                            JsonConvert.SerializeObject(DNSChinaConfig.Config, Formatting.Indented));
+                }
+
                 if (showOption.HasValue()) Console.WriteLine(JsonConvert.SerializeObject(Config, Formatting.Indented));
                 host.Run();
             });

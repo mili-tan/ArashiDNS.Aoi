@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 using static Arashi.AoiConfig;
 using Timer = System.Timers.Timer;
 
-namespace Arashi.Shimbashi
+namespace Arashi.Aoi
 {
     class Program
     {
@@ -26,8 +26,8 @@ namespace Arashi.Shimbashi
         {
             var cmd = new CommandLineApplication
             {
-                Name = "Arashi.Shimbashi",
-                Description = "ArashiDNS.Shimbashi - Lightweight DNS over HTTPS Server" +
+                Name = "Arashi.Aoi",
+                Description = "ArashiDNS.Aoi - Lightweight DNS over HTTPS Server" +
                               Environment.NewLine +
                               $"Copyright (c) {DateTime.Now.Year} Milkey Tan. Code released under the Mozilla Public License 2.0" +
                               Environment.NewLine +
@@ -63,9 +63,12 @@ namespace Arashi.Shimbashi
             var syncmmdbOption = cmd.Option<string>("--syncmmdb", "Sync MaxMind GeoLite2 DB", CommandOptionType.NoValue);
             var synccnlsOption = cmd.Option<string>("--synccnls", "Sync China White List", CommandOptionType.NoValue);
             var noecsOption = cmd.Option("--noecs", "Set force disable active EDNS Client Subnet", CommandOptionType.NoValue);
+            var transidOption = cmd.Option("--transid", "Set enable DNS Transaction ID", CommandOptionType.NoValue);
             var showOption = cmd.Option("--show", "Show current active configuration", CommandOptionType.NoValue);
             var saveOption = cmd.Option("--save", "Save active configuration to config.json file", CommandOptionType.NoValue);
             var loadOption = cmd.Option<string>("--load:<FilePath>", "Load existing configuration from config.json file [./config.json]",
+                CommandOptionType.SingleOrNoValue);
+            var loadcnOption = cmd.Option<string>("--loadcn:<FilePath>", "Load existing configuration from cnlist.json file [./cnlist.json]",
                 CommandOptionType.SingleOrNoValue);
             var testOption = cmd.Option("-e|--test", "Exit after passing the test", CommandOptionType.NoValue);
 
@@ -75,9 +78,10 @@ namespace Arashi.Shimbashi
             var noUpdateOption = cmd.Option("-nu|--noupdate", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             adminOption.ShowInHelpText = false;
-            chinaListOption.ShowInHelpText = false;
             synccnlsOption.ShowInHelpText = false;
             noUpdateOption.ShowInHelpText = false;
+            chinaListOption.ShowInHelpText = false;
+            loadcnOption.ShowInHelpText = false;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -92,6 +96,11 @@ namespace Arashi.Shimbashi
                         string.IsNullOrWhiteSpace(loadOption.Value())
                             ? File.ReadAllText("config.json")
                             : File.ReadAllText(loadOption.Value()));
+                if (loadcnOption.HasValue())
+                    DNSChinaConfig.Config = JsonConvert.DeserializeObject<DNSChinaConfig>(
+                        string.IsNullOrWhiteSpace(loadcnOption.Value())
+                            ? File.ReadAllText("cnlist.json")
+                            : File.ReadAllText(loadcnOption.Value()));
                 Console.WriteLine(cmd.Description);
                 var ipEndPoint = ipOption.HasValue()
                     ? IPEndPoint.Parse(ipOption.Value())
@@ -143,6 +152,7 @@ namespace Arashi.Shimbashi
                 Config.EcsEnable = !noecsOption.HasValue();
                 Config.UseAdminRoute = adminOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
+                Config.TransIdEnable = transidOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {
                     var val = logOption.Value().ToLower().Trim();
@@ -190,7 +200,7 @@ namespace Arashi.Shimbashi
                     timer.Elapsed += (_, _) =>
                     {
                         timer.Interval = 3600000 * 24;
-                        GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                        GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
                         Task.Run(() =>
                         {
                             while (true)
@@ -207,8 +217,8 @@ namespace Arashi.Shimbashi
                         });
                     };
                 }
-                else if (File.Exists(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List"))
-                    GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                else if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
+                    GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
 
                 if (Config.UseAdminRoute)
                     Console.WriteLine(
@@ -250,7 +260,13 @@ namespace Arashi.Shimbashi
                         Environment.Exit(0);
                     });
                 if (saveOption.HasValue())
+                {
                     File.WriteAllText("config.json", JsonConvert.SerializeObject(Config, Formatting.Indented));
+                    if (Config.ChinaListEnable)
+                        File.WriteAllText("cnlist.json",
+                            JsonConvert.SerializeObject(DNSChinaConfig.Config, Formatting.Indented));
+                }
+
                 if (showOption.HasValue()) Console.WriteLine(JsonConvert.SerializeObject(Config, Formatting.Indented));
                 host.Run();
             });

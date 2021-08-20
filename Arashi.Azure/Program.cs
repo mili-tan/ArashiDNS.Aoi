@@ -39,7 +39,7 @@ namespace Arashi.Azure
                 timer.Elapsed += (_, _) =>
                 {
                     timer.Interval = 3600000 * 24;
-                    GetFileUpdate("China_WhiteList.List", "https://mili.one/china_whitelist.txt");
+                    GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
                     Task.Run(() =>
                     {
                         while (true)
