@@ -39,12 +39,19 @@ namespace Arashi
                 var ipNetwork = ipStr.Contains("/")
                     ? IPNetwork.Parse(ipStr)
                     : IPNetwork.Parse(ipStr, EcsDefaultMask);
-                dnsQMsg.EDnsOptions.Options.Add(new ClientSubnetOption(ipNetwork.Cidr, ipNetwork.Network));
+                dnsQMsg.EDnsOptions.Options.Add(new ClientSubnetOption(
+                    Equals(ipNetwork.Network, IPAddress.Any) ? (byte)0 : ipNetwork.Cidr, ipNetwork.Network));
             }
             else
-                dnsQMsg.EDnsOptions.Options.Add(
-                    new ClientSubnetOption(EcsDefaultMask,
-                        IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
+            {
+                var realIp = RealIP.Get(context);
+                if (!Equals(realIp, IPAddress.Loopback))
+                {
+                    dnsQMsg.EDnsOptions.Options.Add(
+                        new ClientSubnetOption(EcsDefaultMask,
+                            IPNetwork.Parse(realIp.ToString(), EcsDefaultMask).Network));
+                }
+            }
 
             return dnsQMsg;
         }
