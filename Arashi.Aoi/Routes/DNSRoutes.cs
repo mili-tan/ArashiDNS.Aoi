@@ -82,18 +82,20 @@ namespace Arashi.Aoi.Routes
             }
         }
 
-        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null)
+        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null,
+            bool CnDns = true, bool Cache = true)
         {
             try
             {
-                if (Config.CacheEnable)
+                if (Config.CacheEnable && !context.Request.Query.ContainsKey("nocache") && Cache)
                 {
                     if (context != null && Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
                     if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 }
 
-                if (Config.ChinaListEnable && DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
+                if (Config.ChinaListEnable && !context.Request.Query.ContainsKey("nocndns") && CnDns &&
+                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return DNSChina.ResolveOverChinaDns(dnsMessage);
             }
