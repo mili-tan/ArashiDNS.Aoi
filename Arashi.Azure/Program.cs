@@ -16,11 +16,13 @@ namespace Arashi.Azure
     {
         public static void Main(string[] args)
         {
-            Config = new AoiConfig();
-            Config.RankEnable = true;
-            Config.ChinaListEnable = true;
-            Config.UseResolveRoute = true;
-            Config.UseAdminRoute = true;
+            Config = new AoiConfig
+            {
+                RankEnable = true,
+                ChinaListEnable = true,
+                UseResolveRoute = true,
+                UseAdminRoute = true
+            };
 
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
