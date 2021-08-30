@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static Arashi.AoiConfig;
+using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
 
 namespace Arashi.Aoi.Routes
 {
@@ -82,19 +83,38 @@ namespace Arashi.Aoi.Routes
             }
         }
 
-        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context = null,
+        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context,
             bool CnDns = true, bool Cache = true)
         {
             try
             {
-                if (Config.CacheEnable && !context.Request.Query.ContainsKey("nocache") && Cache)
+                if (Config.CacheEnable && !context.Request.Query.ContainsKey("no-cache") && Cache)
                 {
-                    if (context != null && Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
+                    if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
                     if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 }
 
-                if (Config.ChinaListEnable && !context.Request.Query.ContainsKey("nocndns") && CnDns &&
+                if (Config.ChinaListEnable && !context.Request.Query.ContainsKey("no-cndns") && CnDns &&
+                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
+                    dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
+                    return DNSChina.ResolveOverChinaDns(dnsMessage);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                   DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+        }
+
+        public static DnsMessage DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
+        {
+            try
+            {
+                if (Config.CacheEnable && Cache && DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                if (Config.ChinaListEnable && CnDns &&
                     DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return DNSChina.ResolveOverChinaDns(dnsMessage);
@@ -111,16 +131,16 @@ namespace Arashi.Aoi.Routes
         public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
         {
             if (port == 0) port = 53;
-            var client = new ARSoft.Tools.Net.Dns.DnsClient(ipAddress, timeout)
-                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true};
+            var client = new DnsClient(ipAddress, timeout)
+                { IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true };
             for (var i = 0; i < Config.Retries; i++)
             {
                 var aMessage = client.SendMessage(dnsMessage);
                 if (aMessage != null) return aMessage;
             }
 
-            return new ARSoft.Tools.Net.Dns.DnsClient(ipAddress, timeout, port)
-                {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessage(dnsMessage);
+            return new DnsClient(ipAddress, timeout, port)
+                { IsTcpEnabled = true, IsUdpEnabled = false }.SendMessage(dnsMessage);
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
