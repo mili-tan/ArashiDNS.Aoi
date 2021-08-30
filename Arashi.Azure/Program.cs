@@ -19,7 +19,8 @@ namespace Arashi.Azure
             Config = new AoiConfig();
             Config.RankEnable = true;
             Config.ChinaListEnable = true;
-
+            Config.UseResolveRoute = true;
+            Config.UseAdminRoute = true;
 
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
