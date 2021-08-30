@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Timers;
+using Arashi.Aoi;
 using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
 using Microsoft.AspNetCore.Builder;
@@ -19,7 +20,7 @@ namespace Arashi
         public static HeaderDictionary HeaderDict = new();
         public static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
-            : "Welcome to ArashiDNS.P ONE.Aoi Azure";
+            : "Welcome to ArashiDNS.Aoi";
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -48,6 +49,7 @@ namespace Arashi
 
             if (Config.UseIpRoute) app.UseEndpoints(IPRoutes.GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoutes.AdminRoute);
+            if (Config.UseResolveRoute) app.UseEndpoints(ResolveRoutes.ResolveRoute);
         }
     }
 }

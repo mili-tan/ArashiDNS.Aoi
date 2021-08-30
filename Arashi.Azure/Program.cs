@@ -20,6 +20,7 @@ namespace Arashi.Azure
             Config.RankEnable = true;
             Config.ChinaListEnable = true;
 
+
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
                 Console.WriteLine(
