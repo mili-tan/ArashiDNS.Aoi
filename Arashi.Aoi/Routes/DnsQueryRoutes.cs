@@ -14,7 +14,7 @@ using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
 
 namespace Arashi.Aoi.Routes
 {
-    class DNSRoutes
+    class DnsQueryRoutes
     {
         public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);

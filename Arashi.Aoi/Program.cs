@@ -158,14 +158,14 @@ namespace Arashi.Aoi
                 {
                     var val = logOption.Value().ToLower().Trim();
                     if (val == "full") Config.FullLogEnable = true;
-                    if (val == "none" || val == "null" || val == "off") Config.LogEnable = false;
+                    else if (val is "none" or "null" or "off") Config.LogEnable = false;
                 }
 
                 if (cacheOption.HasValue() && !string.IsNullOrWhiteSpace(cacheOption.Value()))
                 {
                     var val = cacheOption.Value().ToLower().Trim();
                     if (val == "full") Config.GeoCacheEnable = false;
-                    if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
+                    else if (val is "none" or "null" or "off") Config.CacheEnable = false;
                 }
 
                 if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() || Config.RankEnable)

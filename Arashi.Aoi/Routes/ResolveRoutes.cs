@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using static Arashi.AoiConfig;
-using static Arashi.Aoi.Routes.DNSRoutes;
+using static Arashi.Aoi.Routes.DnsQueryRoutes;
 
 namespace Arashi.Aoi
 {

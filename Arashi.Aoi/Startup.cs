@@ -45,7 +45,7 @@ namespace Arashi
             {
                 context.Response.ContentType = "text/html";
                 await context.Response.WriteAsync(IndexStr);
-            })).UseEndpoints(DNSRoutes.DnsQueryRoute);
+            })).UseEndpoints(DnsQueryRoutes.DnsQueryRoute);
 
             if (Config.UseIpRoute) app.UseEndpoints(IPRoutes.GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoutes.AdminRoute);
