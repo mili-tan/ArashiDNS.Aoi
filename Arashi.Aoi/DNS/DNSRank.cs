@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Amazon.S3;
+using Amazon.S3.Model;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using LiteDB;
@@ -15,9 +17,28 @@ namespace Arashi.Aoi.DNS
         private static ILiteCollection<BsonDocument> geoCollection = Database.GetCollection<BsonDocument>("GeoRank");
 
         public static bool UseS3 = false;
+        public static AmazonS3Client S3Client = new(
+            "KeyID",
+            "ApplicationKey",
+            new AmazonS3Config
+            {
+                ServiceURL = "https://s3.us-west-000.backblazeb2.com/"
+            }
+        );
 
         public static void AddUp(DomainName name)
         {
+            if (UseS3)
+            {
+                S3Client.PutObjectAsync(new PutObjectRequest
+                {
+                    BucketName = "arashi-logs",
+                    Key = $"{name.ToString().TrimEnd('.')}/{DateTime.Now:yyyyMMddHHmm}-{Guid.NewGuid()}",
+                    ContentType = "text/plain",
+                    ContentBody = string.Empty
+                });
+                return;
+            }
             var find = collection.Find(x => x["Name"] == name.ToString()).ToList();
             if (find.Any())
             {
@@ -25,9 +46,7 @@ namespace Arashi.Aoi.DNS
                 collection.Update(find.FirstOrDefault());
             }
             else
-            {
                 collection.Insert(new BsonDocument { ["Name"] = name.ToString(), ["Count"] = 1 });
-            }
         }
 
         public static void AddUpGeo(DnsMessage dnsMessage, HttpContext context)
@@ -40,6 +59,19 @@ namespace Arashi.Aoi.DNS
                 if (Equals(ipaddr, IPAddress.Any) || IPAddress.IsLoopback(ipaddr)) return;
                 var asn = GeoIP.AsnReader.Asn(ipaddr).AutonomousSystemNumber.ToString();
                 var country = GeoIP.CityReader.City(ipaddr).Country.IsoCode;
+                if (UseS3)
+                {
+                    S3Client.PutObjectAsync(new PutObjectRequest
+                    {
+                        BucketName = "arashi-logs",
+                        Key = $"{name.ToString().TrimEnd('.')}/{country}-{asn}/" +
+                              $"{DateTime.Now:yyyyMMddHHmm}-{Guid.NewGuid()}",
+                        ContentType = "text/plain",
+                        ContentBody = string.Empty
+                    });
+                    return;
+                }
+
                 var find = geoCollection
                     .Find(x => x["Name"] == name.ToString() && x["ASN"] == asn && x["Country"] == country)
                     .ToList();
@@ -49,10 +81,8 @@ namespace Arashi.Aoi.DNS
                     geoCollection.Update(find.FirstOrDefault());
                 }
                 else
-                {
                     geoCollection.Insert(new BsonDocument
                         { ["Name"] = name.ToString(), ["Count"] = 1, ["ASN"] = asn, ["Country"] = country });
-                }
             }
             catch (Exception e)
             {
