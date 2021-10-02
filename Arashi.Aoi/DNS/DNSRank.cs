@@ -14,6 +14,8 @@ namespace Arashi.Aoi.DNS
         private static ILiteCollection<BsonDocument> collection = Database.GetCollection<BsonDocument>("FullRank");
         private static ILiteCollection<BsonDocument> geoCollection = Database.GetCollection<BsonDocument>("GeoRank");
 
+        public static bool UseS3 = false;
+
         public static void AddUp(DomainName name)
         {
             var find = collection.Find(x => x["Name"] == name.ToString()).ToList();
