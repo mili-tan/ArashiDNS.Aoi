@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Arashi.Aoi.DNS
 {
-    class DNSRank
+    public class DNSRank
     {
         public static LiteDatabase Database = new(@"rank.db");
         private static ILiteCollection<BsonDocument> collection = Database.GetCollection<BsonDocument>("FullRank");

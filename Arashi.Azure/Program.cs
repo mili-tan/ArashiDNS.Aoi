@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.S3;
+using Arashi.Aoi.DNS;
 using ARSoft.Tools.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +25,16 @@ namespace Arashi.Azure
                 UseResolveRoute = true,
                 UseAdminRoute = true
             };
+
+            DNSRank.UseS3 = false;
+            DNSRank.S3Client = new AmazonS3Client(
+                "KeyID",
+                "ApplicationKey",
+                new AmazonS3Config
+                {
+                    ServiceURL = "https://s3.us-west-000.backblazeb2.com/"
+                }
+            );
 
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
             {
