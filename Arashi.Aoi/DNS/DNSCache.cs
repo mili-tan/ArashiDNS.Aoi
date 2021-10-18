@@ -12,6 +12,11 @@ namespace Arashi
     {
         public static void Add(DnsMessage dnsMessage)
         {
+            foreach (var item in new List<DnsRecordBase>(dnsMessage.AnswerRecords).Where(item =>
+                (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt))
+                dnsMessage.AnswerRecords.Remove(item);
+
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
             Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
@@ -25,6 +30,11 @@ namespace Arashi
 
         public static void Add(DnsMessage dnsMessage, HttpContext context)
         {
+            foreach (var item in new List<DnsRecordBase>(dnsMessage.AnswerRecords).Where(item =>
+                (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt))
+                dnsMessage.AnswerRecords.Remove(item);
+
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
