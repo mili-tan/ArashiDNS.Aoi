@@ -28,25 +28,32 @@ namespace Arashi.Aoi.DNS
 
         public static void AddUp(DomainName name)
         {
-            if (UseS3)
+            try
             {
-                S3Client.PutObjectAsync(new PutObjectRequest
+                if (UseS3)
                 {
-                    BucketName = "arashi-logs",
-                    Key = $"{name.ToString().TrimEnd('.')}/{DateTime.Now:yyyyMMddHHmm}-{Guid.NewGuid()}",
-                    ContentType = "text/plain",
-                    ContentBody = string.Empty
-                });
-                return;
+                    S3Client.PutObjectAsync(new PutObjectRequest
+                    {
+                        BucketName = "arashi-logs",
+                        Key = $"{name.ToString().TrimEnd('.')}/{DateTime.Now:yyyyMMddHHmm}-{Guid.NewGuid()}",
+                        ContentType = "text/plain",
+                        ContentBody = string.Empty
+                    });
+                    return;
+                }
+                var find = collection.Find(x => x["Name"] == name.ToString()).ToList();
+                if (find.Any())
+                {
+                    find.FirstOrDefault()["Count"] += 1;
+                    collection.Update(find.FirstOrDefault());
+                }
+                else
+                    collection.Insert(new BsonDocument { ["Name"] = name.ToString(), ["Count"] = 1 });
             }
-            var find = collection.Find(x => x["Name"] == name.ToString()).ToList();
-            if (find.Any())
+            catch (Exception e)
             {
-                find.FirstOrDefault()["Count"] += 1;
-                collection.Update(find.FirstOrDefault());
+                Console.WriteLine(e);
             }
-            else
-                collection.Insert(new BsonDocument { ["Name"] = name.ToString(), ["Count"] = 1 });
         }
 
         public static void AddUpGeo(DnsMessage dnsMessage, HttpContext context)
