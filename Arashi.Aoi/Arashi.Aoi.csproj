@@ -19,16 +19,16 @@
 
   <ItemGroup>
     <PackageReference Include="ARSoft.Tools.Net.HMBSbige" Version="2.3.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.3.17" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.4.9" />
     <PackageReference Include="LettuceEncrypt" Version="1.1.2" />
     <PackageReference Include="LiteDB" Version="5.0.11" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="IPNetwork2" Version="2.5.353" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
+    <PackageReference Include="IPNetwork2" Version="2.5.376" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="4.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
   </ItemGroup>
