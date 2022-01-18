@@ -41,11 +41,10 @@ namespace Arashi
             if (loggerFactory != null) LoggerFactory = loggerFactory;
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
 
-            app.UseRouting().UseEndpoints(endpoints => endpoints.MapGet("/", async context =>
-            {
-                context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(IndexStr);
-            })).UseEndpoints(DnsQueryRoutes.DnsQueryRoute);
+            app.UseRouting().UseEndpoints(endpoints => endpoints.MapGet("/",
+                    async context =>
+                        await context.WriteResponseAsync(IndexStr, type: "text/html", headers: HeaderDict)))
+                .UseEndpoints(DnsQueryRoutes.DnsQueryRoute);
 
             if (Config.UseIpRoute) app.UseEndpoints(IPRoutes.GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoutes.AdminRoute);
