@@ -19,4 +19,8 @@
     <TrimmerRootAssembly Include="System.Threading.Tasks.Parallel" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
 </Project>
