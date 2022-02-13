@@ -22,7 +22,7 @@ Host your DNS over HTTPS Server just by running `./Arashi.Aoi --upstream 127.0.0
 
 If you get `Permission denied`, run `chmod +x ./Arashi.Aoi` to grant execution permission.
 
-OR using Docker. `docker run milkey/arashidns.aoi` 
+OR using Docker. `docker run ghcr.io/mili-tan/arashidns.aoi` 
 
 It is that easy. Use `--help` / `-?` to discover more parameters and get help information.
 
