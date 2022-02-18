@@ -31,9 +31,9 @@ namespace Arashi
             dnsMsg.IsQuery = false;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
-            if (!transIdEnable) dnsMsg.TransactionID = 0;
             if (id != 0) dnsMsg.TransactionID = id;
-            
+            if (!transIdEnable) dnsMsg.TransactionID = 0;
+
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
                 item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))))
