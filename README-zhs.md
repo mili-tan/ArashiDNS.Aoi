@@ -22,7 +22,7 @@
 
 如果你得到了 `Permission denied`，请运行 `chmod +x ./Arashi.Aoi` 来给予可执行权限。
 
-或者使用 Docker。`docker run milkey/arashidns.aoi`
+或者使用 Docker。`docker run -d -p 2020:2020 ghcr.io/mili-tan/arashidns.aoi --upstream 8.8.8.8`
 
 就这么简单，使用 `--help` / `-?` 来探索更多参数和获取帮助信息。
 
