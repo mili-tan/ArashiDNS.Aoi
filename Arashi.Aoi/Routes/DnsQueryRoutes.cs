@@ -67,14 +67,14 @@ namespace Arashi.Aoi.Routes
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transId,id),
+                            DnsEncoder.Encode(dnsMsg, transIdEnable, id),
                             type: "application/dns-message");
                 }
                 else
                 {
                     if (GetClientType(queryDictionary, "message"))
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transId, id),
+                            DnsEncoder.Encode(dnsMsg, transIdEnable, id),
                             type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
