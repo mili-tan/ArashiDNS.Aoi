@@ -60,8 +60,6 @@ namespace Arashi.Aoi.Routes
                     return;
                 }
 
-                if (dnsMsg.ReturnCode != ReturnCode.NoError) transIdEnable = false;
-
                 if (returnMsg)
                 {
                     if (GetClientType(queryDictionary, "json"))

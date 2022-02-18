@@ -33,6 +33,7 @@ namespace Arashi
             dnsMsg.AdditionalRecords.Clear();
             if (id != 0) dnsMsg.TransactionID = id;
             if (!transIdEnable) dnsMsg.TransactionID = 0;
+            //if (dnsMsg.ReturnCode != ReturnCode.NoError) dnsMsg.TransactionID = 0;
 
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
                 item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
