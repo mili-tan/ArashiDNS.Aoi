@@ -25,24 +25,30 @@ namespace Arashi.Aoi.Routes
             {
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST")
+                {
+                    var dnsq = await DNSParser.FromPostByteAsync(context);
                     await ReturnContext(context, true,
-                        DnsQuery(await DNSParser.FromPostByteAsync(context), context), 
-                        transId: Config.TransIdEnable);
+                        DnsQuery(dnsq, context),
+                        transIdEnable: Config.TransIdEnable, id: dnsq.TransactionID);
+                }
                 else if (queryDictionary.ContainsKey("dns"))
+                {
+                    var dnsq = DNSParser.FromWebBase64(context);
                     await ReturnContext(context, true,
-                        DnsQuery(DNSParser.FromWebBase64(context), context),
-                        transId: Config.TransIdEnable);
+                        DnsQuery(dnsq, context),
+                        transIdEnable: Config.TransIdEnable, id: dnsq.TransactionID);
+                }
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
                         DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
-                        transId: Config.TransIdEnable);
+                        transIdEnable: Config.TransIdEnable);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
-            bool cache = true, bool transId = false)
+            bool cache = true, bool transIdEnable = false, ushort id = 0)
         {
             try
             {
@@ -61,14 +67,14 @@ namespace Arashi.Aoi.Routes
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transId),
+                            DnsEncoder.Encode(dnsMsg, transId,id),
                             type: "application/dns-message");
                 }
                 else
                 {
                     if (GetClientType(queryDictionary, "message"))
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transId),
+                            DnsEncoder.Encode(dnsMsg, transId, id),
                             type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),

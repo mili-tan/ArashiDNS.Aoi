@@ -13,17 +13,23 @@ namespace Arashi.Aoi
             {
                 var queryDictionary = context.Request.Query;
                 if (context.Request.Method == "POST")
+                {
+                    var dnsq = await DNSParser.FromPostByteAsync(context);
                     await ReturnContext(context, true,
-                        DnsQuery(await DNSParser.FromPostByteAsync(context), context),
-                        transId: true);
+                        DnsQuery(dnsq, context),
+                        transIdEnable: true, id: dnsq.TransactionID);
+                }
                 else if (queryDictionary.ContainsKey("dns"))
+                {
+                    var dnsq = DNSParser.FromWebBase64(context);
                     await ReturnContext(context, true,
-                        DnsQuery(DNSParser.FromWebBase64(context), context),
-                        transId: true);
+                        DnsQuery(dnsq, context),
+                        transIdEnable: true, id: dnsq.TransactionID);
+                }
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
                         DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
-                        transId: true);
+                        transIdEnable: true);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });

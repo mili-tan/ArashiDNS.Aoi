@@ -22,7 +22,7 @@ namespace Arashi
                 });
         }
 
-        public static byte[] Encode(DnsMessage dnsMsg, bool transId = false)
+        public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, ushort id = 0)
         {
             if (info == null) Init();
 
@@ -31,8 +31,9 @@ namespace Arashi
             dnsMsg.IsQuery = false;
             dnsMsg.IsEDnsEnabled = false;
             dnsMsg.AdditionalRecords.Clear();
-            if (!transId) dnsMsg.TransactionID = 0;
-
+            if (!transIdEnable) dnsMsg.TransactionID = 0;
+            if (id != 0) dnsMsg.TransactionID = id;
+            
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
                 item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))))
