@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
+using ARSoft.Tools.Net.Dns;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -135,8 +136,15 @@ namespace Arashi.Aoi
                         Config.BackUpStream = "2001:4860:4860::8844";
                         Console.WriteLine("May run on IPv6 single stack network");
                     }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
 
-                    if (PortIsUse(53) && !upOption.HasValue())
+                try
+                {
+                    if (PortIsUse(53) && LocalDnsIsOk() && !upOption.HasValue())
                     {
                         Config.UpStream = IPAddress.Loopback.ToString();
                         Console.WriteLine("Use localhost:53 dns server as upstream");
@@ -311,6 +319,21 @@ namespace Arashi.Aoi
 
             return ipEndPointsTcp.Any(endPoint => endPoint.Port == port)
                    || ipEndPointsUdp.Any(endPoint => endPoint.Port == port);
+        }
+
+        public static bool LocalDnsIsOk()
+        {
+            try
+            {
+                return new DnsClient(IPAddress.Loopback, 500)
+                           .Resolve(DomainName.Parse("example.com")).ReturnCode ==
+                       ReturnCode.NoError;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
         public static void GetFileUpdate(string file, string url)
