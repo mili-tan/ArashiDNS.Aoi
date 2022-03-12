@@ -126,18 +126,25 @@ namespace Arashi.Aoi
                         Console.WriteLine("Failed to get $PORT Environment Variable");
                     }
 
-                if (Dns.GetHostAddresses(Dns.GetHostName()).All(ip =>
-                    IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6))
+                try
                 {
-                    Config.UpStream = "2001:4860:4860::8888";
-                    Config.BackUpStream = "2001:4860:4860::8844";
-                    Console.WriteLine("May run on IPv6 single stack network");
-                }
+                    if (Dns.GetHostAddresses(Dns.GetHostName()).All(ip =>
+                            IPAddress.IsLoopback(ip) || ip.AddressFamily == AddressFamily.InterNetworkV6))
+                    {
+                        Config.UpStream = "2001:4860:4860::8888";
+                        Config.BackUpStream = "2001:4860:4860::8844";
+                        Console.WriteLine("May run on IPv6 single stack network");
+                    }
 
-                if (PortIsUse(53) && !upOption.HasValue())
+                    if (PortIsUse(53) && !upOption.HasValue())
+                    {
+                        Config.UpStream = IPAddress.Loopback.ToString();
+                        Console.WriteLine("Use localhost:53 dns server as upstream");
+                    }
+                }
+                catch (Exception e)
                 {
-                    Config.UpStream = IPAddress.Loopback.ToString();
-                    Console.WriteLine("Use localhost:53 dns server as upstream");
+                    Console.WriteLine(e);
                 }
 
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
