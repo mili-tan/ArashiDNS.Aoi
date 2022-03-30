@@ -7,6 +7,7 @@
     <RootNamespace>Arashi.Aoi</RootNamespace>
     <PublishTrimmed>true</PublishTrimmed>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
