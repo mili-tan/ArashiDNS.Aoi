@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -356,7 +357,7 @@ namespace Arashi.Aoi
                 Task.Run(() =>
                 {
                     Console.WriteLine($"Downloading {file}...");
-                    new WebClient().DownloadFile(url, setupBasePath + file);
+                    File.WriteAllBytes(setupBasePath + file, new HttpClient().GetByteArrayAsync(url).Result);
                     Console.WriteLine(file + " Download Done");
                 });
         }

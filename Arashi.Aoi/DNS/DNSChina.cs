@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 
@@ -28,7 +29,7 @@ namespace Arashi
                 foreach (var eDnsOptionBase in dnsMessage.EDnsOptions.Options.ToArray())
                     if (eDnsOptionBase is ClientSubnetOption option)
                     {
-                        var task = new WebClient().DownloadStringTaskAsync(
+                        var task = new HttpClient().GetStringAsync(
                             string.Format(DNSChinaConfig.Config.HttpDnsEcsUrl, domainName, option.Address));
                         task.Wait(1000);
                         dnsStr = task.Result;
@@ -37,7 +38,7 @@ namespace Arashi
             }
             else
             {
-                var task = new WebClient().DownloadStringTaskAsync(
+                var task = new HttpClient().GetStringAsync(
                     string.Format(DNSChinaConfig.Config.HttpDnsUrl, domainName));
                 task.Wait(1000);
                 dnsStr = task.Result;

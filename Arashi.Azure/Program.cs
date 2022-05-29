@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
@@ -102,7 +103,7 @@ namespace Arashi.Azure
                 Task.Run(() =>
                 {
                     Console.WriteLine($"Downloading {file}...");
-                    new WebClient().DownloadFile(url, setupBasePath + file);
+                    File.WriteAllBytes(setupBasePath + file, new HttpClient().GetByteArrayAsync(url).Result);
                     Console.WriteLine(file + " Download Done");
                 });
         }
