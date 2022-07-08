@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.Caching;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
@@ -23,7 +24,8 @@ namespace Arashi
                     new CacheEntity
                     {
                         List = dnsMessage.AnswerRecords.ToList(),
-                        Time = DateTime.Now, ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                        Time = DateTime.Now,
+                        ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
                     }),
                 dnsRecordBase.TimeToLive);
         }
@@ -76,6 +78,27 @@ namespace Arashi
                     $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}")
                 : MemoryCache.Default.Contains(
                     $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}");
+        }
+
+        public static void Remove(DomainName name, RecordType type, IPAddress ip)
+        {
+            try
+            {
+                MemoryCache.Default.Remove($"DNS:{name}:{type}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            try
+            {
+                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null)

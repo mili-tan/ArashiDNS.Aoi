@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Arashi.Aoi.DNS;
+using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -44,6 +45,22 @@ namespace Arashi.Aoi.Routes
                         transIdEnable: Config.TransIdEnable);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
+            });
+
+            endpoints.Map("/refresh-dns", async context =>
+            {
+                var ip = RealIP.Get(context);
+                if (Enum.TryParse(context.Request.Query["type"].ToString(), true, out RecordType type) &&
+                    DomainName.TryParse(context.Request.Query["name"].ToString(), out var name))
+                {
+                    DnsCache.Remove(name, type, ip);
+                    await context.WriteResponseAsync(
+                        JsonConvert.SerializeObject(new {status = "OK", type, domain = name.ToString()},
+                            Formatting.Indented),
+                        StatusCodes.Status200OK, "application/json");
+                }
+                else
+                    await context.WriteResponseAsync("Invalid query", StatusCodes.Status403Forbidden);
             });
         }
 
@@ -90,7 +107,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context,
-            bool CnDns = true, bool Cache = true)
+            bool CnDns = true, bool Cache = true, IPAddress ipAddress = null)
         {
             try
             {
@@ -111,7 +128,10 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+            if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
+                ipAddress = UpEndPoint.Address;
+
+            return DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
                    DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
 
