@@ -119,3 +119,5 @@ Check out [Credits](https://github.com/mili-tan/ArashiDNS.Aoi/blob/master/CREDIT
 ## License
 
 Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). 
+
+<sup>ArashiDNS™ is a trademark of Milkey Tan.</sup>
