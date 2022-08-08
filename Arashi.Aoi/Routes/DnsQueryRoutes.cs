@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -24,25 +25,32 @@ namespace Arashi.Aoi.Routes
         {
             endpoints.Map(Config.QueryPerfix, async context =>
             {
+                var idEnable = Config.TransIdEnable;
+                var userAgent = context.Request.Headers.UserAgent;
                 var queryDictionary = context.Request.Query;
+                var uaList = new List<string> {"intra", "chrome", "curl"};
+
+                if (string.IsNullOrWhiteSpace(userAgent) || uaList.Any(item => userAgent.Contains(item)))
+                    idEnable = false;
+
                 if (context.Request.Method == "POST")
                 {
                     var dnsq = await DNSParser.FromPostByteAsync(context);
                     await ReturnContext(context, true,
                         DnsQuery(dnsq, context),
-                        transIdEnable: Config.TransIdEnable, id: dnsq.TransactionID);
+                        transIdEnable: idEnable, id: dnsq.TransactionID);
                 }
                 else if (queryDictionary.ContainsKey("dns"))
                 {
                     var dnsq = DNSParser.FromWebBase64(context);
                     await ReturnContext(context, true,
                         DnsQuery(dnsq, context),
-                        transIdEnable: Config.TransIdEnable, id: dnsq.TransactionID);
+                        transIdEnable: idEnable, id: dnsq.TransactionID);
                 }
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
                         DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
-                        transIdEnable: Config.TransIdEnable);
+                        transIdEnable: idEnable);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
             });
