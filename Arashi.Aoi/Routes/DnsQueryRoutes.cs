@@ -26,7 +26,7 @@ namespace Arashi.Aoi.Routes
             endpoints.Map(Config.QueryPerfix, async context =>
             {
                 var idEnable = Config.TransIdEnable;
-                var userAgent = context.Request.Headers.UserAgent;
+                var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
                 var queryDictionary = context.Request.Query;
                 var uaList = new List<string> {"intra", "chrome", "curl"};
 
