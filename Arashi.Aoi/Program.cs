@@ -253,6 +253,7 @@ namespace Arashi.Aoi
                     .ConfigureKestrel(options =>
                     {
                         options.Limits.MaxRequestBodySize = 1024;
+                        options.Limits.MaxResponseBufferSize = 2048;
                         options.Listen(ipEndPoint, listenOptions =>
                         {
                             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
