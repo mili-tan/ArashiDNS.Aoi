@@ -4,9 +4,11 @@ using System.Timers;
 using Arashi.Aoi;
 using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using static Arashi.AoiConfig;
@@ -34,10 +36,18 @@ namespace Arashi
                 var timer = new Timer(600000) { Enabled = true, AutoReset = true };
                 timer.Elapsed += (_, _) => DNSRank.Database.Checkpoint();
             }
+
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>(new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json").Build().GetSection("IpRateLimiting"));
+            services.AddInMemoryRateLimiting();
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseIpRateLimiting();
+
             if (loggerFactory != null) LoggerFactory = loggerFactory;
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
 
