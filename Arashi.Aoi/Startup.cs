@@ -46,9 +46,8 @@ namespace Arashi
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseIpRateLimiting();
-
             if (loggerFactory != null) LoggerFactory = loggerFactory;
+            if (Config.RateLimitingEnable) app.UseIpRateLimiting();
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
 
             app.UseRouting().UseEndpoints(endpoints => endpoints.MapGet("/",

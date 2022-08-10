@@ -25,7 +25,8 @@ namespace Arashi.Azure
                 ChinaListEnable = true,
                 UseResolveRoute = true,
                 UseAdminRoute = true,
-                TransIdEnable = true
+                TransIdEnable = true,
+                RateLimitingEnable = true
             };
 
             DNSRank.UseS3 = false;
