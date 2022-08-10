@@ -9,6 +9,7 @@
     <RestoreAdditionalProjectSources>
       https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-experimental/nuget/v3/index.json
     </RestoreAdditionalProjectSources>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>

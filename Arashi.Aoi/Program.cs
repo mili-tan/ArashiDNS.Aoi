@@ -258,7 +258,7 @@ namespace Arashi.Aoi
                         options.Limits.MaxResponseBufferSize = 2048;
                         options.Listen(ipEndPoint, listenOptions =>
                         {
-                            listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                            listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
                             if (!httpsOption.HasValue()) return;
                             if (!pfxOption.HasValue() && !pemOption.HasValue()) listenOptions.UseHttps();
                             if (pfxOption.HasValue())

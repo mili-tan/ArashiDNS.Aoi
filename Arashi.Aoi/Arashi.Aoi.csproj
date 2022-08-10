@@ -8,6 +8,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ServerGarbageCollection>false</ServerGarbageCollection>
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>
