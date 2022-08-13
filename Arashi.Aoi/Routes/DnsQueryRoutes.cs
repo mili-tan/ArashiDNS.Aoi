@@ -30,7 +30,7 @@ namespace Arashi.Aoi.Routes
                 var queryDictionary = context.Request.Query;
                 var uaList = new List<string> {"intra", "chrome", "curl"};
 
-                if (string.IsNullOrWhiteSpace(userAgent) || uaList.Any(item => userAgent.Contains(item)))
+                if (!string.IsNullOrWhiteSpace(userAgent) && uaList.Any(item => userAgent.Contains(item)))
                     idEnable = false;
 
                 if (context.Request.Method == "POST")
