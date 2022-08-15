@@ -25,13 +25,18 @@ namespace Arashi.Aoi.Routes
         {
             endpoints.Map(Config.QueryPerfix, async context =>
             {
-                var idEnable = Config.TransIdEnable;
-                var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
                 var queryDictionary = context.Request.Query;
-                var uaList = new List<string> {"intra", "chrome", "curl"};
+                var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
+                
+                var idEnable = Config.TransIdEnable;
+                var noIdUaList = new List<string> {"intra", "chrome", "curl"};
+                var needIdUaList = new List<string> { "go-http-client", "dnscrypt-proxy", "dnscrypt" };
 
-                if (!string.IsNullOrWhiteSpace(userAgent) && uaList.Any(item => userAgent.Contains(item)))
-                    idEnable = false;
+                if (!string.IsNullOrWhiteSpace(userAgent))
+                    if (noIdUaList.Any(item => userAgent.Contains(item)))
+                        idEnable = false;
+                    else if (needIdUaList.Any(item => userAgent.Contains(item)))
+                        idEnable = true;
 
                 if (context.Request.Method == "POST")
                 {
