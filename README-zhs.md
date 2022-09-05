@@ -117,3 +117,5 @@ EDNS-Client-Subnet 已默认启用，但是您的上游源 DNS 服务器也需�
 ## License
 
 Copyright (c) 2020 Milkey Tan. Code released under the [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/). 
+
+<sup>ArashiDNS™ 是 Milkey Tan 的专有商标。</sup>
