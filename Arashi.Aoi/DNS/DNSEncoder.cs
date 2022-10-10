@@ -22,7 +22,8 @@ namespace Arashi
                 });
         }
 
-        public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, ushort id = 0)
+        public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = true,
+            ushort id = 0)
         {
             if (info == null) Init();
 
@@ -36,14 +37,14 @@ namespace Arashi
             //if (dnsMsg.ReturnCode != ReturnCode.NoError) dnsMsg.TransactionID = 0;
 
             foreach (var item in new List<DnsRecordBase>(dnsMsg.AnswerRecords).Where(item =>
-                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))))
+                         item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                         item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))))
                 dnsMsg.AnswerRecords.Remove(item);
 
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             var args = new object[] {false, null};
             if (info != null) info.Invoke(dnsMsg, args);
-            return bytesTrimEnd(args[1] as byte[]);
+            return trimEnable ? bytesTrimEnd(args[1] as byte[]) : args[1] as byte[];
         }
 
         private static byte[] bytesTrimEnd(byte[] bytes, bool appendZero = false)

@@ -78,7 +78,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
-            bool cache = true, bool transIdEnable = false, ushort id = 0)
+            bool cacheEnable = true, bool transIdEnable = false, bool trimEnable = false, ushort id = 0)
         {
             try
             {
@@ -97,21 +97,21 @@ namespace Arashi.Aoi.Routes
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transIdEnable, id),
+                            DnsEncoder.Encode(dnsMsg, transIdEnable, trimEnable, id),
                             type: "application/dns-message");
                 }
                 else
                 {
                     if (GetClientType(queryDictionary, "message"))
                         await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transIdEnable, id),
+                            DnsEncoder.Encode(dnsMsg, transIdEnable, trimEnable, id),
                             type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                 }
 
-                if (cache) WriteLogCache(dnsMsg, context);
+                if (cacheEnable) WriteLogCache(dnsMsg, context);
             }
             catch (Exception e)
             {
