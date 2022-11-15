@@ -4,9 +4,9 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <!-- <IlcOptimizationPreference>Speed</IlcOptimizationPreference> -->
-    <!-- <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies> -->
-    <!-- <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained> -->
-    <!-- <NativeAOT>true</NativeAOT> -->
+    <!-- <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies> --><!-- <NativeAOT>true</NativeAOT> -->
+
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
 
