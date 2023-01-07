@@ -30,7 +30,7 @@ namespace Arashi.Aoi.Routes
                     latency = res.times.Average(),
                     msg = (res.times.Sum() != 0) ? "OK" : "Timeout",
                     res.ttl,
-                    res.ip
+                    ip = res.ip.ToString()
                 };
                 await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented),
                     type: "application/json");
@@ -46,7 +46,7 @@ namespace Arashi.Aoi.Routes
                     latency = res.times.Average(),
                     msg = (res.times.Sum() != 0) ? "OK" : "Timeout",
                     res.ttl,
-                    res.ip
+                    ip = res.ip.ToString()
                 };
                 await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented), type: "application/json");
             });
