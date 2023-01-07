@@ -20,6 +20,7 @@ namespace Arashi
         public bool ChinaListEnable = false;
         public bool OnlyTcpEnable = false;
         public bool UseIpRoute = true;
+        public bool UseErikoRoute = false;
         public bool UseAdminRoute = false;
         public bool UseResolveRoute = false;
         public bool UseExceptionPage = true;

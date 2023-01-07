@@ -25,6 +25,7 @@ namespace Arashi.Azure
                 ChinaListEnable = true,
                 UseResolveRoute = true,
                 UseAdminRoute = true,
+                UseErikoRoute = true,
                 TransIdEnable = true,
                 RateLimitingEnable = true
             };
