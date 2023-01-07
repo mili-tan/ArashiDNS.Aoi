@@ -75,9 +75,9 @@ namespace Arashi.Aoi.Routes
                 try
                 {
                     var result = socks.BeginConnect(point, null, null);
+                    if (!result.AsyncWaitHandle.WaitOne(1000, true)) continue;
                     ttl = socks.Ttl;
                     ip = point.Address;
-                    if (!result.AsyncWaitHandle.WaitOne(1000, true)) continue;
                 }
                 catch
                 {
