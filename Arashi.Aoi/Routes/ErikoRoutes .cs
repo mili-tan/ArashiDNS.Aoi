@@ -7,11 +7,11 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Amazon.S3;
+using ARSoft.Tools.Net;
+using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Arashi.Aoi.Routes
 {
@@ -49,6 +49,68 @@ namespace Arashi.Aoi.Routes
                     ip = res.ip.ToString()
                 };
                 await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented), type: "application/json");
+            });
+            endpoints.Map("/eriko/dns/query/{addr}", async context =>
+            {
+                try
+                {
+                    var res = await new DnsClient(IPAddress.Parse("8.8.8.8"), 1000).ResolveAsync(
+                        DomainName.Parse(context.GetRouteValue("addr").ToString()));
+                    var obj = new
+                    {
+                        protocol = "dns",
+                        state = true,
+                        msg = "OK",
+                        rcode = res.ReturnCode,
+                        ttl = res.AnswerRecords.First().TimeToLive,
+                        rtype = res.AnswerRecords.First().RecordType,
+                        rdata = res.AnswerRecords.First().ToString().Split(' ').Last()
+                    };
+                    await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented),
+                        type: "application/json");
+                }
+                catch (Exception)
+                {
+                    await context.WriteResponseAsync(JsonConvert.SerializeObject(new
+                    {
+                        protocol = "dns",
+                        state = false,
+                        msg = "Error"
+                    }, Formatting.Indented), type: "application/json");
+                }
+            });
+
+            endpoints.Map("/eriko/dns/check/{addr}", async context =>
+            {
+                try
+                {
+                    var res = await new DnsClient(IPAddress.Parse("93.184.216.34"), 100).ResolveAsync(
+                        DomainName.Parse(context.GetRouteValue("addr").ToString()));
+                    if (res.AnswerRecords.Count == 0) throw new Exception();
+                    var obj = new
+                    {
+                        protocol = "dns",
+                        state = true,
+                        spoof = true,
+                        msg = "probably",
+                        rcode = res.ReturnCode,
+                        ttl = res.AnswerRecords.First().TimeToLive,
+                        rtype = res.AnswerRecords.First().RecordType,
+                        rdata = res.AnswerRecords.First().ToString().Split(' ').Last()
+                    };
+                    await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented),
+                        type: "application/json");
+                }
+                catch (Exception)
+                {
+                    await context.WriteResponseAsync(JsonConvert.SerializeObject(new
+                    {
+                        protocol = "dns",
+                        state = true,
+                        spoof = false,
+                        msg = "probably not"
+                    }, Formatting.Indented), type: "application/json");
+                }
             });
         }
 
