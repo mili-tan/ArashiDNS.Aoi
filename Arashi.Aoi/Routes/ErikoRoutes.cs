@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
@@ -22,32 +23,40 @@ namespace Arashi.Aoi.Routes
 
             endpoints.Map("/eriko/ping/icmp/{addr}", async context =>
             {
-                var res = ping(context.GetRouteValue("addr").ToString(), 1);
-                var obj = new
+                var obj = new object();
+                await Task.Run(() =>
                 {
-                    protocol = "tcp",
-                    state = (res.times.Sum() != 0),
-                    latency = res.times.Average(),
-                    msg = (res.times.Sum() != 0) ? "OK" : "Timeout",
-                    res.ttl,
-                    ip = res.ip.ToString()
-                };
+                    var (times, ttl, ip) = ping(context.GetRouteValue("addr")?.ToString(), 1);
+                    obj = new
+                    {
+                        protocol = "tcp",
+                        state = times.Sum() != 0,
+                        latency = times.Average(),
+                        msg = times.Sum() != 0 ? "OK" : "Timeout",
+                        ttl,
+                        ip = ip.ToString()
+                    };
+                });
                 await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented),
                     type: "application/json");
             });
             endpoints.Map("/eriko/ping/tcp/{addr}/{port}", async context =>
             {
-                var res = tcping(context.GetRouteValue("addr").ToString(),
-                    int.Parse(context.GetRouteValue("port").ToString()), 1);
-                var obj = new
+                var obj = new object();
+                await Task.Run(() =>
                 {
-                    protocol = "tcp",
-                    state = (res.times.Sum() != 0),
-                    latency = res.times.Average(),
-                    msg = (res.times.Sum() != 0) ? "OK" : "Timeout",
-                    res.ttl,
-                    ip = res.ip.ToString()
-                };
+                    var (times, ttl, ip) = tcping(context.GetRouteValue("addr")?.ToString(),
+                        int.Parse(context.GetRouteValue("port")?.ToString() ?? "80"), 1);
+                    obj = new
+                    {
+                        protocol = "tcp",
+                        state = times.Sum() != 0,
+                        latency = times.Average(),
+                        msg = times.Sum() != 0 ? "OK" : "Timeout",
+                        ttl,
+                        ip = ip.ToString()
+                    };
+                });
                 await context.WriteResponseAsync(JsonConvert.SerializeObject(obj, Formatting.Indented), type: "application/json");
             });
             endpoints.Map("/eriko/dns/query/{addr}", async context =>
@@ -55,7 +64,7 @@ namespace Arashi.Aoi.Routes
                 try
                 {
                     var res = await new DnsClient(IPAddress.Parse("8.8.8.8"), 1000).ResolveAsync(
-                        DomainName.Parse(context.GetRouteValue("addr").ToString()));
+                        DomainName.Parse(context.GetRouteValue("addr")?.ToString()));
                     var obj = new
                     {
                         protocol = "dns",
@@ -85,7 +94,7 @@ namespace Arashi.Aoi.Routes
                 try
                 {
                     var res = await new DnsClient(IPAddress.Parse("93.184.216.34"), 100).ResolveAsync(
-                        DomainName.Parse(context.GetRouteValue("addr").ToString()));
+                        DomainName.Parse(context.GetRouteValue("addr")?.ToString()));
                     if (res.AnswerRecords.Count == 0) throw new Exception();
                     var obj = new
                     {
