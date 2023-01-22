@@ -83,6 +83,7 @@ namespace Arashi.Aoi.Routes
             try
             {
                 var queryDictionary = context.Request.Query;
+                var randomPddingKey = queryDictionary.ContainsKey("random_padding") || RandomPddingEnable;
                 if (dnsMsg == null)
                 {
                     await context.WriteResponseAsync("Remote DNS server timeout",
@@ -94,7 +95,7 @@ namespace Arashi.Aoi.Routes
                 {
                     if (GetClientType(queryDictionary, "json"))
                         await context.WriteResponseAsync(
-                            DnsJsonEncoder.Encode(dnsMsg, queryDictionary.ContainsKey("random_padding"))
+                            DnsJsonEncoder.Encode(dnsMsg, randomPddingKey)
                                 .ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
@@ -110,7 +111,7 @@ namespace Arashi.Aoi.Routes
                             type: "application/dns-message");
                     else
                         await context.WriteResponseAsync(
-                            DnsJsonEncoder.Encode(dnsMsg, queryDictionary.ContainsKey("random_padding"))
+                            DnsJsonEncoder.Encode(dnsMsg, randomPddingKey)
                                 .ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                 }
