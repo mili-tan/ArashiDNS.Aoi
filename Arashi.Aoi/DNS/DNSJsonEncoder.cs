@@ -9,7 +9,7 @@ namespace Arashi
 {
     public class DnsJsonEncoder
     {
-        public static JObject Encode(DnsMessage dnsMsg)
+        public static JObject Encode(DnsMessage dnsMsg, bool randomPadding = false)
         {
             var dnsJObject = new JObject
             {
@@ -25,9 +25,9 @@ namespace Arashi
             {
                 var dnsQuestionsJArray = new JArray();
                 foreach (var dnsQjObject in dnsMsg.Questions.Select(item => new JObject
-                {
-                    {"name", item.Name.ToString()}, {"type", (int) item.RecordType}
-                })) dnsQuestionsJArray.Add(dnsQjObject);
+                         {
+                             {"name", item.Name.ToString()}, {"type", (int) item.RecordType}
+                         })) dnsQuestionsJArray.Add(dnsQjObject);
 
                 dnsJObject.Add("Question", dnsQuestionsJArray);
             });
@@ -123,7 +123,7 @@ namespace Arashi
                 if (dnsMsg.AuthorityRecords.Count > 0) dnsJObject.Add("Authority", dnsAuthorityJArray);
             });
 
-            
+
             var tEDns = Task.Run(() =>
             {
                 if (!dnsMsg.IsEDnsEnabled) return;
@@ -137,6 +137,10 @@ namespace Arashi
                         });
                 }
             });
+
+            if (randomPadding)
+                dnsJObject.Add("RandomPadding", Guid.NewGuid().ToString().Replace("-", "")
+                    [..new Random(DateTime.Now.Millisecond).Next(1, 33)]);
 
             Task.WaitAll(tQuestion, tAnswer, tAuthority, tEDns);
             return dnsJObject;

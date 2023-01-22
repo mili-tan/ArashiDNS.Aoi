@@ -93,7 +93,9 @@ namespace Arashi.Aoi.Routes
                 if (returnMsg)
                 {
                     if (GetClientType(queryDictionary, "json"))
-                        await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        await context.WriteResponseAsync(
+                            DnsJsonEncoder.Encode(dnsMsg, queryDictionary.ContainsKey("random_padding"))
+                                .ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                     else
                         await context.WriteResponseAsync(
@@ -107,7 +109,9 @@ namespace Arashi.Aoi.Routes
                             DnsEncoder.Encode(dnsMsg, transIdEnable, trimEnable, id),
                             type: "application/dns-message");
                     else
-                        await context.WriteResponseAsync(DnsJsonEncoder.Encode(dnsMsg).ToString(Formatting.None),
+                        await context.WriteResponseAsync(
+                            DnsJsonEncoder.Encode(dnsMsg, queryDictionary.ContainsKey("random_padding"))
+                                .ToString(Formatting.None),
                             type: "application/json", headers: Startup.HeaderDict);
                 }
 
