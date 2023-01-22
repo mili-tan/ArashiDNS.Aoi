@@ -83,7 +83,7 @@ namespace Arashi.Aoi.Routes
             try
             {
                 var queryDictionary = context.Request.Query;
-                var randomPddingKey = queryDictionary.ContainsKey("random_padding") || RandomPddingEnable;
+                var randomPddingKey = queryDictionary.ContainsKey("random_padding");
                 if (dnsMsg == null)
                 {
                     await context.WriteResponseAsync("Remote DNS server timeout",
