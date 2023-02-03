@@ -11,9 +11,7 @@ namespace Arashi
 {
     public class DNSChina
     {
-        public static List<DomainName> ChinaList = File.Exists(DNSChinaConfig.Config.ChinaListPath)
-            ? File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList().ConvertAll(DomainName.Parse)
-            : new List<DomainName>();
+        public static List<DomainName> ChinaList = new();
 
         public static bool IsChinaName(DomainName name) => ChinaList.Any(name.IsEqualOrSubDomainOf);
 

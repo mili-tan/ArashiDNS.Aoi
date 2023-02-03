@@ -4,6 +4,7 @@ using System.Timers;
 using Arashi.Aoi;
 using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
+using ARSoft.Tools.Net;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,7 +31,20 @@ namespace Arashi
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
-            
+
+            if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
+                foreach (var item in File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath))
+                {
+                    try
+                    {
+                        DNSChina.ChinaList.Add(DomainName.Parse(item));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+
             if (Config.RankEnable)
             {
                 var timer = new Timer(600000) { Enabled = true, AutoReset = true };
