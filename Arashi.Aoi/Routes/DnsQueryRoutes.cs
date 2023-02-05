@@ -33,10 +33,14 @@ namespace Arashi.Aoi.Routes
                 var needIdUaList = new List<string> { "go-http-client", "dnscrypt-proxy", "dnscrypt" };
 
                 if (!string.IsNullOrWhiteSpace(userAgent))
+                {
                     if (noIdUaList.Any(item => userAgent.Contains(item)))
                         idEnable = false;
                     else if (needIdUaList.Any(item => userAgent.Contains(item)))
                         idEnable = true;
+                }
+                else
+                    idEnable = true;
 
                 if (context.Request.Method == "POST")
                 {

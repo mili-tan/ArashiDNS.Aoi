@@ -14,12 +14,7 @@ namespace Arashi.Aoi
             endpoints.Map("/resolve", async context =>
             {
                 var idEnable = Config.TransIdEnable;
-                var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
                 var queryDictionary = context.Request.Query;
-                var uaList = new List<string> { "intra", "chrome", "curl" };
-
-                if (string.IsNullOrWhiteSpace(userAgent) || uaList.Any(item => userAgent.Contains(item)))
-                    idEnable = false;
 
                 if (context.Request.Method == "POST")
                 {
