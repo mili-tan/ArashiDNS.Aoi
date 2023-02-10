@@ -153,8 +153,8 @@ namespace Arashi.Aoi.Routes
             if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
                 ipAddress = UpEndPoint.Address;
 
-            return DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                   DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            return await DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                   await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
 
         public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
@@ -172,23 +172,23 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                   DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            return await DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                   await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
 
-        public static DnsMessage DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
+        public static async Task<DnsMessage> DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
         {
             if (port == 0) port = 53;
             var client = new DnsClient(ipAddress, timeout)
                 { IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true };
             for (var i = 0; i < Config.Retries; i++)
             {
-                var aMessage = client.SendMessage(dnsMessage);
+                var aMessage = await client.SendMessageAsync(dnsMessage);
                 if (aMessage != null) return aMessage;
             }
 
-            return new DnsClient(ipAddress, timeout, port)
-                { IsTcpEnabled = true, IsUdpEnabled = false }.SendMessage(dnsMessage);
+            return await new DnsClient(ipAddress, timeout, port)
+                { IsTcpEnabled = true, IsUdpEnabled = false }.SendMessageAsync(dnsMessage);
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
