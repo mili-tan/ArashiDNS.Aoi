@@ -46,19 +46,19 @@ namespace Arashi.Aoi.Routes
                 {
                     var dnsq = await DNSParser.FromPostByteAsync(context);
                     await ReturnContext(context, true,
-                        DnsQuery(dnsq, context),
+                        await DnsQuery(dnsq, context),
                         transIdEnable: idEnable, id: dnsq.TransactionID);
                 }
                 else if (queryDictionary.ContainsKey("dns"))
                 {
                     var dnsq = DNSParser.FromWebBase64(context);
                     await ReturnContext(context, true,
-                        DnsQuery(dnsq, context),
+                        await DnsQuery(dnsq, context),
                         transIdEnable: idEnable, id: dnsq.TransactionID);
                 }
                 else if (queryDictionary.ContainsKey("name"))
                     await ReturnContext(context, false,
-                        DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
+                        await DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
                         transIdEnable: idEnable);
                 else
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
@@ -128,7 +128,7 @@ namespace Arashi.Aoi.Routes
             }
         }
 
-        public static DnsMessage DnsQuery(DnsMessage dnsMessage, HttpContext context,
+        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, HttpContext context,
             bool CnDns = true, bool Cache = true, IPAddress ipAddress = null)
         {
             try
@@ -143,7 +143,7 @@ namespace Arashi.Aoi.Routes
                 if (Config.ChinaListEnable && !context.Request.Query.ContainsKey("no-cndns") && CnDns &&
                     DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
-                    return DNSChina.ResolveOverChinaDns(dnsMessage);
+                    return await DNSChina.ResolveOverChinaDns(dnsMessage);
             }
             catch (Exception e)
             {
@@ -157,7 +157,7 @@ namespace Arashi.Aoi.Routes
                    DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
         }
 
-        public static DnsMessage DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
+        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
         {
             try
             {
@@ -165,7 +165,7 @@ namespace Arashi.Aoi.Routes
                 if (Config.ChinaListEnable && CnDns &&
                     DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
-                    return DNSChina.ResolveOverChinaDns(dnsMessage);
+                    return await DNSChina.ResolveOverChinaDns(dnsMessage);
             }
             catch (Exception e)
             {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 
@@ -13,13 +13,18 @@ namespace Arashi
     {
         public static List<DomainName> ChinaList = new();
 
-        public static bool IsChinaName(DomainName name) => ChinaList.Any(name.IsEqualOrSubDomainOf);
-
-        public static DnsMessage ResolveOverChinaDns(DnsMessage dnsMessage)
+        public static bool IsChinaName(DomainName name)
         {
+            return ChinaList.Any(name.IsEqualOrSubDomainOf);
+        }
+
+        public static async Task<DnsMessage> ResolveOverChinaDns(DnsMessage dnsMessage)
+        {
+
             if (!DNSChinaConfig.Config.UseHttpDns)
-                return new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
-                    .SendMessage(dnsMessage);
+                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
+                    .SendMessageAsync(dnsMessage);
+
             var domainName = dnsMessage.Questions.FirstOrDefault()?.Name.ToString().TrimEnd('.');
             var dnsStr = string.Empty;
 
@@ -30,19 +35,15 @@ namespace Arashi
                     foreach (var eDnsOptionBase in dnsMessage.EDnsOptions.Options.ToArray())
                         if (eDnsOptionBase is ClientSubnetOption option)
                         {
-                            var task = new HttpClient().GetStringAsync(
+                            dnsStr = await new HttpClient {Timeout = TimeSpan.FromSeconds(1)}.GetStringAsync(
                                 string.Format(DNSChinaConfig.Config.HttpDnsEcsUrl, domainName, option.Address));
-                            task.Wait(1000);
-                            dnsStr = task.Result;
                             break;
                         }
                 }
                 else
                 {
-                    var task = new HttpClient().GetStringAsync(
+                    dnsStr = await new HttpClient { Timeout = TimeSpan.FromSeconds(1) }.GetStringAsync(
                         string.Format(DNSChinaConfig.Config.HttpDnsUrl, domainName));
-                    task.Wait(1000);
-                    dnsStr = task.Result;
                 }
             }
             catch (Exception e)
