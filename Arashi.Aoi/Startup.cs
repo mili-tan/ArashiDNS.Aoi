@@ -60,6 +60,12 @@ namespace Arashi
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.Use(async (context, next) =>
+            {
+                context.Connection.RemoteIpAddress = RealIP.Get(context);
+                await next(context);
+            });
+
             if (loggerFactory != null) LoggerFactory = loggerFactory;
             if (Config.RateLimitingEnable) app.UseIpRateLimiting();
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();

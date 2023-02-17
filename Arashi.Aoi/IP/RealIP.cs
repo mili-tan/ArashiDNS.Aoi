@@ -14,13 +14,17 @@ namespace Arashi
             {
                 var request = context.Request;
                 if (request.Headers.ContainsKey("X-Forwarded-For"))
-                    return IPAddress.Parse(request.Headers["X-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault()?.Trim());
+                    return IPEndPoint.Parse(request.Headers["X-Forwarded-For"].ToString().Split(',')
+                        .FirstOrDefault().Trim()).Address;
                 if (request.Headers.ContainsKey("X-Vercel-Forwarded-For"))
-                    return IPAddress.Parse(request.Headers["X-Vercel-Forwarded-For"].ToString().Split(',', ':').FirstOrDefault().Trim());
+                    return IPEndPoint.Parse(request.Headers["X-Vercel-Forwarded-For"].ToString().Split(',')
+                        .FirstOrDefault().Trim()).Address;
                 if (request.Headers.ContainsKey("CF-Connecting-IP"))
-                    return IPAddress.Parse(request.Headers["CF-Connecting-IP"].ToString());
+                    return IPEndPoint.Parse(request.Headers["CF-Connecting-IP"].ToString().Split(',')
+                        .FirstOrDefault().Trim()).Address;
                 if (request.Headers.ContainsKey("X-Real-IP"))
-                    return IPAddress.Parse(request.Headers["X-Real-IP"].ToString());
+                    return IPEndPoint.Parse(request.Headers["X-Real-IP"].ToString().Split(',').FirstOrDefault().Trim())
+                        .Address;
                 return context.Connection.RemoteIpAddress;
             }
             catch (Exception e)
