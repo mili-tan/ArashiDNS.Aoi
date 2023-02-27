@@ -2,19 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Arashi
 {
     public class DNSChina
     {
         public static List<DomainName> ChinaList = new();
-        public static IServiceProvider ServiceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
-        public static IHttpClientFactory ClientFactory = ServiceProvider.GetService<IHttpClientFactory>();
 
         public static bool IsChinaName(DomainName name)
         {
@@ -33,7 +29,7 @@ namespace Arashi
 
             try
             {
-                var client = ClientFactory.CreateClient();
+                var client = Startup.ClientFactory.CreateClient("DNSChina");
                 client.Timeout = TimeSpan.FromSeconds(1);
 
                 if (dnsMessage.IsEDnsEnabled)

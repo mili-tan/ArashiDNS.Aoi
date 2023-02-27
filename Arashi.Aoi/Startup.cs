@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Timers;
 using Arashi.Aoi;
 using Arashi.Aoi.DNS;
@@ -20,6 +22,7 @@ namespace Arashi
     {
         private static string SetupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
         public static ILoggerFactory LoggerFactory;
+        public static IHttpClientFactory ClientFactory;
         public static HeaderDictionary HeaderDict = new();
         public static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
@@ -56,9 +59,11 @@ namespace Arashi
                 .AddJsonFile("appsettings.json").Build().GetSection("IpRateLimiting"));
             services.AddInMemoryRateLimiting();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+            services.AddHttpClient();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
+            IHttpClientFactory clientFactory)
         {
             app.Use(async (context, next) =>
             {
@@ -67,6 +72,7 @@ namespace Arashi
             });
 
             if (loggerFactory != null) LoggerFactory = loggerFactory;
+            if (clientFactory != null) ClientFactory = clientFactory;
             if (Config.RateLimitingEnable) app.UseIpRateLimiting();
             if (Config.UseExceptionPage) app.UseDeveloperExceptionPage();
 
