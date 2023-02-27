@@ -21,7 +21,8 @@ namespace Arashi
         {
 
             if (!DNSChinaConfig.Config.UseHttpDns)
-                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
+                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream),
+                        AoiConfig.Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
             var domainName = dnsMessage.Questions.FirstOrDefault()?.Name.ToString().TrimEnd('.');
@@ -30,7 +31,6 @@ namespace Arashi
             try
             {
                 var client = Startup.ClientFactory.CreateClient("DNSChina");
-                client.Timeout = TimeSpan.FromSeconds(1);
 
                 if (dnsMessage.IsEDnsEnabled)
                 {

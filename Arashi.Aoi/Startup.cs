@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Timers;
@@ -59,7 +58,7 @@ namespace Arashi
                 .AddJsonFile("appsettings.json").Build().GetSection("IpRateLimiting"));
             services.AddInMemoryRateLimiting();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-            services.AddHttpClient();
+            services.AddHttpClient("DNSChina", client => client.Timeout = TimeSpan.FromSeconds(1));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
