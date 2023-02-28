@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,6 +13,30 @@ namespace Arashi
     {
         public static List<DomainName> ChinaList = new();
 
+        public static void Init()
+        {
+            try
+            {
+                if (ChinaList.Any() || !File.Exists(DNSChinaConfig.Config.ChinaListPath)) return;
+                Parallel.ForEach(File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath), item =>
+                {
+                    try
+                    {
+                        ChinaList.Add(DomainName.Parse(item));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                });
+                GC.Collect();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         public static bool IsChinaName(DomainName name)
         {
             return ChinaList.Any(name.IsEqualOrSubDomainOf);
@@ -21,8 +46,7 @@ namespace Arashi
         {
 
             if (!DNSChinaConfig.Config.UseHttpDns)
-                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream),
-                        AoiConfig.Config.TimeOut)
+                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
             var domainName = dnsMessage.Questions.FirstOrDefault()?.Name.ToString().TrimEnd('.');
@@ -31,7 +55,6 @@ namespace Arashi
             try
             {
                 var client = Startup.ClientFactory.CreateClient("DNSChina");
-
                 if (dnsMessage.IsEDnsEnabled)
                 {
                     foreach (var eDnsOptionBase in dnsMessage.EDnsOptions.Options.ToArray())
@@ -44,7 +67,6 @@ namespace Arashi
                 }
                 else
                 {
-
                     dnsStr = await client.GetStringAsync(
                         string.Format(DNSChinaConfig.Config.HttpDnsUrl, domainName));
                 }

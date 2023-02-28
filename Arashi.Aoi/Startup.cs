@@ -30,22 +30,11 @@ namespace Arashi
         public void ConfigureServices(IServiceCollection services)
         {
             DnsEncoder.Init();
+            DNSChina.Init();
+
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
-
-            if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
-                foreach (var item in File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath))
-                {
-                    try
-                    {
-                        DNSChina.ChinaList.Add(DomainName.Parse(item));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
 
             if (Config.RankEnable)
             {
