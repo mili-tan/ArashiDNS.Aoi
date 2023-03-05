@@ -31,6 +31,7 @@ namespace Arashi
         {
             DnsEncoder.Init();
             DNSChina.Init();
+            GeoIP.Init();
 
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
