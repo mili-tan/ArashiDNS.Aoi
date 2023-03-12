@@ -153,8 +153,11 @@ namespace Arashi.Aoi.Routes
             if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
                 ipAddress = UpEndPoint.Address;
 
-            return await DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                   await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            var res = await DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                      await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            if (res.ReturnCode == ReturnCode.Refused)
+                res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            return res;
         }
 
         public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
@@ -172,8 +175,11 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            return await DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                   await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            var res = await DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
+                      await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            if (res.ReturnCode == ReturnCode.Refused)
+                res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            return res;
         }
 
         public static async Task<DnsMessage> DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
