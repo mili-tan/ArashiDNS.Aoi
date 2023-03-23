@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 
@@ -10,23 +8,10 @@ namespace Arashi
 {
     public static class DnsEncoder
     {
-        private static MethodInfo info;
-
-        public static void Init()
-        {
-            Parallel.ForEach(new DnsMessage().GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic),
-                mInfo =>
-                {
-                    if (mInfo.ToString() == "Int32 Encode(Boolean, Byte[] ByRef)")
-                        info = mInfo;
-                });
-        }
 
         public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = true,
             ushort id = 0)
         {
-            if (info == null) Init();
-
             dnsMsg.IsRecursionAllowed = true;
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
@@ -42,9 +27,8 @@ namespace Arashi
                 dnsMsg.AnswerRecords.Remove(item);
 
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
-            var args = new object[] {false, null};
-            if (info != null) info.Invoke(dnsMsg, args);
-            return trimEnable ? bytesTrimEnd(args[1] as byte[]) : args[1] as byte[];
+            dnsMsg.Encode(false, out var dnsBytes);
+            return trimEnable ? bytesTrimEnd(dnsBytes) : dnsBytes;
         }
 
         private static byte[] bytesTrimEnd(byte[] bytes, bool appendZero = false)
@@ -64,13 +48,11 @@ namespace Arashi
 
         public static byte[] EncodeQuery(DnsMessage dnsQMsg)
         {
-            if (info == null) Init();
             dnsQMsg.IsRecursionAllowed = true;
             dnsQMsg.IsRecursionDesired = true;
             dnsQMsg.TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 10));
-            var args = new object[] {false, null};
-            info.Invoke(dnsQMsg, args);
-            return args[1] as byte[];
+            dnsQMsg.Encode(false, out var dnsBytes);
+            return dnsBytes;
         }
     }
 }

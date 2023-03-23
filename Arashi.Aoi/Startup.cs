@@ -29,7 +29,6 @@ namespace Arashi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            DnsEncoder.Init();
             DNSChina.Init();
             GeoIP.Init();
 
