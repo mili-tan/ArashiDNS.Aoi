@@ -34,15 +34,19 @@ namespace Arashi
         private static byte[] bytesTrimEnd(byte[] bytes, bool appendZero = false)
         {
             var list = bytes.ToList();
+            var count = 0;
             for (var i = bytes.Length - 1; i >= 0; i--)
             {
                 if (bytes[i] == 0x00)
+                {
                     list.RemoveAt(i);
+                    count++;
+                }
                 else
                     break;
             }
 
-            if (appendZero) list.AddRange(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+            if (count % 2 == 1 && appendZero) list.AddRange(new byte[] {0x00});
             return list.ToArray();
         }
 
