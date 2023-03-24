@@ -7,7 +7,7 @@ Type=simple
 DynamicUser=yes
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/arashi.aoi --upstream 127.0.0.1
+ExecStart=/usr/bin/arashi.aoi --upstream %i
 LimitNOFILE=1048576
 
 [Install]
