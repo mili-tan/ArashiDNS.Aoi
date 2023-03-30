@@ -1,0 +1,14 @@
+[Unit]
+Description=ArashiDNS.Aoi
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/arashi.aoi --upstream %i
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
