@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="ARSoft.Tools.Net.HMBSbige" Version="2.3.1" />
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.103.38" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.103.40" />
     <PackageReference Include="LettuceEncrypt" Version="1.2.0" />
     <PackageReference Include="LiteDB" Version="5.0.16" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.2" />
