@@ -6,7 +6,7 @@ using ARSoft.Tools.Net.Dns;
 
 namespace Arashi
 {
-    public static class DnsEncode {
+    public static class DnsEncoder {
 
         public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = true,
             ushort id = 0)
