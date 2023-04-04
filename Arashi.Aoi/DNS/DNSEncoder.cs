@@ -6,8 +6,7 @@ using ARSoft.Tools.Net.Dns;
 
 namespace Arashi
 {
-    public static class DnsEncoder
-    {
+    public static class DnsEncode {
 
         public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = true,
             ushort id = 0)
@@ -16,8 +15,8 @@ namespace Arashi
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
             dnsMsg.IsEDnsEnabled = false;
-            if (dnsMsg.AdditionalRecords != null && dnsMsg.AdditionalRecords.Any()) dnsMsg.AdditionalRecords.Clear();
-            if (dnsMsg.EDnsOptions is {Options: { }} && dnsMsg.EDnsOptions.Options.Any()) dnsMsg.EDnsOptions.Options.Clear();
+            dnsMsg.AdditionalRecords?.Clear();
+            dnsMsg.EDnsOptions?.Options?.Clear();
 
             if (id != 0) dnsMsg.TransactionID = id;
             if (!transIdEnable) dnsMsg.TransactionID = 0;
