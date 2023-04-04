@@ -90,8 +90,10 @@ namespace Arashi.Aoi.Routes
                 {
                     var response = qMsg.CreateResponseInstance();
                     response.ReturnCode = aMsg.ReturnCode;
-                    if (response.AnswerRecords.Any()) response.AnswerRecords.AddRange(response.AnswerRecords);
-                    if (response.AuthorityRecords.Any()) response.AuthorityRecords.AddRange(response.AuthorityRecords);
+                    response.IsRecursionAllowed = true;
+                    response.IsRecursionDesired = true;
+                    if (aMsg.AnswerRecords.Any()) response.AnswerRecords.AddRange(aMsg.AnswerRecords);
+                    if (aMsg.AuthorityRecords.Any()) response.AuthorityRecords.AddRange(aMsg.AuthorityRecords);
                     aMsg = response;
                 }
 
