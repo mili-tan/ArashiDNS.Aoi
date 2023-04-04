@@ -16,8 +16,9 @@ namespace Arashi
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
             dnsMsg.IsEDnsEnabled = false;
-            dnsMsg.EDnsOptions.Options.Clear();
-            dnsMsg.AdditionalRecords.Clear();
+            if (dnsMsg.AdditionalRecords != null && dnsMsg.AdditionalRecords.Any()) dnsMsg.AdditionalRecords.Clear();
+            if (dnsMsg.EDnsOptions is {Options: { }} && dnsMsg.EDnsOptions.Options.Any()) dnsMsg.EDnsOptions.Options.Clear();
+
             if (id != 0) dnsMsg.TransactionID = id;
             if (!transIdEnable) dnsMsg.TransactionID = 0;
             //if (dnsMsg.ReturnCode != ReturnCode.NoError) dnsMsg.TransactionID = 0;
