@@ -26,42 +26,34 @@ namespace Arashi.Aoi.Routes
             endpoints.Map(Config.QueryPerfix, async context =>
             {
                 var queryDictionary = context.Request.Query;
-                var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
-                
-                var idEnable = Config.TransIdEnable;
-                var noIdUaList = new List<string> {"intra", "chrome", "curl"};
-                var needIdUaList = new List<string> { "go-http-client", "dnscrypt-proxy", "dnscrypt" };
 
-                if (!string.IsNullOrWhiteSpace(userAgent))
-                {
-                    if (noIdUaList.Any(item => userAgent.Contains(item)))
-                        idEnable = false;
-                    else if (needIdUaList.Any(item => userAgent.Contains(item)))
-                        idEnable = true;
-                }
-                else
-                    idEnable = true;
+                DnsMessage qMsg;
+                bool returnMsg;
 
                 if (context.Request.Method == "POST")
                 {
-                    var dnsq = await DNSParser.FromPostByteAsync(context);
-                    await ReturnContext(context, true,
-                        await DnsQuery(dnsq, context),
-                        transIdEnable: idEnable, id: dnsq.TransactionID);
+                    qMsg = await DNSParser.FromPostByteAsync(context);
+                    returnMsg = true;
                 }
                 else if (queryDictionary.ContainsKey("dns"))
                 {
-                    var dnsq = DNSParser.FromWebBase64(context);
-                    await ReturnContext(context, true,
-                        await DnsQuery(dnsq, context),
-                        transIdEnable: idEnable, id: dnsq.TransactionID);
+                    qMsg = DNSParser.FromWebBase64(context);
+                    returnMsg = true;
                 }
                 else if (queryDictionary.ContainsKey("name"))
-                    await ReturnContext(context, false,
-                        await DnsQuery(DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask), context),
-                        transIdEnable: idEnable);
+                {
+                    qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
+                    returnMsg = false;
+                }
                 else
+                {
                     await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
+                    return;
+                }
+
+                var aMsg = await DnsQuery(qMsg, context);
+                await ReturnContext(context, returnMsg, aMsg,
+                    transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
             });
 
             endpoints.Map("/refresh-dns", async context =>
@@ -200,6 +192,30 @@ namespace Arashi.Aoi.Routes
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
         {
             return queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains(key);
+        }
+
+        public static bool GetIdEnable(HttpContext context)
+        {
+            var queryDictionary = context.Request.Query;
+            var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
+
+            var idEnable = Config.TransIdEnable;
+            var noIdUaList = new List<string> {"intra", "chrome", "curl"};
+            var needIdUaList = new List<string> {"go-http-client", "dnscrypt-proxy", "dnscrypt"};
+
+            if (queryDictionary.TryGetValue("idEnable", out var str) && bool.TryParse(str, out var idResult))
+                idEnable = idResult;
+            else if (!string.IsNullOrWhiteSpace(userAgent))
+            {
+                if (noIdUaList.Any(item => userAgent.Contains(item)))
+                    idEnable = false;
+                else if (needIdUaList.Any(item => userAgent.Contains(item)))
+                    idEnable = true;
+            }
+            else
+                idEnable = true;
+
+            return idEnable;
         }
 
         public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
