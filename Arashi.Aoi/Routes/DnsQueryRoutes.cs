@@ -52,7 +52,7 @@ namespace Arashi.Aoi.Routes
                 }
 
                 var aMsg = await DnsQuery(qMsg, context);
-                await ReturnContext(context, returnMsg, aMsg,
+                await ReturnContext(context, returnMsg, aMsg, qMsg,
                     transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
             });
 
@@ -73,46 +73,43 @@ namespace Arashi.Aoi.Routes
             });
         }
 
-        public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage dnsMsg,
+        public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg, DnsMessage qMsg = null,
             bool cacheEnable = true, bool transIdEnable = false, bool trimEnable = false, ushort id = 0)
         {
             try
             {
                 var queryDictionary = context.Request.Query;
-                var randomPddingKey = queryDictionary.ContainsKey("random_padding");
-                if (dnsMsg == null)
+                var pddingEnable = queryDictionary.ContainsKey("random_padding");
+                if (aMsg == null)
                 {
                     await context.WriteResponseAsync("Remote DNS server timeout",
                         StatusCodes.Status500InternalServerError);
                     return;
                 }
+                if (qMsg != null)
+                {
+                    var response = qMsg.CreateResponseInstance();
+                    response.ReturnCode = aMsg.ReturnCode;
+                    if (response.AnswerRecords.Any()) response.AnswerRecords.AddRange(response.AnswerRecords);
+                    if (response.AuthorityRecords.Any()) response.AuthorityRecords.AddRange(response.AuthorityRecords);
+                    aMsg = response;
+                }
+
+                returnMsg = returnMsg
+                    ? !GetClientType(queryDictionary, "json")
+                    : GetClientType(queryDictionary, "message");
 
                 if (returnMsg)
-                {
-                    if (GetClientType(queryDictionary, "json"))
-                        await context.WriteResponseAsync(
-                            DnsJsonEncoder.Encode(dnsMsg, randomPddingKey)
-                                .ToString(Formatting.None),
-                            type: "application/json", headers: Startup.HeaderDict);
-                    else
-                        await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transIdEnable, trimEnable, id),
-                            type: "application/dns-message");
-                }
+                    await context.WriteResponseAsync(
+                        DnsEncoder.Encode(aMsg, transIdEnable, trimEnable, id),
+                        type: "application/dns-message");
                 else
-                {
-                    if (GetClientType(queryDictionary, "message"))
-                        await context.WriteResponseAsync(
-                            DnsEncoder.Encode(dnsMsg, transIdEnable, trimEnable, id),
-                            type: "application/dns-message");
-                    else
-                        await context.WriteResponseAsync(
-                            DnsJsonEncoder.Encode(dnsMsg, randomPddingKey)
-                                .ToString(Formatting.None),
-                            type: "application/json", headers: Startup.HeaderDict);
-                }
+                    await context.WriteResponseAsync(
+                        DnsJsonEncoder.Encode(aMsg, pddingEnable)
+                            .ToString(Formatting.None),
+                        type: "application/json", headers: Startup.HeaderDict);
 
-                if (cacheEnable) WriteLogCache(dnsMsg, context);
+                if (cacheEnable) WriteLogAndCache(aMsg, context);
             }
             catch (Exception e)
             {
@@ -218,7 +215,7 @@ namespace Arashi.Aoi.Routes
             return idEnable;
         }
 
-        public static void WriteLogCache(DnsMessage dnsMessage, HttpContext context = null)
+        public static void WriteLogAndCache(DnsMessage dnsMessage, HttpContext context = null)
         {
             if (Config.CacheEnable)
                 Task.Run(() =>
