@@ -244,6 +244,9 @@ namespace Arashi.Aoi
                     Console.WriteLine(
                         $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
+                if (!OperatingSystem.IsWindows() && File.Exists("/tmp/arashi-a.sock"))
+                    File.Delete("/tmp/arashi-a.sock");
+
                 var host = new WebHostBuilder()
                     .UseKestrel()
                     .UseContentRoot(AppDomain.CurrentDomain.SetupInformation.ApplicationBase)
@@ -269,6 +272,7 @@ namespace Arashi.Aoi
                                 listenOptions.UseHttps(X509Certificate2.CreateFromPem(
                                     File.ReadAllText(pemOption.Value()), File.ReadAllText(keyOption.Value())));
                         });
+                        if (!OperatingSystem.IsWindows()) options.ListenUnixSocket("/tmp/arashi-a.sock");
                     })
                     .UseStartup<Startup>()
                     .Build();
