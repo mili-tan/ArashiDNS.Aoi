@@ -76,6 +76,7 @@ namespace Arashi.Aoi
             var testOption = cmd.Option("-e|--test", "Exit after passing the test", CommandOptionType.NoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
+            var udsOption = cmd.Option("--uds", string.Empty, CommandOptionType.NoValue);
             var rankOption = cmd.Option("--rank", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             var noUpdateOption = cmd.Option("-nu|--noupdate", string.Empty, CommandOptionType.NoValue);
@@ -244,7 +245,7 @@ namespace Arashi.Aoi
                     Console.WriteLine(
                         $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
-                if (!OperatingSystem.IsWindows() && File.Exists("/tmp/arashi-a.sock"))
+                if (!OperatingSystem.IsWindows() && File.Exists("/tmp/arashi-a.sock") && udsOption.HasValue())
                     File.Delete("/tmp/arashi-a.sock");
 
                 var host = new WebHostBuilder()
@@ -272,7 +273,7 @@ namespace Arashi.Aoi
                                 listenOptions.UseHttps(X509Certificate2.CreateFromPem(
                                     File.ReadAllText(pemOption.Value()), File.ReadAllText(keyOption.Value())));
                         });
-                        if (!OperatingSystem.IsWindows()) options.ListenUnixSocket("/tmp/arashi-a.sock");
+                        if (!OperatingSystem.IsWindows() && udsOption.HasValue()) options.ListenUnixSocket("/tmp/arashi-a.sock");
                     })
                     .UseStartup<Startup>()
                     .Build();
