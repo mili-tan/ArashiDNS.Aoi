@@ -147,7 +147,7 @@ namespace Arashi.Aoi.Routes
 
             var res = await DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
                       await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
-            if (res.ReturnCode is ReturnCode.Refused or ReturnCode.ServerFailure)
+            if (res.ReturnCode != ReturnCode.NoError && res.ReturnCode != ReturnCode.NxDomain)
                 res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
             return res;
         }
