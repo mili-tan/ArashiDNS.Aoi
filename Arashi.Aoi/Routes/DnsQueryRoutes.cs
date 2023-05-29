@@ -124,16 +124,17 @@ namespace Arashi.Aoi.Routes
         {
             try
             {
-                if (Config.CacheEnable && !context.Request.Query.ContainsKey("no-cache") && Cache)
+                var querys = context.Request.Query;
+                if (Config.CacheEnable && !querys.ContainsKey("no-cache") && Cache)
                 {
                     if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
                     if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 }
 
-                if (Config.ChinaListEnable && !context.Request.Query.ContainsKey("no-cndns") && CnDns &&
-                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
-                    dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
+                if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && CnDns &&
+                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault()?.Name) &&
+                    dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A)
                     return await DNSChina.ResolveOverChinaDns(dnsMessage);
             }
             catch (Exception e)
