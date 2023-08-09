@@ -13,9 +13,9 @@ namespace Arashi
     {
         public static void Add(DnsMessage dnsMessage)
         {
-            //dnsMessage.AdditionalRecords.RemoveAll(item =>
-            //    (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-            //     item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt);
+            dnsMessage.AuthorityRecords.RemoveAll(item =>
+                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
@@ -31,9 +31,9 @@ namespace Arashi
 
         public static void Add(DnsMessage dnsMessage, HttpContext context)
         {
-            //dnsMessage.AdditionalRecords.RemoveAll(item =>
-            //    (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-            //     item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt);
+            dnsMessage.AuthorityRecords.RemoveAll(item =>
+                (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt);
 
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
@@ -130,11 +130,8 @@ namespace Arashi
             }
 
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
-            dCacheMsg.AdditionalRecords = new List<DnsRecordBase>
-            {
-                new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
-                    cacheEntity.ExpiresTime.ToString("r"))
-            };
+            dCacheMsg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
+                cacheEntity.ExpiresTime.ToString("r")));
             return dCacheMsg;
         }
 

@@ -15,16 +15,16 @@ namespace Arashi
             dnsMsg.IsRecursionDesired = true;
             dnsMsg.IsQuery = false;
             dnsMsg.IsEDnsEnabled = false;
-            dnsMsg.AdditionalRecords?.Clear();
             dnsMsg.EDnsOptions?.Options?.Clear();
+            dnsMsg.AdditionalRecords?.Clear();
 
             if (id != 0) dnsMsg.TransactionID = id;
             if (!transIdEnable) dnsMsg.TransactionID = 0;
             //if (dnsMsg.ReturnCode != ReturnCode.NoError) dnsMsg.TransactionID = 0;
 
-            //dnsMsg.AdditionalRecords.RemoveAll(item =>
-            //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-            //    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
+            dnsMsg.AuthorityRecords.RemoveAll(item =>
+                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
             dnsMsg.Encode(false, out var dnsBytes);

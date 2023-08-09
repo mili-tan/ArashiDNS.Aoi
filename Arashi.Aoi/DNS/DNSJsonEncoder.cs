@@ -76,26 +76,21 @@ namespace Arashi
             var tNote = Task.Run(() =>
             {
                 var dnsNotesJArray = new JArray();
-                foreach (var item in dnsMsg.AdditionalRecords)
+                foreach (var item in dnsMsg.AuthorityRecords.Where(item => item.RecordType == RecordType.Txt).ToList())
                 {
-                    if (item.RecordType == RecordType.Txt)
-                    {
-                        dnsNotesJArray.Add(new JObject
-                            {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
-                    }
-                    else
-                    {
-                        dnsNotesJArray.Add(new JObject
-                            {{"AdditionalRecord", item.Name.ToString().TrimEnd('.')}});
-                    }
+                    dnsNotesJArray.Add(new JObject
+                        {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
                 }
 
                 if (dnsNotesJArray.Count > 0) dnsJObject.Add("Notes", dnsNotesJArray);
             });
 
-
             var tAuthority = Task.Run(() =>
             {
+                dnsMsg.AuthorityRecords.RemoveAll(item =>
+                    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
+
                 var dnsAuthorityJArray = new JArray();
                 foreach (var item in dnsMsg.AuthorityRecords)
                 {
