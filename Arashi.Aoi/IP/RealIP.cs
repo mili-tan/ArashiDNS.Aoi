@@ -27,11 +27,10 @@ namespace Arashi
                         .Address;
                 return context.Connection.RemoteIpAddress;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 try
                 {
-                    Console.WriteLine(e);
                     return context.Connection.RemoteIpAddress;
                 }
                 catch (Exception)
@@ -43,29 +42,63 @@ namespace Arashi
 
         public static IPAddress GetFromDns(DnsMessage dnsMsg, HttpContext context)
         {
-            if (!dnsMsg.IsEDnsEnabled) return Get(context);
-            foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+            try
             {
-                if (eDnsOptionBase is ClientSubnetOption option)
-                    return option.Address;
-            }
+                if (dnsMsg is { IsEDnsEnabled: false }) return context.Connection.RemoteIpAddress;
+                foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToList())
+                {
+                    if (eDnsOptionBase is ClientSubnetOption option)
+                        return option.Address;
+                }
 
-            return Get(context);
+                return context.Connection.RemoteIpAddress;
+            }
+            catch (Exception)
+            {
+                return context.Connection.RemoteIpAddress;
+            }
+        }
+
+        public static IPAddress GetFromDns(DnsMessage dnsMsg)
+        {
+            try
+            {
+                if (dnsMsg is {IsEDnsEnabled: false}) return IPAddress.Any;
+                foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToList())
+                {
+                    if (eDnsOptionBase is ClientSubnetOption option)
+                        return option.Address;
+                }
+
+                return IPAddress.Any;
+            }
+            catch (Exception)
+            {
+                return IPAddress.Any;
+            }
         }
 
         public static bool TryGetFromDns(DnsMessage dnsMsg, out IPAddress ipAddress)
         {
-            ipAddress = IPAddress.Any;
-
-            if (!dnsMsg.IsEDnsEnabled) return false;
-            foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+            try
             {
-                if (!(eDnsOptionBase is ClientSubnetOption option)) continue;
-                ipAddress = option.Address;
-                return !Equals(option.Address, IPAddress.Any) && !Equals(option.Address, IPAddress.Loopback);
-            }
+                ipAddress = IPAddress.Any;
 
-            return false;
+                if (!dnsMsg.IsEDnsEnabled) return false;
+                foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+                {
+                    if (eDnsOptionBase is not ClientSubnetOption option) continue;
+                    ipAddress = option.Address;
+                    return !Equals(option.Address, IPAddress.Any) && !Equals(option.Address, IPAddress.Loopback);
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                ipAddress = IPAddress.Any;
+                return false;
+            }
         }
     }
 }

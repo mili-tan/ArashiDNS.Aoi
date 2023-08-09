@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Responses;
@@ -13,7 +14,6 @@ namespace Arashi
         public static DatabaseReader CityReader;
         public static AsnResponse GetAsnResponse(IPAddress ipAddress) => AsnReader.Asn(ipAddress);
         public static CityResponse GetCityResponse(IPAddress ipAddress) => CityReader.City(ipAddress);
-
         public static void Init()
         {
             try
@@ -25,6 +25,11 @@ namespace Arashi
             {
                 Console.WriteLine(e);
             }
+        }
+
+        public static long GetAsnNumber(IPAddress ipAddress)
+        {
+            return GetAsnResponse(ipAddress).AutonomousSystemNumber ?? 0;
         }
 
         public static (AsnResponse, CityResponse) GetAsnCityValueTuple(IPAddress ipAddress)
@@ -49,7 +54,7 @@ namespace Arashi
                 asName.Contains("computer network information center"))
                 return "CE";
             if (asName.Contains("mobile") || asName.Contains("cmnet") || asName.Contains("tietong") ||
-                asName.Contains("railway"))
+                asName.Contains("railway") || asName.Contains("railcom"))
                 return "CM";
             if (asName.Contains("unicom") || asName.Contains("cnc") ||
                 asName.Contains("china169") || asName.Contains("netcom"))
@@ -58,7 +63,7 @@ namespace Arashi
                 asName.Contains("inter-exchange") || asName.Contains("ct"))
                 return "CT";
 
-            return string.Empty;
+            return "UN";
         }
 
         public static string GetGeoStr(IPAddress ipAddress)
@@ -67,21 +72,45 @@ namespace Arashi
             {
                 if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
                     return string.Empty;
+                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                    return "IPV6:";
                 var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
                 var cnIsp = GetCnISP(asnResponse, cityResponse);
                 if (!string.IsNullOrEmpty(cnIsp))
-                    return $"{cityResponse.Country.IsoCode}:{cityResponse.MostSpecificSubdivision.IsoCode}:{cnIsp}:";
-                if (!string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.IsoCode)
-                    && cityResponse.Country.IsoCode != "HK" && cityResponse.Country.IsoCode != "SG")
-                    return $"{cityResponse.Country.IsoCode}:{cityResponse.MostSpecificSubdivision.IsoCode}:" +
-                           $"{asnResponse.AutonomousSystemNumber}:";
+                    return
+                        $"{cityResponse.Country.IsoCode ?? "UN"}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:{cnIsp}:";
+                if (cityResponse.Country.IsoCode is "CN" or "US" or "CA" or "RU" or "AU" &&
+                    !string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.IsoCode))
+                    return
+                        $"{cityResponse.Country.IsoCode ?? "UN"}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:" +
+                        $"{asnResponse.AutonomousSystemNumber}:";
 
-                return $"{cityResponse.Country.IsoCode}:{asnResponse.AutonomousSystemNumber}:";
+                return $"{cityResponse.Country.IsoCode ?? "UN"}:{asnResponse.AutonomousSystemNumber}:";
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                return string.Empty;
+                return Convert.ToBase64String(ipAddress.GetAddressBytes()) + ":";
+            }
+        }
+
+        public static string GetGeoFullStr(IPAddress ipAddress)
+        {
+            try
+            {
+                if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
+                    return string.Empty;
+                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                    return "IPv6";
+                var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
+                if (!string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.Name))
+                    return $"{cityResponse.Country.IsoCode} {cityResponse.MostSpecificSubdivision.Name} - " +
+                           $"{asnResponse.AutonomousSystemOrganization}";
+
+                return $"{cityResponse.Country.IsoCode} - {asnResponse.AutonomousSystemOrganization}";
+            }
+            catch (Exception)
+            {
+                return "Unknown";
             }
         }
     }
