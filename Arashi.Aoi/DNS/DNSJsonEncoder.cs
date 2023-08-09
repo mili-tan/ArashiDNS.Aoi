@@ -78,11 +78,15 @@ namespace Arashi
                 var dnsNotesJArray = new JArray();
                 foreach (var item in dnsMsg.AdditionalRecords)
                 {
-                    if ((item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                         item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt)
+                    if (item.RecordType == RecordType.Txt)
                     {
                         dnsNotesJArray.Add(new JObject
                             {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
+                    }
+                    else
+                    {
+                        dnsNotesJArray.Add(new JObject
+                            {{"AdditionalRecord", item.Name.ToString().TrimEnd('.')}});
                     }
                 }
 
