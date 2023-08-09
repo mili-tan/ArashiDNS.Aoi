@@ -91,7 +91,7 @@ namespace Arashi
                     .Cast<DnsRecordBase>().ToList())
             };
             dnsAMessage.Questions.AddRange(dnsMessage.Questions);
-            dnsAMessage.AnswerRecords.Add(new TxtRecord(DomainName.Parse("china.arashi-msg"), 0,
+            dnsAMessage.AdditionalRecords.Add(new TxtRecord(DomainName.Parse("china.arashi-msg"), 0,
                 "ArashiDNS.P ChinaList"));
             return dnsAMessage;
         }

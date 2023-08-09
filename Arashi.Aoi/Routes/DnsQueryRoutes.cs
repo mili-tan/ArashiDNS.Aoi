@@ -221,7 +221,7 @@ namespace Arashi.Aoi.Routes
         public static void WriteLogAndCache(DnsMessage dnsMessage, HttpContext context = null)
         {
             if (Config.CacheEnable &&
-                !dnsMessage.AnswerRecords.Any(i => i.Name.IsEqualOrSubDomainOf(DomainName.Parse("cache.arashi-msg"))))
+                !dnsMessage.AdditionalRecords.Any(i => i.Name.IsEqualOrSubDomainOf(DomainName.Parse("cache.arashi-msg"))))
                 Task.Run(() =>
                 {
                     if (context != null && Config.GeoCacheEnable) DnsCache.Add(dnsMessage, context);

@@ -35,17 +35,8 @@ namespace Arashi
             var tAnswer = Task.Run(() =>
             {
                 var dnsAnswersJArray = new JArray();
-                var dnsNotesJArray = new JArray();
                 foreach (var item in dnsMsg.AnswerRecords)
                 {
-                    if ((item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                         item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt)
-                    {
-                        dnsNotesJArray.Add(new JObject
-                            {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
-                        continue;
-                    }
-
                     var dnsAjObject = new JObject
                     {
                         {"name", item.Name.ToString()},
@@ -80,8 +71,23 @@ namespace Arashi
                 }
 
                 if (dnsMsg.AnswerRecords.Count > 0) dnsJObject.Add("Answer", dnsAnswersJArray);
+            });
+
+            var tNote = Task.Run(() =>
+            {
+                var dnsNotesJArray = new JArray();
+                foreach (var item in dnsMsg.AdditionalRecords.Where(item =>
+                             (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                              item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) &&
+                             item.RecordType == RecordType.Txt))
+                {
+                    dnsNotesJArray.Add(new JObject
+                        {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
+                }
+
                 if (dnsNotesJArray.Count > 0) dnsJObject.Add("Notes", dnsNotesJArray);
             });
+
 
             var tAuthority = Task.Run(() =>
             {
@@ -142,7 +148,7 @@ namespace Arashi
                 dnsJObject.Add("RandomPadding", Guid.NewGuid().ToString().Replace("-", "")
                     [..new Random(DateTime.Now.Millisecond).Next(1, 33)]);
 
-            Task.WaitAll(tQuestion, tAnswer, tAuthority, tEDns);
+            Task.WaitAll(tQuestion, tAnswer, tAuthority, tEDns, tNote);
             return dnsJObject;
         }
     }
