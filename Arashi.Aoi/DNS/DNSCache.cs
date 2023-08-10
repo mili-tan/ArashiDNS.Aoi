@@ -32,8 +32,8 @@ namespace Arashi
         public static void Add(DnsMessage dnsMessage, HttpContext context)
         {
             dnsMessage.AuthorityRecords.RemoveAll(item =>
-                (item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg"))) && item.RecordType == RecordType.Txt);
+                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
