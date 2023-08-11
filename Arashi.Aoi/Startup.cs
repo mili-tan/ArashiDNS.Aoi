@@ -29,8 +29,9 @@ namespace Arashi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            DNSChina.Init();
-            GeoIP.Init();
+            if (Config.ChinaListEnable) DNSChina.Init();
+            if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable) GeoIP.Init();
+
 
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))

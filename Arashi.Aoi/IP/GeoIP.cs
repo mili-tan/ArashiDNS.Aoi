@@ -14,6 +14,9 @@ namespace Arashi
         public static DatabaseReader CityReader;
         public static AsnResponse GetAsnResponse(IPAddress ipAddress) => AsnReader.Asn(ipAddress);
         public static CityResponse GetCityResponse(IPAddress ipAddress) => CityReader.City(ipAddress);
+
+        public static int Retry = 0;
+
         public static void Init()
         {
             try
@@ -24,6 +27,13 @@ namespace Arashi
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                if (Retry != 5)
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(5000);
+                        Retry += 1;
+                        Init();
+                    });
             }
         }
 

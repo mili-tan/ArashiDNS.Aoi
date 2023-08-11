@@ -12,6 +12,7 @@ namespace Arashi
     public class DNSChina
     {
         public static List<DomainName> ChinaList = new();
+        public static int Retry = 0;
 
         public static void Init()
         {
@@ -34,6 +35,13 @@ namespace Arashi
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                if (Retry != 5)
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(5000);
+                        Retry += 1;
+                        Init();
+                    });
             }
         }
 
