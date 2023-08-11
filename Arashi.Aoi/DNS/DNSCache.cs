@@ -13,49 +13,52 @@ namespace Arashi
     {
         public static void Add(DnsMessage dnsMessage)
         {
-            dnsMessage.AuthorityRecords.RemoveAll(item =>
-                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
+            //dnsMessage.AuthorityRecords.RemoveAll(item =>
+            //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+            //    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             if (dnsMessage.AnswerRecords.Count <= 0) return;
-            var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
-            Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+            var record = dnsMessage.AnswerRecords.FirstOrDefault();
+            var quest = dnsMessage.Questions.First();
+            Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}",
                     new CacheEntity
                     {
                         List = dnsMessage.AnswerRecords.ToList(),
                         Time = DateTime.Now,
-                        ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                        ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                     }),
-                dnsRecordBase.TimeToLive);
+                record.TimeToLive);
         }
 
         public static void Add(DnsMessage dnsMessage, HttpContext context)
         {
-            dnsMessage.AuthorityRecords.RemoveAll(item =>
-                item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
+            //dnsMessage.AuthorityRecords.RemoveAll(item =>
+            //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+            //    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             if (dnsMessage.AnswerRecords.Count <= 0) return;
-            var dnsRecordBase = dnsMessage.AnswerRecords.FirstOrDefault();
+            var record = dnsMessage.AnswerRecords.FirstOrDefault();
+            var quest = dnsMessage.Questions.First();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 Add(new CacheItem(
-                        $"DNS:{GeoIP.GetGeoStr(ipAddress)}{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                        $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}",
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
                             Time = DateTime.Now,
-                            ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                            ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                         }),
-                    dnsRecordBase.TimeToLive);
+                    record.TimeToLive);
             else
-                Add(new CacheItem($"DNS:{dnsRecordBase.Name}:{dnsRecordBase.RecordType}",
+                Add(new CacheItem(
+                        $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}",
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
                             Time = DateTime.Now,
-                            ExpiresTime = DateTime.Now.AddSeconds(dnsRecordBase.TimeToLive)
+                            ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                         }),
-                    dnsRecordBase.TimeToLive);
+                    record.TimeToLive);
         }
 
         public static void Add(CacheItem cacheItem, int ttl)
