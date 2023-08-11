@@ -38,7 +38,7 @@ namespace Arashi
                 if (Retry != 5)
                     Task.Run(async () =>
                     {
-                        await Task.Delay(5000);
+                        await Task.Delay(1000);
                         Retry += 1;
                         Init();
                     });
