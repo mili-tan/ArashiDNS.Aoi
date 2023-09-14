@@ -74,7 +74,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg, DnsMessage qMsg = null,
-            bool cacheEnable = true, bool transIdEnable = false, bool trimEnable = false, ushort id = 0)
+            bool transIdEnable = false, bool trimEnable = false, ushort id = 0)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace Arashi.Aoi.Routes
                             .ToString(Formatting.None),
                         type: "application/json", headers: Startup.HeaderDict);
 
-                if (cacheEnable) WriteLogAndCache(aMsg, context);
+                WriteLog(aMsg, context);
             }
             catch (Exception e)
             {
@@ -125,17 +125,26 @@ namespace Arashi.Aoi.Routes
             try
             {
                 var querys = context.Request.Query;
+
+                if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && CnDns &&
+                    dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A &&
+                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name))
+                {
+                    if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context, true))
+                        return DnsCache.Get(dnsMessage, context, true);
+                    if (DnsCache.Contains(dnsMessage, b: true)) return DnsCache.Get(dnsMessage, b: true);
+
+                    var cnres = await DNSChina.ResolveOverChinaDns(dnsMessage);
+                    WriteCache(cnres, context, true);
+                    return cnres;
+                }
+
                 if (Config.CacheEnable && !querys.ContainsKey("no-cache") && Cache)
                 {
                     if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
                     if (DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 }
-
-                if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && CnDns &&
-                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault()?.Name) &&
-                    dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A)
-                    return await DNSChina.ResolveOverChinaDns(dnsMessage);
             }
             catch (Exception e)
             {
@@ -149,6 +158,8 @@ namespace Arashi.Aoi.Routes
                       await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
             if (res.ReturnCode != ReturnCode.NoError && res.ReturnCode != ReturnCode.NxDomain)
                 res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+
+            WriteCache(res, context, false);
             return res;
         }
 
@@ -218,23 +229,8 @@ namespace Arashi.Aoi.Routes
             return idEnable;
         }
 
-        public static void WriteLogAndCache(DnsMessage dnsMessage, HttpContext context = null)
+        public static void WriteLog(DnsMessage dnsMessage, HttpContext context = null)
         {
-            if (Config.CacheEnable &&
-                !dnsMessage.AuthorityRecords.Any(i => i.Name.IsEqualOrSubDomainOf(DomainName.Parse("cache.arashi-msg"))))
-                Task.Run(() =>
-                {
-                    if (context != null && Config.GeoCacheEnable) DnsCache.Add(dnsMessage, context);
-                    else DnsCache.Add(dnsMessage);
-                });
-
-            if (Config.RankEnable)
-                Task.Run(() =>
-                {
-                    DNSRank.AddUp(dnsMessage.AnswerRecords.FirstOrDefault().Name);
-                    if (context != null && Config.GeoCacheEnable) DNSRank.AddUpGeo(dnsMessage, context);
-                });
-
             if (Config.LogEnable)
                 Task.Run(() =>
                 {
@@ -252,6 +248,16 @@ namespace Arashi.Aoi.Routes
                         dnsMessage.AnswerRecords.ForEach(o => Console.WriteLine(ip + ":Answer:" + o));
                         dnsMessage.AuthorityRecords.ForEach(o => Console.WriteLine(ip + ":Authority:" + o));
                     }
+                });
+        }
+
+        public static void WriteCache(DnsMessage res, HttpContext context, bool b)
+        {
+            if (Config.CacheEnable && res != null && res.AnswerRecords.Any())
+                Task.Run(() =>
+                {
+                    if (context != null && Config.GeoCacheEnable) DnsCache.Add(res, context, b);
+                    else DnsCache.Add(res, b);
                 });
         }
     }
