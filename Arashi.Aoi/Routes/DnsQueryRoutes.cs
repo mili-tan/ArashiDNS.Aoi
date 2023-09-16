@@ -129,12 +129,12 @@ namespace Arashi.Aoi.Routes
                     dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A &&
                     DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name))
                 {
-                    if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context, true))
-                        return DnsCache.Get(dnsMessage, context, true);
-                    if (DnsCache.Contains(dnsMessage, b: true)) return DnsCache.Get(dnsMessage, b: true);
+                    if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context, "CN"))
+                        return DnsCache.Get(dnsMessage, context, "CN");
+                    if (DnsCache.Contains(dnsMessage, tag: "CN")) return DnsCache.Get(dnsMessage, tag: "CN");
 
                     var cnres = await DNSChina.ResolveOverChinaDns(dnsMessage);
-                    WriteCache(cnres, context, true);
+                    WriteCache(cnres, context, "CN");
                     return cnres;
                 }
 
@@ -158,7 +158,7 @@ namespace Arashi.Aoi.Routes
             if (res.ReturnCode != ReturnCode.NoError && res.ReturnCode != ReturnCode.NxDomain)
                 res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
 
-            WriteCache(res, context, false);
+            WriteCache(res, context);
             return res;
         }
 
@@ -250,13 +250,13 @@ namespace Arashi.Aoi.Routes
                 });
         }
 
-        public static void WriteCache(DnsMessage res, HttpContext context, bool b)
+        public static void WriteCache(DnsMessage res, HttpContext context, string tag = "")
         {
             if (Config.CacheEnable && res != null && res.AnswerRecords.Any())
                 Task.Run(() =>
                 {
-                    if (context != null && Config.GeoCacheEnable) DnsCache.Add(res, context, b);
-                    else DnsCache.Add(res, b);
+                    if (context != null && Config.GeoCacheEnable) DnsCache.Add(res, context, tag);
+                    else DnsCache.Add(res, tag);
                 });
         }
     }

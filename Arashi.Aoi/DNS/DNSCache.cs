@@ -11,7 +11,7 @@ namespace Arashi
 {
     public class DnsCache
     {
-        public static void Add(DnsMessage dnsMessage, bool b = false)
+        public static void Add(DnsMessage dnsMessage, string tag = "")
         {
             //dnsMessage.AuthorityRecords.RemoveAll(item =>
             //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
@@ -20,7 +20,7 @@ namespace Arashi
             if (dnsMessage.AnswerRecords.Count <= 0) return;
             var record = dnsMessage.AnswerRecords.FirstOrDefault();
             var quest = dnsMessage.Questions.First();
-            Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{b}",
+            Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
                         List = dnsMessage.AnswerRecords.ToList(),
@@ -30,7 +30,7 @@ namespace Arashi
                 record.TimeToLive);
         }
 
-        public static void Add(DnsMessage dnsMessage, HttpContext context, bool b = false)
+        public static void Add(DnsMessage dnsMessage, HttpContext context, string tag = "")
         {
             //dnsMessage.AuthorityRecords.RemoveAll(item =>
             //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
@@ -41,7 +41,7 @@ namespace Arashi
             var quest = dnsMessage.Questions.First();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 Add(new CacheItem(
-                        $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{b}",
+                        $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
@@ -51,7 +51,7 @@ namespace Arashi
                     record.TimeToLive);
             else
                 Add(new CacheItem(
-                        $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{b}",
+                        $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
                             List = dnsMessage.AnswerRecords.ToList(),
@@ -72,13 +72,13 @@ namespace Arashi
                     });
         }
 
-        public static bool Contains(DnsMessage dnsQMsg, HttpContext context = null, bool b = false)
+        public static bool Contains(DnsMessage dnsQMsg, HttpContext context = null, string tag = "")
         {
             return context == null
                 ? MemoryCache.Default.Contains(
-                    $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{b}")
+                    $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}")
                 : MemoryCache.Default.Contains(
-                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{b}");
+                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}");
         }
 
         public static void Remove(DomainName name)
@@ -113,8 +113,8 @@ namespace Arashi
         {
             try
             {
-                MemoryCache.Default.Remove($"DNS:{name}:{type}:{true}");
-                MemoryCache.Default.Remove($"DNS:{name}:{type}:{false}");
+                MemoryCache.Default.Remove($"DNS:{name}:{type}:");
+                MemoryCache.Default.Remove($"DNS:{name}:{type}:");
             }
             catch (Exception e)
             {
@@ -123,8 +123,8 @@ namespace Arashi
 
             try
             {
-                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:{true}");
-                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:{false}");
+                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:");
+                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:");
             }
             catch (Exception e)
             {
@@ -132,7 +132,7 @@ namespace Arashi
             }
         }
 
-        public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null, bool b = false)
+        public static DnsMessage Get(DnsMessage dnsQMessage, HttpContext context = null, string tag = "")
         {
             var dCacheMsg = new DnsMessage
             {
@@ -141,8 +141,8 @@ namespace Arashi
                 TransactionID = dnsQMessage.TransactionID
             };
             var getName = context != null
-                ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{b}"
-                : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{b}";
+                ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}"
+                : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}";
             var cacheEntity = Get(getName);
             foreach (var item in cacheEntity.List)
             {
@@ -170,7 +170,7 @@ namespace Arashi
 
         public static CacheEntity Get(string key)
         {
-            return (CacheEntity) MemoryCache.Default.Get(key) ??
+            return (CacheEntity)MemoryCache.Default.Get(key) ??
                    throw new InvalidOperationException();
         }
 
