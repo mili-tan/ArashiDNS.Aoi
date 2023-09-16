@@ -13,17 +13,16 @@ namespace Arashi
     {
         public static void Add(DnsMessage dnsMessage, string tag = "")
         {
-            //dnsMessage.AuthorityRecords.RemoveAll(item =>
-            //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-            //    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
-
-            if (dnsMessage.AnswerRecords.Count <= 0) return;
-            var record = dnsMessage.AnswerRecords.FirstOrDefault();
+            if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
+            var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
+                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 60, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
             Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
-                        List = dnsMessage.AnswerRecords.ToList(),
+                        AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                        AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
+                        Code = dnsMessage.ReturnCode,
                         Time = DateTime.Now,
                         ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                     }),
@@ -32,19 +31,18 @@ namespace Arashi
 
         public static void Add(DnsMessage dnsMessage, HttpContext context, string tag = "")
         {
-            //dnsMessage.AuthorityRecords.RemoveAll(item =>
-            //    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-            //    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
-
-            if (dnsMessage.AnswerRecords.Count <= 0) return;
-            var record = dnsMessage.AnswerRecords.FirstOrDefault();
+            if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
+            var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
+                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 60, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 Add(new CacheItem(
                         $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
-                            List = dnsMessage.AnswerRecords.ToList(),
+                            AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                            AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
+                            Code = dnsMessage.ReturnCode,
                             Time = DateTime.Now,
                             ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                         }),
@@ -54,7 +52,9 @@ namespace Arashi
                         $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
-                            List = dnsMessage.AnswerRecords.ToList(),
+                            AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                            AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
+                            Code = dnsMessage.ReturnCode,
                             Time = DateTime.Now,
                             ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
                         }),
@@ -144,7 +144,7 @@ namespace Arashi
                 ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}"
                 : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}";
             var cacheEntity = Get(getName);
-            foreach (var item in cacheEntity.List)
+            foreach (var item in cacheEntity.AnswerRecords)
             {
                 if (item is ARecord aRecord)
                     dCacheMsg.AnswerRecords.Add(new ARecord(aRecord.Name,
@@ -162,6 +162,8 @@ namespace Arashi
                     dCacheMsg.AnswerRecords.Add(item);
             }
 
+            dCacheMsg.ReturnCode = cacheEntity.Code;
+            dCacheMsg.AuthorityRecords.AddRange(cacheEntity.AuthorityRecords);
             dCacheMsg.Questions.AddRange(dnsQMessage.Questions);
             dCacheMsg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("cache.arashi-msg"), 0,
                 cacheEntity.ExpiresTime.ToString("r")));
@@ -176,7 +178,9 @@ namespace Arashi
 
         public class CacheEntity
         {
-            public List<DnsRecordBase> List;
+            public List<DnsRecordBase> AnswerRecords;
+            public List<DnsRecordBase> AuthorityRecords;
+            public ReturnCode Code;
             public DateTime Time;
             public DateTime ExpiresTime;
         }

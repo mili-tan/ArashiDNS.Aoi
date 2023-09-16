@@ -252,7 +252,7 @@ namespace Arashi.Aoi.Routes
 
         public static void WriteCache(DnsMessage res, HttpContext context, string tag = "")
         {
-            if (Config.CacheEnable && res != null && res.AnswerRecords.Any())
+            if (Config.CacheEnable && res != null)
                 Task.Run(() =>
                 {
                     if (context != null && Config.GeoCacheEnable) DnsCache.Add(res, context, tag);
