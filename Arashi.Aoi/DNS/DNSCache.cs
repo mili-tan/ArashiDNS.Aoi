@@ -15,7 +15,7 @@ namespace Arashi
         {
             if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
-                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 60, IPAddress.Any);
+                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
             Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
                     new CacheEntity
@@ -33,7 +33,7 @@ namespace Arashi
         {
             if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
-                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 60, IPAddress.Any);
+                dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 Add(new CacheItem(
