@@ -47,20 +47,20 @@ namespace Arashi.Azure
                 {
                     timer.Interval = 3600000 * 24;
                     GetFileUpdate("China_WhiteList.List", DNSChinaConfig.Config.ChinaListUrl);
-                    Task.Run(() =>
-                    {
-                        while (true)
-                        {
-                            if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
-                            {
-                                DNSChina.ChinaList = File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
-                                    .ConvertAll(DomainName.Parse);
-                                break;
-                            }
+                    //Task.Run(() =>
+                    //{
+                    //    while (true)
+                    //    {
+                    //        if (File.Exists(DNSChinaConfig.Config.ChinaListPath))
+                    //        {
+                    //            DNSChina.ChinaList = File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath).ToList()
+                    //                .ConvertAll(DomainName.Parse);
+                    //            break;
+                    //        }
 
-                            Thread.Sleep(1000);
-                        }
-                    });
+                    //        Thread.Sleep(1000);
+                    //    }
+                    //});
                 };
             }
 

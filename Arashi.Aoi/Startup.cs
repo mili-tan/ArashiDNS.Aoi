@@ -5,6 +5,7 @@ using System.Timers;
 using Arashi.Aoi;
 using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
+using ArashiDNS.Tools;
 using ARSoft.Tools.Net;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
@@ -29,9 +30,12 @@ namespace Arashi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            if (Config.ChinaListEnable) DNSChina.Init();
+            if (Config.ChinaListEnable)
+            {
+                MFaster.Init();
+                DNSChina.Init();
+            }
             if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable) GeoIP.Init();
-
 
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))

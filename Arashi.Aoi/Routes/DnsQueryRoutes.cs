@@ -127,7 +127,7 @@ namespace Arashi.Aoi.Routes
 
                 if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && CnDns &&
                     dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A &&
-                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name))
+                    await DNSChina.IsChinaNameAsync(dnsMessage.Questions.FirstOrDefault().Name))
                 {
                     if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context, "CN"))
                         return DnsCache.Get(dnsMessage, context, "CN");
@@ -168,7 +168,7 @@ namespace Arashi.Aoi.Routes
             {
                 if (Config.CacheEnable && Cache && DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
                 if (Config.ChinaListEnable && CnDns &&
-                    DNSChina.IsChinaName(dnsMessage.Questions.FirstOrDefault().Name) &&
+                    await DNSChina.IsChinaNameAsync(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return await DNSChina.ResolveOverChinaDns(dnsMessage);
             }

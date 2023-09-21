@@ -32,11 +32,6 @@ namespace Arashi.Aoi.Routes
                 await context.WriteResponseAsync(string.Join(Environment.NewLine,
                     MemoryCache.Default.Select(item => $"{item.Key}:{item.Value}").ToList()), headers: Startup.HeaderDict);
             });
-            endpoints.Map(Config.AdminPerfix + "/cnlist/ls", async context =>
-            {
-                if (!await CheckAdminToken(context)) return;
-                await context.WriteResponseAsync(string.Join(Environment.NewLine, DNSChina.ChinaList), headers: Startup.HeaderDict);
-            });
             endpoints.Map(Config.AdminPerfix + "/cache/rm", async context =>
             {
                 if (!await CheckAdminToken(context)) return;

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ArashiDNS.Tools;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 
@@ -11,50 +12,58 @@ namespace Arashi
 {
     public class DNSChina
     {
-        public static List<DomainName> ChinaList = new();
-        public static int Retry = 0;
-
         public static void Init()
         {
             try
             {
-                if (ChinaList.Any() || !File.Exists(DNSChinaConfig.Config.ChinaListPath)) return;
-                Parallel.ForEach(File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath), item =>
-                {
-                    try
-                    {
-                        ChinaList.Add(DomainName.Parse(item));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                });
+                if (!File.Exists(DNSChinaConfig.Config.ChinaListPath)) return;
+                Parallel.ForEachAsync(File.ReadAllLines(DNSChinaConfig.Config.ChinaListPath), async (item, _) => await AddTask(item));
                 GC.Collect();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                if (Retry != 5)
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(1000);
-                        Retry += 1;
-                        Init();
-                    });
             }
         }
 
-        public static bool IsChinaName(DomainName name)
+        private static async Task AddTask(string item)
         {
-            return ChinaList.Any(name.IsEqualOrSubDomainOf);
+            try
+            {
+                if (item.StartsWith("#")) return;
+                await MFaster.FasterKv.UpsertAsync("CN:" + item.Trim('.'), "1");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public static async Task<bool> IsChinaNameAsync(DomainName name)
+        {
+            try
+            {
+                if (DNSChinaConfig.NoCnDomains.Any(name.IsEqualOrSubDomainOf))
+                    return false;
+                if (name.IsSubDomainOf(DomainName.Parse("cn")))
+                    return true;
+
+                return
+                    (await MFaster.FasterKv.ReadAsync("CN:" + string.Join(".", name.Labels))).Item1.Found ||
+                    (await MFaster.FasterKv.ReadAsync("CN:" + string.Join(".", name.Labels.TakeLast(2)))).Item1.Found;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
         public static async Task<DnsMessage> ResolveOverChinaDns(DnsMessage dnsMessage)
         {
 
             if (!DNSChinaConfig.Config.UseHttpDns)
-                return await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
+                return await new DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
             var domainName = dnsMessage.Questions.FirstOrDefault()?.Name.ToString().TrimEnd('.');
@@ -63,27 +72,21 @@ namespace Arashi
             try
             {
                 var client = Startup.ClientFactory.CreateClient("DNSChina");
-                if (dnsMessage.IsEDnsEnabled)
-                {
-                    foreach (var eDnsOptionBase in dnsMessage.EDnsOptions.Options.ToArray())
-                        if (eDnsOptionBase is ClientSubnetOption option)
-                        {
-                            dnsStr = await client.GetStringAsync(
-                                string.Format(DNSChinaConfig.Config.HttpDnsEcsUrl, domainName, option.Address));
-                            break;
-                        }
-                }
-                else
-                {
-                    dnsStr = await client.GetStringAsync(
+                var ip = RealIP.GetFromDns(dnsMessage);
+                dnsStr = !Equals(ip, IPAddress.Any)
+                    ? await client.GetStringAsync(
+                        string.Format(DNSChinaConfig.Config.HttpDnsEcsUrl, domainName, ip))
+                    : await client.GetStringAsync(
                         string.Format(DNSChinaConfig.Config.HttpDnsUrl, domainName));
-                }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                DNSChinaConfig.Config.HttpDnsUrl = DNSChinaConfig.BackupHttpDnsUrl;
-                DNSChinaConfig.Config.HttpDnsEcsUrl = DNSChinaConfig.BackupHttpDnsEcsUrl;
+                var res = await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream),
+                        AoiConfig.Config.TimeOut)
+                    .SendMessageAsync(dnsMessage);
+
+                if (res != null && res.AnswerRecords.Any())
+                    return res;
             }
 
             if (string.IsNullOrWhiteSpace(dnsStr)) throw new TimeoutException();
@@ -99,6 +102,17 @@ namespace Arashi
                     .Cast<DnsRecordBase>().ToList())
             };
             dnsAMessage.Questions.AddRange(dnsMessage.Questions);
+            try
+            {
+                dnsAMessage.IsEDnsEnabled = true;
+                if (RealIP.TryGetFromDns(dnsMessage, out var ecs))
+                    dnsAMessage.EDnsOptions.Options.Add(new ClientSubnetOption(24, ecs));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             dnsAMessage.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("china.arashi-msg"), 0,
                 "ArashiDNS.P ChinaList"));
             return dnsAMessage;
