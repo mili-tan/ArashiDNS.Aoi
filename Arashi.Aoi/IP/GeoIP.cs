@@ -46,9 +46,15 @@ namespace Arashi
         {
             var asn = new AsnResponse();
             var city = new CityResponse();
-            Task.WaitAll(
-                Task.Run(() => asn = GetAsnResponse(ipAddress)),
-                Task.Run(() => city = GetCityResponse(ipAddress)));
+            try
+            {
+                Parallel.Invoke(() => asn = GetAsnResponse(ipAddress),
+                    () => city = GetCityResponse(ipAddress));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
             return (asn, city);
         }
 

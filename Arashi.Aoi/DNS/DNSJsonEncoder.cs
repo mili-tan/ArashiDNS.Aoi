@@ -21,134 +21,125 @@ namespace Arashi
                 {"CD", dnsMsg.IsCheckingDisabled}
             };
 
-            var tQuestion = Task.Run(() =>
-            {
-                var dnsQuestionsJArray = new JArray();
-                foreach (var dnsQjObject in dnsMsg.Questions.Select(item => new JObject
-                         {
-                             {"name", item.Name.ToString()}, {"type", (int) item.RecordType}
-                         })) dnsQuestionsJArray.Add(dnsQjObject);
-
-                dnsJObject.Add("Question", dnsQuestionsJArray);
-            });
-
-            var tAnswer = Task.Run(() =>
-            {
-                var dnsAnswersJArray = new JArray();
-                foreach (var item in dnsMsg.AnswerRecords)
+            Parallel.Invoke(() =>
                 {
-                    var dnsAjObject = new JObject
-                    {
-                        {"name", item.Name.ToString()},
-                        {"type", (int) item.RecordType},
-                        {"TTL", item.TimeToLive}
-                    };
+                    var dnsQuestionsJArray = new JArray();
+                    foreach (var dnsQjObject in dnsMsg.Questions.Select(item => new JObject
+                             {
+                                 {"name", item.Name.ToString()}, {"type", (int) item.RecordType}
+                             })) dnsQuestionsJArray.Add(dnsQjObject);
 
-                    switch (item)
+                    dnsJObject.Add("Question", dnsQuestionsJArray);
+                },
+                () =>
+                {
+                    var dnsAnswersJArray = new JArray();
+                    foreach (var item in dnsMsg.AnswerRecords)
                     {
-                        case ARecord aRecord:
-                            dnsAjObject.Add("data", aRecord.Address.ToString());
-                            break;
-                        case AaaaRecord aaaaRecord:
-                            dnsAjObject.Add("data", aaaaRecord.Address.ToString());
-                            break;
-                        case CNameRecord cNameRecord:
-                            dnsAjObject.Add("data", cNameRecord.CanonicalName.ToString());
-                            break;
-                        default:
+                        var dnsAjObject = new JObject
                         {
-                            var list = item.ToString()
-                                .Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
-                                .Trim().Split(' ').ToList();
-                            list.RemoveAt(0);
-                            dnsAjObject.Add("data", string.Join(" ", list).Trim());
-                            break;
+                            {"name", item.Name.ToString()},
+                            {"type", (int) item.RecordType},
+                            {"TTL", item.TimeToLive}
+                        };
+
+                        switch (item)
+                        {
+                            case ARecord aRecord:
+                                dnsAjObject.Add("data", aRecord.Address.ToString());
+                                break;
+                            case AaaaRecord aaaaRecord:
+                                dnsAjObject.Add("data", aaaaRecord.Address.ToString());
+                                break;
+                            case CNameRecord cNameRecord:
+                                dnsAjObject.Add("data", cNameRecord.CanonicalName.ToString());
+                                break;
+                            default:
+                            {
+                                var list = item.ToString()
+                                    .Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
+                                    .Trim().Split(' ').ToList();
+                                list.RemoveAt(0);
+                                dnsAjObject.Add("data", string.Join(" ", list).Trim());
+                                break;
+                            }
                         }
+
+                        dnsAjObject.Add("metadata", item.ToString());
+                        dnsAnswersJArray.Add(dnsAjObject);
                     }
 
-                    dnsAjObject.Add("metadata", item.ToString());
-                    dnsAnswersJArray.Add(dnsAjObject);
-                }
-
-                if (dnsMsg.AnswerRecords.Count > 0) dnsJObject.Add("Answer", dnsAnswersJArray);
-            });
-
-            var tNote = Task.Run(() =>
-            {
-                var dnsNotesJArray = new JArray();
-                foreach (var item in dnsMsg.AuthorityRecords.Where(item => item.RecordType == RecordType.Txt).ToList())
+                    if (dnsMsg.AnswerRecords.Count > 0) dnsJObject.Add("Answer", dnsAnswersJArray);
+                },
+                () =>
                 {
-                    dnsNotesJArray.Add(new JObject
-                        {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
-                }
+                    dnsMsg.AuthorityRecords.RemoveAll(item =>
+                        item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
+                        item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
-                if (dnsNotesJArray.Count > 0) dnsJObject.Add("Notes", dnsNotesJArray);
-            });
-
-            var tAuthority = Task.Run(() =>
-            {
-                dnsMsg.AuthorityRecords.RemoveAll(item =>
-                    item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                    item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
-
-                var dnsAuthorityJArray = new JArray();
-                foreach (var item in dnsMsg.AuthorityRecords)
-                {
-                    var dnsAujObject = new JObject
+                    var dnsAuthorityJArray = new JArray();
+                    foreach (var item in dnsMsg.AuthorityRecords)
                     {
-                        {"name", item.Name.ToString()},
-                        {"type", (int) item.RecordType},
-                        {"TTL", item.TimeToLive}
-                    };
-
-                    switch (item)
-                    {
-                        case ARecord aRecord:
-                            dnsAujObject.Add("data", aRecord.Address.ToString());
-                            break;
-                        case AaaaRecord aaaaRecord:
-                            dnsAujObject.Add("data", aaaaRecord.Address.ToString());
-                            break;
-                        case CNameRecord cNameRecord:
-                            dnsAujObject.Add("data", cNameRecord.CanonicalName.ToString());
-                            break;
-                        default:
+                        var dnsAujObject = new JObject
                         {
-                            var list = item.ToString().Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
-                                .Trim().Split(' ').ToList();
-                            list.RemoveAt(0);
-                            dnsAujObject.Add("data", string.Join(" ", list).Trim());
-                            break;
+                            {"name", item.Name.ToString()},
+                            {"type", (int) item.RecordType},
+                            {"TTL", item.TimeToLive}
+                        };
+
+                        switch (item)
+                        {
+                            case ARecord aRecord:
+                                dnsAujObject.Add("data", aRecord.Address.ToString());
+                                break;
+                            case AaaaRecord aaaaRecord:
+                                dnsAujObject.Add("data", aaaaRecord.Address.ToString());
+                                break;
+                            case CNameRecord cNameRecord:
+                                dnsAujObject.Add("data", cNameRecord.CanonicalName.ToString());
+                                break;
+                            default:
+                            {
+                                var list = item.ToString().Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
+                                    .Trim().Split(' ').ToList();
+                                list.RemoveAt(0);
+                                dnsAujObject.Add("data", string.Join(" ", list).Trim());
+                                break;
+                            }
                         }
+
+                        dnsAujObject.Add("metadata", item.ToString());
+                        dnsAuthorityJArray.Add(dnsAujObject);
                     }
 
-                    dnsAujObject.Add("metadata", item.ToString());
-                    dnsAuthorityJArray.Add(dnsAujObject);
-                }
-
-                if (dnsMsg.AuthorityRecords.Count > 0) dnsJObject.Add("Authority", dnsAuthorityJArray);
-            });
-
-
-            var tEDns = Task.Run(() =>
-            {
-                if (!dnsMsg.IsEDnsEnabled) return;
-                foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+                    if (dnsMsg.AuthorityRecords.Count > 0) dnsJObject.Add("Authority", dnsAuthorityJArray);
+                },
+                () =>
                 {
-                    if (eDnsOptionBase is ClientSubnetOption option)
-                        Task.Run(() =>
-                        {
-                            Task.WaitAll(tAnswer, tAuthority);
+                    var dnsNotesJArray = new JArray();
+                    foreach (var item in dnsMsg.AuthorityRecords.Where(item => item.RecordType == RecordType.Txt)
+                                 .ToList())
+                    {
+                        dnsNotesJArray.Add(new JObject
+                            {{item.Name.ToString().TrimEnd('.'), ((TxtRecord) item).TextData}});
+                    }
+
+                    if (dnsNotesJArray.Count > 0) dnsJObject.Add("Notes", dnsNotesJArray);
+                },
+                () =>
+                {
+                    if (!dnsMsg.IsEDnsEnabled) return;
+                    foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
+                    {
+                        if (eDnsOptionBase is ClientSubnetOption option)
                             dnsJObject.Add("edns_client_subnet", $"{option.Address}/{option.SourceNetmask}");
-                        });
-                }
-            });
+                    }
+                });
 
             if (randomPadding)
                 dnsJObject.Add("RandomPadding", Guid.NewGuid().ToString().Replace("-", "")
                     [..new Random(DateTime.Now.Millisecond).Next(1, 33)]);
 
-            Task.WaitAll(tQuestion, tAnswer, tAuthority, tEDns, tNote);
             return dnsJObject;
         }
     }
