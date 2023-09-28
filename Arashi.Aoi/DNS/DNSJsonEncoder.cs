@@ -22,15 +22,15 @@ namespace Arashi
             };
 
             Parallel.Invoke(() =>
-                {
-                    var dnsQuestionsJArray = new JArray();
-                    foreach (var dnsQjObject in dnsMsg.Questions.Select(item => new JObject
+            {
+                var dnsQuestionsJArray = new JArray();
+                foreach (var dnsQjObject in dnsMsg.Questions.Select(item => new JObject
                              {
                                  {"name", item.Name.ToString()}, {"type", (int) item.RecordType}
                              })) dnsQuestionsJArray.Add(dnsQjObject);
 
-                    dnsJObject.Add("Question", dnsQuestionsJArray);
-                },
+                dnsJObject.Add("Question", dnsQuestionsJArray);
+            },
                 () =>
                 {
                     var dnsAnswersJArray = new JArray();
@@ -55,14 +55,14 @@ namespace Arashi
                                 dnsAjObject.Add("data", cNameRecord.CanonicalName.ToString());
                                 break;
                             default:
-                            {
-                                var list = item.ToString()
-                                    .Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
-                                    .Trim().Split(' ').ToList();
-                                list.RemoveAt(0);
-                                dnsAjObject.Add("data", string.Join(" ", list).Trim());
-                                break;
-                            }
+                                {
+                                    var list = item.ToString()
+                                        .Split(new[] { "IN" }, StringSplitOptions.RemoveEmptyEntries)[1]
+                                        .Trim().Split(' ').ToList();
+                                    list.RemoveAt(0);
+                                    dnsAjObject.Add("data", string.Join(" ", list).Trim());
+                                    break;
+                                }
                         }
 
                         dnsAjObject.Add("metadata", item.ToString());
@@ -73,12 +73,12 @@ namespace Arashi
                 },
                 () =>
                 {
-                    dnsMsg.AuthorityRecords.RemoveAll(item =>
-                        item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) ||
-                        item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
+                    var authorityRecords = dnsMsg.AuthorityRecords.Where(item =>
+                        !item.Name.IsSubDomainOf(DomainName.Parse("arashi-msg")) &&
+                        !item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
                     var dnsAuthorityJArray = new JArray();
-                    foreach (var item in dnsMsg.AuthorityRecords)
+                    foreach (var item in authorityRecords)
                     {
                         var dnsAujObject = new JObject
                         {
@@ -99,20 +99,20 @@ namespace Arashi
                                 dnsAujObject.Add("data", cNameRecord.CanonicalName.ToString());
                                 break;
                             default:
-                            {
-                                var list = item.ToString().Split(new[] {"IN"}, StringSplitOptions.RemoveEmptyEntries)[1]
-                                    .Trim().Split(' ').ToList();
-                                list.RemoveAt(0);
-                                dnsAujObject.Add("data", string.Join(" ", list).Trim());
-                                break;
-                            }
+                                {
+                                    var list = item.ToString().Split(new[] { "IN" }, StringSplitOptions.RemoveEmptyEntries)[1]
+                                        .Trim().Split(' ').ToList();
+                                    list.RemoveAt(0);
+                                    dnsAujObject.Add("data", string.Join(" ", list).Trim());
+                                    break;
+                                }
                         }
 
                         dnsAujObject.Add("metadata", item.ToString());
                         dnsAuthorityJArray.Add(dnsAujObject);
                     }
 
-                    if (dnsMsg.AuthorityRecords.Count > 0) dnsJObject.Add("Authority", dnsAuthorityJArray);
+                    if (dnsAuthorityJArray.Count > 0) dnsJObject.Add("Authority", dnsAuthorityJArray);
                 },
                 () =>
                 {
