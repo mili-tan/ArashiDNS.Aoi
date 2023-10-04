@@ -13,7 +13,7 @@ namespace Arashi
     {
         public static void Add(DnsMessage dnsMessage, string tag = "")
         {
-            if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
+            if (dnsMessage.ReturnCode != ReturnCode.NoError && dnsMessage.ReturnCode != ReturnCode.NxDomain) return;
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
@@ -31,7 +31,7 @@ namespace Arashi
 
         public static void Add(DnsMessage dnsMessage, HttpContext context, string tag = "")
         {
-            if (dnsMessage.ReturnCode is not (ReturnCode.NoError or ReturnCode.NxDomain)) return;
+            if (dnsMessage.ReturnCode != ReturnCode.NoError && dnsMessage.ReturnCode != ReturnCode.NxDomain) return;
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
