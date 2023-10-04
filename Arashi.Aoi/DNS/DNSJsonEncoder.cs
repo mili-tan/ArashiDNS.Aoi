@@ -54,6 +54,9 @@ namespace Arashi
                             case CNameRecord cNameRecord:
                                 dnsAjObject.Add("data", cNameRecord.CanonicalName.ToString());
                                 break;
+                            case TxtRecord txtRecord:
+                                dnsAjObject.Add("data", txtRecord.TextData);
+                                break;
                             default:
                                 {
                                     var list = item.ToString()
