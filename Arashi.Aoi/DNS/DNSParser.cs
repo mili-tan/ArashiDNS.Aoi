@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
@@ -15,7 +16,8 @@ namespace Arashi
         public static DnsMessage FromDnsJson(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
         {
             var queryDictionary = context.Request.Query;
-            var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]), RecordType.A,
+            var dnsQuestion = new DnsQuestion(DomainName.Parse(queryDictionary["name"]),
+                context.Connection.RemoteIpAddress!.AddressFamily == AddressFamily.InterNetworkV6 ? RecordType.Aaaa : RecordType.A,
                 RecordClass.INet);
             if (queryDictionary.ContainsKey("type"))
                 if (Enum.TryParse(queryDictionary["type"], true, out RecordType rType))
