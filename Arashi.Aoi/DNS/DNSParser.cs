@@ -46,7 +46,7 @@ namespace Arashi
             }
             else
             {
-                var realIp = RealIP.Get(context);
+                var realIp = context.Connection.RemoteIpAddress;
                 if (!Equals(realIp, IPAddress.Loopback))
                 {
                     dnsQMsg.EDnsOptions.Options.Add(
@@ -67,7 +67,7 @@ namespace Arashi
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
-                IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
+                IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
             return msg;
         }
 
@@ -79,7 +79,7 @@ namespace Arashi
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
-                IPNetwork.Parse(RealIP.Get(context).ToString(), EcsDefaultMask).Network));
+                IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
             return msg;
         }
 

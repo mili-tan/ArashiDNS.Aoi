@@ -39,7 +39,7 @@ namespace Arashi.Aoi.DNS
             {
                 if (dnsMessage.AnswerRecords.Count <= 0) return;
                 var name = dnsMessage.AnswerRecords.FirstOrDefault().Name;
-                if (!RealIP.TryGetFromDns(dnsMessage, out var ipaddr)) ipaddr = RealIP.Get(context);
+                if (!RealIP.TryGetFromDns(dnsMessage, out var ipaddr)) ipaddr = context.Connection.RemoteIpAddress;
                 if (Equals(ipaddr, IPAddress.Any) || IPAddress.IsLoopback(ipaddr)) return;
                 var asn = GeoIP.AsnReader.Asn(ipaddr).AutonomousSystemNumber.ToString();
                 var country = GeoIP.CityReader.City(ipaddr).Country.IsoCode;
