@@ -46,12 +46,12 @@ namespace Arashi
             {
                 if (dnsMsg is { IsEDnsEnabled: false }) return context.Connection.RemoteIpAddress;
                 foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToList())
-                {
                     if (eDnsOptionBase is ClientSubnetOption option)
                         return option.Address;
-                }
-
                 return context.Connection.RemoteIpAddress;
+
+                //return (dnsMsg.EDnsOptions.Options.FirstOrDefault(i => i.Type == EDnsOptionType.ClientSubnet) as
+                //    ClientSubnetOption)?.Address ?? context.Connection.RemoteIpAddress;
             }
             catch (Exception)
             {
@@ -84,7 +84,7 @@ namespace Arashi
             {
                 ipAddress = IPAddress.Any;
 
-                if (!dnsMsg.IsEDnsEnabled) return false;
+                if (!dnsMsg.IsEDnsEnabled || dnsMsg.EDnsOptions.Options == null) return false;
                 foreach (var eDnsOptionBase in dnsMsg.EDnsOptions.Options.ToArray())
                 {
                     if (eDnsOptionBase is not ClientSubnetOption option) continue;

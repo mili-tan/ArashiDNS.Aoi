@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Responses;
+using Newtonsoft.Json.Linq;
 
 namespace Arashi
 {
@@ -14,9 +15,6 @@ namespace Arashi
         public static DatabaseReader CityReader;
         public static AsnResponse GetAsnResponse(IPAddress ipAddress) => AsnReader.Asn(ipAddress);
         public static CityResponse GetCityResponse(IPAddress ipAddress) => CityReader.City(ipAddress);
-
-        public static int Retry = 0;
-
         public static void Init()
         {
             try
@@ -27,13 +25,6 @@ namespace Arashi
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                if (Retry != 5)
-                    Task.Run(async () =>
-                    {
-                        await Task.Delay(10000);
-                        Retry += 1;
-                        Init();
-                    });
             }
         }
 
@@ -60,10 +51,12 @@ namespace Arashi
 
         public static string GetCnISP(AsnResponse asnResponse, CityResponse cityResponse)
         {
-            var country = cityResponse.Country.IsoCode;
-            var asName = asnResponse.AutonomousSystemOrganization.ToLower();
-
+            var country = cityResponse.Country.IsoCode ?? string.Empty;
             if (country != "CN") return string.Empty;
+
+            var asName = (asnResponse.AutonomousSystemOrganization ?? string.Empty).ToLower();
+
+            if (asName == string.Empty) return "UN";
 
             if (asName.Contains("cernet") || asName.Contains("education") || asName.Contains("research") ||
                 asName.Contains("university") || asName.Contains("academy") ||
@@ -87,25 +80,23 @@ namespace Arashi
             try
             {
                 if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
-                    return string.Empty;
-                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                    return "IPV6:";
+                    return "ANY:";
                 var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
                 var cnIsp = GetCnISP(asnResponse, cityResponse);
                 if (!string.IsNullOrEmpty(cnIsp))
                     return
-                        $"{cityResponse.Country.IsoCode ?? "UN"}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:{cnIsp}:";
-                if (cityResponse.Country.IsoCode is "CN" or "US" or "CA" or "RU" or "AU" &&
-                    !string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.IsoCode))
+                        $"{cityResponse.Country.IsoCode}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:{cnIsp}:";
+                if (!string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.IsoCode) &&
+                    cityResponse.Country.IsoCode is "CN" or "US" or "CA" or "RU" or "AU")
                     return
                         $"{cityResponse.Country.IsoCode ?? "UN"}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:" +
-                        $"{asnResponse.AutonomousSystemNumber}:";
+                        $"{asnResponse.AutonomousSystemNumber ?? 0}:";
 
-                return $"{cityResponse.Country.IsoCode ?? "UN"}:{asnResponse.AutonomousSystemNumber}:";
+                return $"{cityResponse.Country.IsoCode ?? "UN"}:{asnResponse.AutonomousSystemNumber ?? 0}:";
             }
             catch (Exception)
             {
-                return Convert.ToBase64String(ipAddress.GetAddressBytes()) + ":";
+                return Convert.ToBase64String(ipAddress.GetAddressBytes()).Trim('=') + ":";
             }
         }
 
@@ -115,18 +106,41 @@ namespace Arashi
             {
                 if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
                     return string.Empty;
-                if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                    return "IPv6";
                 var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
                 if (!string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.Name))
-                    return $"{cityResponse.Country.IsoCode} {cityResponse.MostSpecificSubdivision.Name} - " +
-                           $"{asnResponse.AutonomousSystemOrganization}";
+                    return $"{cityResponse.Country.IsoCode ?? "UN"} {cityResponse.MostSpecificSubdivision.Name ?? "UN"} - " +
+                           $"{asnResponse.AutonomousSystemOrganization ?? "Unknown"}";
 
-                return $"{cityResponse.Country.IsoCode} - {asnResponse.AutonomousSystemOrganization}";
+                return $"{cityResponse.Country.IsoCode ?? "UN"} - {asnResponse.AutonomousSystemOrganization ?? "Unknown"}";
             }
             catch (Exception)
             {
-                return "Unknown";
+                try
+                {
+                    return GetAsnFromRipeStat(ipAddress).Result.Name;
+                }
+                catch (Exception)
+                {
+                    return "Unknown";
+                }
+            }
+        }
+
+        public static async Task<(long Asn, string Name)> GetAsnFromRipeStat(IPAddress ipAddress)
+        {
+            try
+            {
+                var asns = JObject.Parse(await Startup.ClientFactory.CreateClient("GET")
+                    .GetStringAsync(
+                        "https://stat.ripe.net/data/prefix-overview/data.json?data_overload_limit=ignore&min_peers_seeing=10&resource=" +
+                        ipAddress))["data"]?["asns"].FirstOrDefault();
+
+                var res = (long.Parse(asns["asn"].ToString()), asns["holder"].ToString());
+                return res;
+            }
+            catch
+            {
+                return (0, "Unknown");
             }
         }
     }
