@@ -7,7 +7,7 @@ Type=simple
 DynamicUser=yes
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/arashi.aoi --upstream %i
+ExecStart=/usr/bin/arashia --upstream %i
 LimitNOFILE=1048576
 
 [Install]
