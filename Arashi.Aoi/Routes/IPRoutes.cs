@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json.Linq;
@@ -28,26 +29,42 @@ namespace Arashi.Aoi.Routes
             });
             endpoints.Map(Config.IpPerfix + "/json", async context =>
             {
-                var (responseAsn, responseCity) = GeoIP.GetAsnCityValueTuple(context.Request.Query.ContainsKey("ip")
+                var ip = context.Request.Query.ContainsKey("ip")
                     ? IPAddress.Parse(context.Request.Query["ip"].ToString())
-                    : RealIP.Get(context));
-                var jObject = new JObject
+                    : RealIP.Get(context);
+                try
                 {
-                    {"IP", responseAsn.IPAddress},
-                    {"ASN", responseAsn.AutonomousSystemNumber},
-                    {"Organization", responseAsn.AutonomousSystemOrganization},
-                    {"CountryCode", responseCity.Country.IsoCode},
-                    {"Country", responseCity.Country.Name}
-                };
-                if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.IsoCode))
-                    jObject.Add("ProvinceCode", responseCity.MostSpecificSubdivision.IsoCode);
-                if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.Name))
-                    jObject.Add("Province", responseCity.MostSpecificSubdivision.Name);
-                if (!string.IsNullOrWhiteSpace(responseCity.City.Name))
-                    jObject.Add("City", responseCity.City.Name);
-                var cnIsp = GeoIP.GetCnISP(responseAsn, responseCity);
-                if (!string.IsNullOrWhiteSpace(cnIsp)) jObject.Add("ISP", cnIsp);
-                await context.WriteResponseAsync(jObject.ToString(), type: "application/json");
+                    var ripe = ((long)0, "");
+                    var (responseAsn, responseCity) = GeoIP.GetAsnCityValueTuple(ip);
+                    if (responseAsn.AutonomousSystemNumber == null) ripe = await GeoIP.GetAsnFromRipeStat(ip);
+
+                    var jObject = new JObject
+                    {
+                        {"IP", responseAsn.IPAddress ?? ip.ToString()},
+                        {"ASN", responseAsn.AutonomousSystemNumber ?? ripe.Item1},
+                        {"Organization", responseAsn.AutonomousSystemOrganization ?? ripe.Item2},
+                        {"CountryCode", responseCity.Country.IsoCode ?? "UN"},
+                        {"Country", responseCity.Country.Name ?? "Unknown"}
+                    };
+                    if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.IsoCode))
+                        jObject.Add("ProvinceCode", responseCity.MostSpecificSubdivision.IsoCode);
+                    if (!string.IsNullOrWhiteSpace(responseCity.MostSpecificSubdivision.Name))
+                        jObject.Add("Province", responseCity.MostSpecificSubdivision.Name);
+                    if (!string.IsNullOrWhiteSpace(responseCity.City.Name))
+                        jObject.Add("City", responseCity.City.Name);
+                    await context.WriteResponseAsync(jObject.ToString(), type: "application/json");
+                }
+                catch (Exception e)
+                {
+                    var ripe = await GeoIP.GetAsnFromRipeStat(ip);
+                    var jObject = new JObject
+                    {
+                        {"IP", ip.ToString()},
+                        {"ASN", ripe.Asn},
+                        {"Organization", ripe.Name}
+                    };
+                    await context.WriteResponseAsync(jObject.ToString(), type: "application/json");
+                }
             });
         }
     }

@@ -49,32 +49,6 @@ namespace Arashi
             return (asn, city);
         }
 
-        public static string GetCnISP(AsnResponse asnResponse, CityResponse cityResponse)
-        {
-            var country = cityResponse.Country.IsoCode ?? string.Empty;
-            if (country != "CN") return string.Empty;
-
-            var asName = (asnResponse.AutonomousSystemOrganization ?? string.Empty).ToLower();
-
-            if (asName == string.Empty) return "UN";
-
-            if (asName.Contains("cernet") || asName.Contains("education") || asName.Contains("research") ||
-                asName.Contains("university") || asName.Contains("academy") ||
-                asName.Contains("computer network information center"))
-                return "CE";
-            if (asName.Contains("mobile") || asName.Contains("cmnet") || asName.Contains("tietong") ||
-                asName.Contains("railway") || asName.Contains("railcom"))
-                return "CM";
-            if (asName.Contains("unicom") || asName.Contains("cnc") ||
-                asName.Contains("china169") || asName.Contains("netcom"))
-                return "CU";
-            if (asName.Contains("chinanet") || asName.Contains("telecom") || asName.Contains("no.31,jin-rong") ||
-                asName.Contains("inter-exchange") || asName.Contains("ct"))
-                return "CT";
-
-            return "UN";
-        }
-
         public static string GetGeoStr(IPAddress ipAddress)
         {
             try
@@ -82,10 +56,6 @@ namespace Arashi
                 if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
                     return "ANY:";
                 var (asnResponse, cityResponse) = GetAsnCityValueTuple(ipAddress);
-                var cnIsp = GetCnISP(asnResponse, cityResponse);
-                if (!string.IsNullOrEmpty(cnIsp))
-                    return
-                        $"{cityResponse.Country.IsoCode}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:{cnIsp}:";
                 if (!string.IsNullOrWhiteSpace(cityResponse.MostSpecificSubdivision.IsoCode) &&
                     cityResponse.Country.IsoCode is "CN" or "US" or "CA" or "RU" or "AU")
                     return

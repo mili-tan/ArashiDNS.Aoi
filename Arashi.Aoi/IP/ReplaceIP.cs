@@ -25,23 +25,10 @@ namespace ArashiDNS.P2.IP
                 if (IPAddress.IsLoopback(ipAddress) || Equals(ipAddress, IPAddress.Any))
                     return ipAddress;
                 var (asnResponse, cityResponse) = GeoIP.GetAsnCityValueTuple(ipAddress);
-                var cnIsp = GeoIP.GetCnISP(asnResponse, cityResponse);
-                if (!string.IsNullOrWhiteSpace(cnIsp))
-                {
-                    var geo =
-                        $"{cityResponse.Country.IsoCode}:{cityResponse.MostSpecificSubdivision.IsoCode ?? "UN"}:{cnIsp}";
-                    if (CnIpHashtable.ContainsKey(geo))
-                        return (IPAddress) CnIpHashtable[geo]!;
-                }
-                else
-                {
-                    var asn = asnResponse.AutonomousSystemNumber ?? (await GeoIP.GetAsnFromRipeStat(ipAddress)).Asn;
-                    var country = cityResponse.Country.IsoCode ?? "UN";
-                    var netResult = await GetFromAsnc(asn, country) ?? await GetFromRipeStat(asn, country) ?? ipAddress;
-                    return netResult;
-                }
-
-                return ipAddress;
+                var asn = asnResponse.AutonomousSystemNumber ?? (await GeoIP.GetAsnFromRipeStat(ipAddress)).Asn;
+                var country = cityResponse.Country.IsoCode ?? "UN";
+                var netResult = await GetFromAsnc(asn, country) ?? await GetFromRipeStat(asn, country) ?? ipAddress;
+                return netResult;
             }
             catch (Exception e)
             {
