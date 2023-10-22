@@ -29,8 +29,8 @@ It is that easy. Use `--help` / `-?` to discover more parameters and get help in
 
 
 ```
-wget https://github.com/mili-tan/ArashiDNS.Aoi/releases/latest/download/Arashi.Aoi.linux-x64 -O /usr/bin/arashia
-wget https://raw.githubusercontent.com/mili-tan/ArashiDNS.Aoi/master/arashia%40.service -O /etc/systemd/system/arashia@.service
+wget https://t.mili.one/arashia-linux-x64 -O /usr/bin/arashia
+wget https://t.mili.one/arashia.service -O /etc/systemd/system/arashia@.service
 chmod +x /usr/bin/arashia 
 systemctl enable arashia@1.0.0.1 --now
 ```
