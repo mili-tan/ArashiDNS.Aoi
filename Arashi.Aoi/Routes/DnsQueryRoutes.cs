@@ -26,8 +26,8 @@ namespace Arashi.Aoi.Routes
             {
                 var queryDictionary = context.Request.Query;
 
-                DnsMessage qMsg = null;
-                var returnMsg = false;
+                DnsMessage qMsg;
+                bool returnMsg;
 
                 try
                 {
@@ -51,15 +51,18 @@ namespace Arashi.Aoi.Routes
                         await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
                         return;
                     }
+
+                    if (qMsg == null || !qMsg.Questions.Any())
+                    {
+                        await context.WriteResponseAsync("Parse error or invalid query",
+                            StatusCodes.Status500InternalServerError);
+                        return;
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                }
-
-                if (qMsg == null || !qMsg.Questions.Any())
-                {
-                    await context.WriteResponseAsync("Parse error or invalid query",
+                    await context.WriteResponseAsync("Fail parse query parameter",
                         StatusCodes.Status500InternalServerError);
                     return;
                 }
