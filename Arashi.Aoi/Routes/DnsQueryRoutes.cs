@@ -50,6 +50,26 @@ namespace Arashi.Aoi.Routes
                     return;
                 }
 
+                if (qMsg == null || !qMsg.Questions.Any())
+                {
+                    await context.WriteResponseAsync("Parse error or invalid query",
+                        StatusCodes.Status500InternalServerError);
+                    return;
+                }
+                
+                if (qMsg.Questions.First().RecordType == RecordType.Any && !Config.AnyTypeEnable)
+                {
+                    var msg = qMsg.CreateResponseInstance();
+                    msg.IsRecursionAllowed = true;
+                    msg.IsRecursionDesired = true;
+                    msg.AnswerRecords.Add(
+                        new HInfoRecord(qMsg.Questions.First().Name, 3600, "ANY Obsoleted", "RFC8482"));
+
+                    await ReturnContext(context, returnMsg, msg, qMsg,
+                        transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
+                    return;
+                }
+
                 var aMsg = await DnsQuery(qMsg, context);
                 await ReturnContext(context, returnMsg, aMsg, qMsg,
                     transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
