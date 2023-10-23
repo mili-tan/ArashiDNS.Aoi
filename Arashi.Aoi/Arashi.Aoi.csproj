@@ -6,6 +6,8 @@
     <AssemblyName>Arashi.Aoi</AssemblyName>
     <RootNamespace>Arashi.Aoi</RootNamespace>
     <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
