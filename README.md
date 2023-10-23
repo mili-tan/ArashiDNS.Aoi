@@ -26,6 +26,15 @@ OR using Docker. `docker run -d -p 2020:2020 ghcr.io/mili-tan/arashidns.aoi --up
 
 It is that easy. Use `--help` / `-?` to discover more parameters and get help information.
 
+
+
+```
+wget https://t.mili.one/arashia-linux-x64 -O /usr/bin/arashia
+wget https://t.mili.one/arashia.service -O /etc/systemd/system/arashia@.service
+chmod +x /usr/bin/arashia 
+systemctl enable arashia@1.0.0.1 --now
+```
+
 ## Introduction
 
 ### Parameters
