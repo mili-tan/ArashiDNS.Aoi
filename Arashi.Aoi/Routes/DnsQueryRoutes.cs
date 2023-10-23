@@ -26,28 +26,35 @@ namespace Arashi.Aoi.Routes
             {
                 var queryDictionary = context.Request.Query;
 
-                DnsMessage qMsg;
-                bool returnMsg;
+                DnsMessage qMsg = null;
+                var returnMsg = false;
 
-                if (context.Request.Method == "POST")
+                try
                 {
-                    qMsg = await DNSParser.FromPostByteAsync(context);
-                    returnMsg = true;
+                    if (context.Request.Method == "POST")
+                    {
+                        qMsg = await DNSParser.FromPostByteAsync(context);
+                        returnMsg = true;
+                    }
+                    else if (queryDictionary.ContainsKey("dns"))
+                    {
+                        qMsg = DNSParser.FromWebBase64(context);
+                        returnMsg = true;
+                    }
+                    else if (queryDictionary.ContainsKey("name"))
+                    {
+                        qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
+                        returnMsg = false;
+                    }
+                    else
+                    {
+                        await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
+                        return;
+                    }
                 }
-                else if (queryDictionary.ContainsKey("dns"))
+                catch (Exception e)
                 {
-                    qMsg = DNSParser.FromWebBase64(context);
-                    returnMsg = true;
-                }
-                else if (queryDictionary.ContainsKey("name"))
-                {
-                    qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
-                    returnMsg = false;
-                }
-                else
-                {
-                    await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
-                    return;
+                    Console.WriteLine(e);
                 }
 
                 if (qMsg == null || !qMsg.Questions.Any())
@@ -56,7 +63,7 @@ namespace Arashi.Aoi.Routes
                         StatusCodes.Status500InternalServerError);
                     return;
                 }
-                
+
                 if (qMsg.Questions.First().RecordType == RecordType.Any && !Config.AnyTypeEnable)
                 {
                     var msg = qMsg.CreateResponseInstance();
