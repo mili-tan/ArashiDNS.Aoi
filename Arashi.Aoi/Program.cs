@@ -80,12 +80,14 @@ namespace Arashi.Aoi
             var rankOption = cmd.Option("--rank", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             var noUpdateOption = cmd.Option("-nu|--noupdate", string.Empty, CommandOptionType.NoValue);
+            var anyOption = cmd.Option("--any", string.Empty, CommandOptionType.NoValue);
             ipipOption.ShowInHelpText = false;
             adminOption.ShowInHelpText = false;
             synccnlsOption.ShowInHelpText = false;
             noUpdateOption.ShowInHelpText = false;
             chinaListOption.ShowInHelpText = false;
             loadcnOption.ShowInHelpText = false;
+            anyOption.ShowInHelpText = false;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -173,6 +175,7 @@ namespace Arashi.Aoi
                 Config.UseAdminRoute = adminOption.HasValue();
                 Config.UseIpRoute = ipipOption.HasValue();
                 Config.TransIdEnable = transidOption.HasValue();
+                Config.AnyTypeEnable = anyOption.HasValue();
                 if (logOption.HasValue() && !string.IsNullOrWhiteSpace(logOption.Value()))
                 {
                     var val = logOption.Value().ToLower().Trim();
