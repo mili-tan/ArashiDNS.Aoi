@@ -232,7 +232,8 @@ namespace Arashi.Aoi.Routes
             else UpPool.Return(client);
 
             return await new DnsClient(isBack ? BackUpEndPoint.Address : UpEndPoint.Address, Config.TimeOut,
-                UpEndPoint.Port) {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessageAsync(dnsMessage);
+                    isBack ? BackUpEndPoint.Port : UpEndPoint.Port)
+                {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessageAsync(dnsMessage);
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
