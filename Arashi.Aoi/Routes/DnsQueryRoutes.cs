@@ -21,10 +21,12 @@ namespace Arashi.Aoi.Routes
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
 
         public static ObjectPool<DnsClient> UpPool = new(() =>
-            new DnsClient(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port != 0 ? UpEndPoint.Port : 53));
+            new DnsClient(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port != 0 ? UpEndPoint.Port : 53)
+                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true});
 
         public static ObjectPool<DnsClient> BackUpPool = new(() =>
-            new DnsClient(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port != 0 ? UpEndPoint.Port : 53));
+            new DnsClient(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port != 0 ? UpEndPoint.Port : 53)
+                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true});
 
 
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
