@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using Newtonsoft.Json;
 using static Arashi.AoiConfig;
 using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
@@ -20,13 +21,11 @@ namespace Arashi.Aoi.Routes
         public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
 
-        public static ObjectPool<DnsClient> UpPool = new(() =>
-            new DnsClient(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port != 0 ? UpEndPoint.Port : 53)
-                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true});
+        public static DefaultObjectPool<DnsClient> UpPool = new(
+            new DnsClientPooledObjectPolicy(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port), 30);
 
-        public static ObjectPool<DnsClient> BackUpPool = new(() =>
-            new DnsClient(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port != 0 ? UpEndPoint.Port : 53)
-                {IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true});
+        public static DefaultObjectPool<DnsClient> BackUpPool = new(
+            new DnsClientPooledObjectPolicy(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port), 30);
 
 
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
@@ -158,13 +157,13 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, HttpContext context,
-            bool CnDns = true, bool Cache = true, IPAddress ipAddress = null)
+            bool cnDns = true, bool useCache = true, IPAddress ipAddress = null)
         {
             try
             {
                 var querys = context.Request.Query;
 
-                if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && CnDns &&
+                if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && cnDns &&
                     dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A &&
                     await DNSChina.IsChinaNameAsync(dnsMessage.Questions.FirstOrDefault().Name))
                 {
@@ -177,7 +176,7 @@ namespace Arashi.Aoi.Routes
                     return cnres;
                 }
 
-                if (Config.CacheEnable && !querys.ContainsKey("no-cache") && Cache)
+                if (Config.CacheEnable && !querys.ContainsKey("no-cache") && useCache)
                 {
                     if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context))
                         return DnsCache.Get(dnsMessage, context);
@@ -199,12 +198,12 @@ namespace Arashi.Aoi.Routes
             return res;
         }
 
-        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool CnDns = true, bool Cache = true)
+        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool cnDns = true, bool useCache = true)
         {
             try
             {
-                if (Config.CacheEnable && Cache && DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
-                if (Config.ChinaListEnable && CnDns &&
+                if (Config.CacheEnable && useCache && DnsCache.Contains(dnsMessage)) return DnsCache.Get(dnsMessage);
+                if (Config.ChinaListEnable && cnDns &&
                     await DNSChina.IsChinaNameAsync(dnsMessage.Questions.FirstOrDefault().Name) &&
                     dnsMessage.Questions.FirstOrDefault().RecordType == RecordType.A)
                     return await DNSChina.ResolveOverChinaDns(dnsMessage);
