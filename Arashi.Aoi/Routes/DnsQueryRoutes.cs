@@ -20,6 +20,13 @@ namespace Arashi.Aoi.Routes
         public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
 
+        public static ObjectPool<DnsClient> UpPool = new(() =>
+            new DnsClient(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port != 0 ? UpEndPoint.Port : 53));
+
+        public static ObjectPool<DnsClient> BackUpPool = new(() =>
+            new DnsClient(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port != 0 ? UpEndPoint.Port : 53));
+
+
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
         {
             endpoints.Map(Config.QueryPerfix, async context =>
@@ -183,10 +190,8 @@ namespace Arashi.Aoi.Routes
             if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
                 ipAddress = UpEndPoint.Address;
 
-            var res = await DnsQuery(ipAddress, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                      await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
-            if (res.ReturnCode != ReturnCode.NoError && res.ReturnCode != ReturnCode.NxDomain)
-                res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            var res = await DnsQuery(dnsMessage, false) ?? await DnsQuery(dnsMessage, true);
+            if (res.ReturnCode == ReturnCode.Refused) res = await DnsQuery(dnsMessage, true);
 
             WriteCache(res, context);
             return res;
@@ -207,26 +212,25 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            var res = await DnsQuery(UpEndPoint.Address, dnsMessage, UpEndPoint.Port, Config.TimeOut) ??
-                      await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
-            if (res.ReturnCode == ReturnCode.Refused)
-                res = await DnsQuery(BackUpEndPoint.Address, dnsMessage, BackUpEndPoint.Port, Config.TimeOut);
+            var res = await DnsQuery(dnsMessage, false) ?? await DnsQuery(dnsMessage, true);
+            if (res.ReturnCode == ReturnCode.Refused) res = await DnsQuery(dnsMessage, true);
             return res;
         }
 
-        public static async Task<DnsMessage> DnsQuery(IPAddress ipAddress, DnsMessage dnsMessage, int port = 53, int timeout = 1500)
+        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool isBack)
         {
-            if (port == 0) port = 53;
-            var client = new DnsClient(ipAddress, timeout)
-                { IsUdpEnabled = !Config.OnlyTcpEnable, IsTcpEnabled = true };
+            var client = isBack ? BackUpPool.Get() : UpPool.Get();
             for (var i = 0; i < Config.Retries; i++)
             {
                 var aMessage = await client.SendMessageAsync(dnsMessage);
                 if (aMessage != null) return aMessage;
             }
 
-            return await new DnsClient(ipAddress, timeout, port)
-                { IsTcpEnabled = true, IsUdpEnabled = false }.SendMessageAsync(dnsMessage);
+            if (isBack) BackUpPool.Return(client);
+            else UpPool.Return(client);
+
+            return await new DnsClient(isBack ? BackUpEndPoint.Address : UpEndPoint.Address, Config.TimeOut,
+                UpEndPoint.Port) {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessageAsync(dnsMessage);
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
