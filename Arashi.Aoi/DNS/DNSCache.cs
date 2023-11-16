@@ -17,7 +17,7 @@ namespace Arashi
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
-            Add(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
+            AddForce(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
                         AnswerRecords = dnsMessage.AnswerRecords.ToList(),
@@ -36,7 +36,7 @@ namespace Arashi
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
-                Add(new CacheItem(
+                AddForce(new CacheItem(
                         $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
@@ -48,7 +48,7 @@ namespace Arashi
                         }),
                     record.TimeToLive);
             else
-                Add(new CacheItem(
+                AddForce(new CacheItem(
                         $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                         new CacheEntity
                         {
@@ -61,6 +61,16 @@ namespace Arashi
                     record.TimeToLive);
         }
 
+        public static void AddForce(CacheItem cacheItem, int ttl)
+        {
+            MemoryCache.Default.Add(cacheItem,
+                new CacheItemPolicy
+                {
+                    AbsoluteExpiration =
+                        DateTimeOffset.Now + TimeSpan.FromSeconds(ttl)
+                });
+        }
+
         public static void Add(CacheItem cacheItem, int ttl)
         {
             if (!MemoryCache.Default.Contains(cacheItem.Key))
@@ -71,6 +81,7 @@ namespace Arashi
                             DateTimeOffset.Now + TimeSpan.FromSeconds(ttl)
                     });
         }
+
 
         public static bool Contains(DnsMessage dnsQMsg, HttpContext context = null, string tag = "")
         {
