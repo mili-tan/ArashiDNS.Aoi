@@ -1,4 +1,5 @@
-﻿using System;
+﻿extern alias IPNetwork2;
+using System;
 using System.Buffers;
 using System.Linq;
 using System.Net;
@@ -39,8 +40,8 @@ namespace Arashi
             {
                 var ipStr = queryDictionary["edns_client_subnet"].ToString();
                 var ipNetwork = ipStr.Contains("/")
-                    ? IPNetwork.Parse(ipStr)
-                    : IPNetwork.Parse(ipStr, EcsDefaultMask);
+                    ? IPNetwork2.System.Net.IPNetwork.Parse(ipStr)
+                    : IPNetwork2.System.Net.IPNetwork.Parse(ipStr, EcsDefaultMask);
                 dnsQMsg.EDnsOptions.Options.Add(new ClientSubnetOption(
                     Equals(ipNetwork.Network, IPAddress.Any) ? (byte)0 : ipNetwork.Cidr, ipNetwork.Network));
             }
@@ -51,7 +52,7 @@ namespace Arashi
                 {
                     dnsQMsg.EDnsOptions.Options.Add(
                         new ClientSubnetOption(EcsDefaultMask,
-                            IPNetwork.Parse(realIp.ToString(), EcsDefaultMask).Network));
+                            IPNetwork2.System.Net.IPNetwork.Parse(realIp.ToString(), EcsDefaultMask).Network));
                 }
             }
 
@@ -67,7 +68,7 @@ namespace Arashi
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
-                IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
+                IPNetwork2.System.Net.IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
             return msg;
         }
 
@@ -79,7 +80,7 @@ namespace Arashi
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
-                IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
+                IPNetwork2.System.Net.IPNetwork.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
             return msg;
         }
 
