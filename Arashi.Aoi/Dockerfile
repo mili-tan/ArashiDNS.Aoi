@@ -3,7 +3,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
 WORKDIR /src
 COPY ["Arashi.Aoi/Arashi.Aoi.csproj", "Arashi.Aoi/"]
 RUN dotnet restore "Arashi.Aoi/Arashi.Aoi.csproj"
