@@ -9,8 +9,7 @@ namespace Arashi.Aoi
 
         public DnsClient Create()
         {
-            return new DnsClient(ip, timeout, port != 0 ? port : 53)
-                {IsUdpEnabled = !AoiConfig.Config.OnlyTcpEnable, IsTcpEnabled = true};
+            return new DnsClient(ip, timeout);
         }
 
         public bool Return(DnsClient obj)

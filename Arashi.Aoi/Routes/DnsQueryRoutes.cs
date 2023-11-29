@@ -224,15 +224,17 @@ namespace Arashi.Aoi.Routes
             for (var i = 0; i < Config.Retries; i++)
             {
                 var aMessage = await client.SendMessageAsync(dnsMessage);
-                if (aMessage != null) return aMessage;
+                if (aMessage == null) continue;
+                if (isBack) BackUpPool.Return(client);
+                else UpPool.Return(client);
+                return aMessage;
             }
 
-            if (isBack) BackUpPool.Return(client);
-            else UpPool.Return(client);
-
-            return await new DnsClient(isBack ? BackUpEndPoint.Address : UpEndPoint.Address, Config.TimeOut,
-                    isBack ? BackUpEndPoint.Port : UpEndPoint.Port)
-                {IsTcpEnabled = true, IsUdpEnabled = false}.SendMessageAsync(dnsMessage);
+            return await new DnsClient(new[] {BackUpEndPoint.Address, UpEndPoint.Address},
+                    new IClientTransport[]
+                        {new TcpClientTransport(BackUpEndPoint.Port), new UdpClientTransport(BackUpEndPoint.Port)},
+                    false, Config.TimeOut)
+                .SendMessageAsync(dnsMessage);
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)

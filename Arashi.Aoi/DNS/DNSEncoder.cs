@@ -27,7 +27,7 @@ namespace Arashi
                 item.Name.IsSubDomainOf(DomainName.Parse("nova-msg")));
 
             //if (dnsBytes != null && dnsBytes[2] == 0) dnsBytes[2] = 1;
-            dnsMsg.Encode(false, out var dnsBytes);
+            var dnsBytes = dnsMsg.Encode().ToArraySegment(false).ToArray();
             return trimEnable ? bytesTrimEnd(dnsBytes) : dnsBytes;
         }
 
@@ -55,7 +55,7 @@ namespace Arashi
             dnsQMsg.IsRecursionAllowed = true;
             dnsQMsg.IsRecursionDesired = true;
             dnsQMsg.TransactionID = Convert.ToUInt16(new Random(DateTime.Now.Millisecond).Next(1, 10));
-            dnsQMsg.Encode(false, out var dnsBytes);
+            var dnsBytes = dnsQMsg.Encode().ToArraySegment(false).ToArray();
             return dnsBytes;
         }
     }
