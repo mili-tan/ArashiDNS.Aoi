@@ -230,6 +230,9 @@ namespace Arashi.Aoi.Routes
                 return aMessage;
             }
 
+            if (isBack) BackUpPool.Return(client);
+            else UpPool.Return(client);
+
             return await new DnsClient(new[] {BackUpEndPoint.Address, UpEndPoint.Address},
                     new IClientTransport[]
                         {new TcpClientTransport(BackUpEndPoint.Port), new UdpClientTransport(BackUpEndPoint.Port)},
