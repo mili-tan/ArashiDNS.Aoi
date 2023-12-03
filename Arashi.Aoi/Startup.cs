@@ -41,6 +41,8 @@ namespace Arashi
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
 
+            HeaderDict.Add("Access-Control-Allow-Origin", "*");
+
             if (Config.RankEnable)
             {
                 var timer = new Timer(600000) { Enabled = true, AutoReset = true };
