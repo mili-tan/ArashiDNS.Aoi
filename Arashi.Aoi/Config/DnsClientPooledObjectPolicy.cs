@@ -4,17 +4,11 @@ using ARSoft.Tools.Net.Dns;
 
 namespace Arashi.Aoi
 {
-    public class DnsClientPooledObjectPolicy(IPAddress ip,int timeout, int port) : IPooledObjectPolicy<DnsClient>
+    public class DnsClientPooledObjectPolicy(IPAddress ip,int timeout) : IPooledObjectPolicy<DnsClient>
     {
 
-        public DnsClient Create()
-        {
-            return new DnsClient(ip, timeout);
-        }
+        public DnsClient Create() => new(ip, timeout);
 
-        public bool Return(DnsClient obj)
-        {
-            return true;
-        }
+        public bool Return(DnsClient obj) => true;
     }
 }

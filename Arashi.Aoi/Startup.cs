@@ -6,7 +6,6 @@ using Arashi.Aoi;
 using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
 using ArashiDNS.Tools;
-using ARSoft.Tools.Net;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
