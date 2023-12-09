@@ -49,7 +49,7 @@ namespace Arashi
                     return true;
 
                 return
-                    (await MFaster.FasterKv.ReadAsync("CN:" + string.Join(".", name.Labels))).Item1.Found ||
+                    (await MFaster.FasterKv.ReadAsync("CN:" + name.ToString().TrimEnd('.'))).Item1.Found ||
                     (await MFaster.FasterKv.ReadAsync("CN:" + string.Join(".", name.Labels.TakeLast(2)))).Item1.Found;
             }
             catch (Exception e)
