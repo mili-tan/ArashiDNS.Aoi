@@ -208,8 +208,9 @@ namespace Arashi.Aoi
                         timer.Elapsed += (_, _) =>
                         {
                             timer.Interval = 3600000 * 24;
-                            GetFileUpdate("GeoLite2-ASN.mmdb", Config.MaxmindAsnDbUrl);
-                            GetFileUpdate("GeoLite2-City.mmdb", Config.MaxmindCityDbUrl);
+                            Parallel.Invoke(
+                                () => GetFileUpdate("GeoLite2-ASN.mmdb", Config.MaxmindAsnDbUrl),
+                                () => GetFileUpdate("GeoLite2-City.mmdb", Config.MaxmindCityDbUrl));
                         };
                     }
                 }
@@ -363,13 +364,10 @@ namespace Arashi.Aoi
             }
             else Console.WriteLine();
 
-            if (!File.Exists(setupBasePath + file))
-                Task.Run(() =>
-                {
-                    Console.WriteLine($"Downloading {file}...");
-                    File.WriteAllBytes(setupBasePath + file, new HttpClient().GetByteArrayAsync(url).Result);
-                    Console.WriteLine(file + " Download Done");
-                });
+            if (File.Exists(setupBasePath + file)) return;
+            Console.WriteLine($"Downloading {file}...");
+            File.WriteAllBytes(setupBasePath + file, new HttpClient().GetByteArrayAsync(url).Result);
+            Console.WriteLine(file + " Download Done");
         }
     }
 }
