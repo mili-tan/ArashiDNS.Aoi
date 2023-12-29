@@ -12,6 +12,8 @@ namespace Arashi
         public string IpPerfix = "/ip";
         public int Retries = 4;
         public int TimeOut = 250;
+        public int MaxTTL = 86400;
+        public int TargetTTL = 21600;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
         public bool RankEnable = false;

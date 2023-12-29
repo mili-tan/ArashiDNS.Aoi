@@ -17,16 +17,21 @@ namespace Arashi
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
+
+            var ttl = record.TimeToLive;
+            if (record.TimeToLive < 10) return;
+            if (record.TimeToLive > AoiConfig.Config.MaxTTL)
+                ttl = AoiConfig.Config.MaxTTL;
+
             AddForce(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
-                    new CacheEntity
-                    {
-                        AnswerRecords = dnsMessage.AnswerRecords.ToList(),
-                        AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
-                        Code = dnsMessage.ReturnCode,
-                        Time = DateTime.Now,
-                        ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
-                    }),
-                record.TimeToLive);
+                new CacheEntity
+                {
+                    AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                    AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
+                    Code = dnsMessage.ReturnCode,
+                    Time = DateTime.Now,
+                    ExpiresTime = DateTime.Now.AddSeconds(ttl)
+                }), ttl);
         }
 
         public static void Add(DnsMessage dnsMessage, HttpContext context, string tag = "")
@@ -35,30 +40,36 @@ namespace Arashi
             var record = dnsMessage.AnswerRecords.FirstOrDefault() ?? new ARecord(DomainName.Root,
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
+
+            var ttl = record.TimeToLive;
+            if (record.TimeToLive < 10) return;
+            if (record.TimeToLive > AoiConfig.Config.MaxTTL)
+                ttl = AoiConfig.Config.MaxTTL;
+
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 AddForce(new CacheItem(
-                        $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
-                        new CacheEntity
-                        {
-                            AnswerRecords = dnsMessage.AnswerRecords.ToList(),
-                            AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
-                            Code = dnsMessage.ReturnCode,
-                            Time = DateTime.Now,
-                            ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
-                        }),
-                    record.TimeToLive);
+                    $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
+                    new CacheEntity
+                    {
+                        AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                        AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt)
+                            .ToList(),
+                        Code = dnsMessage.ReturnCode,
+                        Time = DateTime.Now,
+                        ExpiresTime = DateTime.Now.AddSeconds(ttl)
+                    }), ttl);
             else
                 AddForce(new CacheItem(
-                        $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
-                        new CacheEntity
-                        {
-                            AnswerRecords = dnsMessage.AnswerRecords.ToList(),
-                            AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt).ToList(),
-                            Code = dnsMessage.ReturnCode,
-                            Time = DateTime.Now,
-                            ExpiresTime = DateTime.Now.AddSeconds(record.TimeToLive)
-                        }),
-                    record.TimeToLive);
+                    $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
+                    new CacheEntity
+                    {
+                        AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                        AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt)
+                            .ToList(),
+                        Code = dnsMessage.ReturnCode,
+                        Time = DateTime.Now,
+                        ExpiresTime = DateTime.Now.AddSeconds(ttl)
+                    }), ttl);
         }
 
         public static void AddForce(CacheItem cacheItem, int ttl)
