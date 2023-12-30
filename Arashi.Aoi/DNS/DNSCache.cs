@@ -63,7 +63,7 @@ namespace Arashi
                     $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
-                        AnswerRecords = dnsMessage.AnswerRecords.ToList(),
+                        AnswerRecords = dnsMessage.AnswerRecords.Take(6).ToList(),
                         AuthorityRecords = dnsMessage.AuthorityRecords.Where(x => x.RecordType != RecordType.Txt)
                             .ToList(),
                         Code = dnsMessage.ReturnCode,
