@@ -20,8 +20,8 @@ namespace Arashi
 
             var ttl = record.TimeToLive;
             if (record.TimeToLive < 10) return;
-            if (record.TimeToLive > AoiConfig.Config.MaxTTL)
-                ttl = AoiConfig.Config.MaxTTL;
+            if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
+                ttl = AoiConfig.Config.TargetTTL;
 
             AddForce(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
                 new CacheEntity
@@ -43,8 +43,8 @@ namespace Arashi
 
             var ttl = record.TimeToLive;
             if (record.TimeToLive < 10) return;
-            if (record.TimeToLive > AoiConfig.Config.MaxTTL)
-                ttl = AoiConfig.Config.MaxTTL;
+            if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
+                ttl = AoiConfig.Config.TargetTTL;
 
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 AddForce(new CacheItem(
