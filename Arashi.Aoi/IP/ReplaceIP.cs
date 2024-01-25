@@ -1,5 +1,4 @@
 ﻿#nullable enable
-extern alias IPNetwork2;
 using System;
 using System.Collections;
 using System.Linq;
@@ -42,7 +41,7 @@ namespace ArashiDNS.P2.IP
         {
             try
             {
-                return IPNetwork2.System.Net.IPNetwork
+                return IPNetwork2
                     .Parse(JArray
                         .Parse(await Startup.ClientFactory.CreateClient("GET")
                             .GetStringAsync($"https://asn.novaxns.workers.dev/api/asnc/get?as={asn}&geo={country}"))
@@ -64,11 +63,11 @@ namespace ArashiDNS.P2.IP
                         asn))["data"]?["located_resources"];
 
                 if (country == "UN" && resources != null)
-                    return IPNetwork2.System.Net.IPNetwork.Parse(resources.FirstOrDefault()?["resource"]?.ToString()).FirstUsable;
+                    return IPNetwork2.Parse(resources.FirstOrDefault()?["resource"]?.ToString()).FirstUsable;
 
                 return (from item in resources
                     where item["locations"].FirstOrDefault()["country"].ToString() == country
-                    select IPNetwork2.System.Net.IPNetwork.Parse(item["resource"].ToString()).FirstUsable).FirstOrDefault();
+                    select IPNetwork2.Parse(item["resource"].ToString()).FirstUsable).FirstOrDefault();
             }
             catch
             {
