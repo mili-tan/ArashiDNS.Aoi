@@ -23,7 +23,7 @@ namespace Arashi
             if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
                 ttl = AoiConfig.Config.TargetTTL;
 
-            AddForce(new CacheItem($"DNS:{quest.Name}:{quest.RecordType}:{tag}",
+            AddForce(new CacheItem($"DNS:{quest.Name.ToString().ToLower()}:{quest.RecordType}:{tag}",
                 new CacheEntity
                 {
                     AnswerRecords = dnsMessage.AnswerRecords.Take(6).ToList(),
@@ -48,7 +48,7 @@ namespace Arashi
 
             if (RealIP.TryGetFromDns(dnsMessage, out var ipAddress))
                 AddForce(new CacheItem(
-                    $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name}:{quest.RecordType}:{tag}",
+                    $"DNS:{GeoIP.GetGeoStr(ipAddress)}{quest.Name.ToString().ToLower()}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
                         AnswerRecords = dnsMessage.AnswerRecords.Take(6).ToList(),
@@ -60,7 +60,7 @@ namespace Arashi
                     }), ttl);
             else
                 AddForce(new CacheItem(
-                    $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name}:{quest.RecordType}:{tag}",
+                    $"DNS:{GeoIP.GetGeoStr(context.Connection.RemoteIpAddress)}{quest.Name.ToString().ToLower()}:{quest.RecordType}:{tag}",
                     new CacheEntity
                     {
                         AnswerRecords = dnsMessage.AnswerRecords.Take(6).ToList(),
@@ -98,9 +98,9 @@ namespace Arashi
         {
             return context == null
                 ? MemoryCache.Default.Contains(
-                    $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}")
+                    $"DNS:{dnsQMsg.Questions.FirstOrDefault().Name.ToString().ToLower()}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}")
                 : MemoryCache.Default.Contains(
-                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}");
+                    $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMsg, context))}{dnsQMsg.Questions.FirstOrDefault().Name.ToString().ToLower()}:{dnsQMsg.Questions.FirstOrDefault().RecordType}:{tag}");
         }
 
         public static void Remove(DomainName name)
@@ -108,7 +108,7 @@ namespace Arashi
             try
             {
                 foreach (var item in MemoryCache.Default
-                             .Where(item => item.Key.Contains(name.ToString())).ToList())
+                             .Where(item => item.Key.Contains(name.ToString().ToLower())).ToList())
                     MemoryCache.Default.Remove(item.Key);
             }
             catch (Exception e)
@@ -122,7 +122,7 @@ namespace Arashi
             try
             {
                 foreach (var item in MemoryCache.Default
-                             .Where(item => item.Key.Contains($":{name}:{type}:")).ToList())
+                             .Where(item => item.Key.Contains($":{name.ToString().ToLower()}:{type}:")).ToList())
                     MemoryCache.Default.Remove(item.Key);
             }
             catch (Exception e)
@@ -135,8 +135,8 @@ namespace Arashi
         {
             try
             {
-                MemoryCache.Default.Remove($"DNS:{name}:{type}:");
-                MemoryCache.Default.Remove($"DNS:{name}:{type}:");
+                MemoryCache.Default.Remove($"DNS:{name.ToString().ToLower()}:{type}:");
+                //MemoryCache.Default.Remove($"DNS:{name.ToString().ToLower()}:{type}:");
             }
             catch (Exception e)
             {
@@ -145,8 +145,8 @@ namespace Arashi
 
             try
             {
-                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:");
-                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name}:{type}:");
+                MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name.ToString().ToLower()}:{type}:");
+                //MemoryCache.Default.Remove($"DNS:{GeoIP.GetGeoStr(ip)}{name.ToString().ToLower()}:{type}:");
             }
             catch (Exception e)
             {
@@ -163,8 +163,8 @@ namespace Arashi
                 TransactionID = dnsQMessage.TransactionID
             };
             var getName = context != null
-                ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}"
-                : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}";
+                ? $"DNS:{GeoIP.GetGeoStr(RealIP.GetFromDns(dnsQMessage, context))}{dnsQMessage.Questions.FirstOrDefault().Name.ToString().ToLower()}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}"
+                : $"DNS:{dnsQMessage.Questions.FirstOrDefault().Name.ToString().ToLower()}:{dnsQMessage.Questions.FirstOrDefault().RecordType}:{tag}";
             var cacheEntity = Get(getName);
             foreach (var item in cacheEntity.AnswerRecords)
             {
