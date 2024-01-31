@@ -114,9 +114,8 @@ namespace Arashi.Aoi
                         ? new IPEndPoint(IPAddress.Loopback, 443)
                         : new IPEndPoint(IPAddress.Loopback, 2020);
 
-                if ((File.Exists("/.dockerenv") ||
-                     Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
-                     Environment.GetEnvironmentVariables().Contains("ARASHI_ANY")) &&
+                if ((Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
+                     Environment.GetEnvironmentVariables().Contains("ARASHI_ANY") || File.Exists("/.dockerenv")) &&
                     !ipOption.HasValue()) ipEndPoint.Address = IPAddress.Any;
 
                 if (Environment.GetEnvironmentVariables().Contains("PORT") && !ipOption.HasValue())
@@ -304,9 +303,9 @@ namespace Arashi.Aoi
 
             try
             {
-                if (File.Exists("/.dockerenv") ||
-                    Environment.GetEnvironmentVariables().Contains("DOTNET_RUNNING_IN_CONTAINER") ||
-                    Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER"))
+                if (Environment.GetEnvironmentVariables().Contains("DOTNET_RUNNING_IN_CONTAINER") ||
+                    Environment.GetEnvironmentVariables().Contains("ARASHI_RUNNING_IN_CONTAINER") ||
+                    File.Exists("/.dockerenv"))
                     Console.WriteLine("ArashiDNS Running in Docker Container");
                 if (Environment.GetEnvironmentVariables().Contains("ARASHI_VAR"))
                 {
