@@ -19,7 +19,7 @@ namespace Arashi
             var quest = dnsMessage.Questions.First();
 
             var ttl = record.TimeToLive;
-            if (record.TimeToLive < 10) return;
+            if (record.TimeToLive < AoiConfig.Config.MinTTL) return;
             if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
                 ttl = AoiConfig.Config.TargetTTL;
 
