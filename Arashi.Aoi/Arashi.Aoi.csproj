@@ -33,7 +33,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
-    <PackageReference Include="IPNetwork2" Version="3.0.648" />
+    <PackageReference Include="IPNetwork2" Version="3.0.651" />
   </ItemGroup>
 
   <ItemGroup>
