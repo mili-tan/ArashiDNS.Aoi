@@ -21,11 +21,14 @@ namespace Arashi.Aoi.Routes
         public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
 
-        public static DefaultObjectPool<DnsClient> UpPool = new(
-            new DnsClientPooledObjectPolicy(new []{ UpEndPoint.Address,BackUpEndPoint.Address }, Config.TimeOut, UpEndPoint.Port), 30);
+        public static DefaultObjectPool<DnsClient> UpPool = new(new DnsClientPooledObjectPolicy(
+            new[]
+            {
+                UpEndPoint.Address, BackUpEndPoint.Port == UpEndPoint.Port ? BackUpEndPoint.Address : IPAddress.Any
+            }, Config.TimeOut, UpEndPoint.Port), 30);
 
         public static DefaultObjectPool<DnsClient> BackUpPool = new(
-            new DnsClientPooledObjectPolicy(new []{ BackUpEndPoint.Address }, Config.TimeOut, BackUpEndPoint.Port), 30);
+            new DnsClientPooledObjectPolicy(new[] {BackUpEndPoint.Address}, Config.TimeOut, BackUpEndPoint.Port), 30);
 
 
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
@@ -110,7 +113,8 @@ namespace Arashi.Aoi.Routes
             });
         }
 
-        public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg, DnsMessage qMsg = null,
+        public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg,
+            DnsMessage qMsg = null,
             bool transIdEnable = false, bool trimEnable = false, ushort id = 0)
         {
             try
@@ -123,6 +127,7 @@ namespace Arashi.Aoi.Routes
                         StatusCodes.Status500InternalServerError);
                     return;
                 }
+
                 if (qMsg != null)
                 {
                     var response = qMsg.CreateResponseInstance();
