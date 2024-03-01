@@ -25,7 +25,7 @@ namespace Arashi.Aoi.Routes
             new DnsClientPooledObjectPolicy(UpEndPoint.Address, Config.TimeOut, UpEndPoint.Port), 30);
 
         public static DefaultObjectPool<DnsClient> BackUpPool = new(
-            new DnsClientPooledObjectPolicy(BackUpEndPoint.Address, Config.TimeOut, UpEndPoint.Port), 30);
+            new DnsClientPooledObjectPolicy(BackUpEndPoint.Address, Config.TimeOut, BackUpEndPoint.Port), 30);
 
 
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
