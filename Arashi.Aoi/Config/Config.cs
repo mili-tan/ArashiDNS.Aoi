@@ -6,7 +6,7 @@ namespace Arashi
     {
         public static AoiConfig Config = new();
         public string UpStream = "8.8.8.8";
-        public string BackUpStream = "1.0.0.1";
+        public string BackUpStream = "9.9.9.11";
         public string QueryPerfix = "/dns-query";
         public string AdminPerfix = "/dns-admin";
         public string IpPerfix = "/ip";

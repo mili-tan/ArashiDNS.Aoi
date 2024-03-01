@@ -4,7 +4,7 @@ using ARSoft.Tools.Net.Dns;
 
 namespace Arashi.Aoi
 {
-    public class DnsClientPooledObjectPolicy(IPAddress[] ips,int timeout,int port) : IPooledObjectPolicy<DnsClient>
+    public class DnsClientPooledObjectPolicy(IPAddress[] ips, int timeout, int port) : IPooledObjectPolicy<DnsClient>
     {
 
         public DnsClient Create() => new(ips,
