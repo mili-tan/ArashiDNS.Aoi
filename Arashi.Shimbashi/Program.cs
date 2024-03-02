@@ -147,7 +147,7 @@ namespace Arashi.Aoi
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();
-                Config.RankEnable = rankOption.HasValue();
+                //Config.RankEnable = rankOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.EcsEnable = !noecsOption.HasValue();
@@ -168,7 +168,7 @@ namespace Arashi.Aoi
                     if (val == "none" || val == "null" || val == "off") Config.CacheEnable = false;
                 }
 
-                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() || Config.RankEnable)
+                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() /*|| Config.RankEnable*/)
                 {
                     var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
                     Console.WriteLine(

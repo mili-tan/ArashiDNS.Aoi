@@ -76,7 +76,7 @@ namespace Arashi.Aoi
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var udsOption = cmd.Option("--uds", string.Empty, CommandOptionType.NoValue);
-            var rankOption = cmd.Option("--rank", string.Empty, CommandOptionType.NoValue);
+            //var rankOption = cmd.Option("--rank", string.Empty, CommandOptionType.NoValue);
             var adminOption = cmd.Option("--admin", string.Empty, CommandOptionType.NoValue);
             var noUpdateOption = cmd.Option("-nu|--noupdate", string.Empty, CommandOptionType.NoValue);
             var anyOption = cmd.Option("--any", string.Empty, CommandOptionType.NoValue);
@@ -165,7 +165,7 @@ namespace Arashi.Aoi
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();
-                Config.RankEnable = rankOption.HasValue();
+                //Config.RankEnable = rankOption.HasValue();
                 Config.LogEnable = logOption.HasValue();
                 Config.OnlyTcpEnable = tcpOption.HasValue();
                 Config.EcsEnable = !noecsOption.HasValue();
@@ -188,7 +188,7 @@ namespace Arashi.Aoi
                     else if (val is "none" or "null" or "off") Config.CacheEnable = false;
                 }
 
-                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() || Config.RankEnable)
+                if (Config.CacheEnable && Config.GeoCacheEnable || syncmmdbOption.HasValue() /*|| Config.RankEnable*/)
                 {
                     var setupBasePath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
                     Console.WriteLine(

@@ -17,7 +17,7 @@ namespace Arashi
         public int TargetTTL = 21600;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
-        public bool RankEnable = false;
+        //public bool RankEnable = false;
         public bool LogEnable = false;
         public bool FullLogEnable = false;
         public bool ChinaListEnable = false;

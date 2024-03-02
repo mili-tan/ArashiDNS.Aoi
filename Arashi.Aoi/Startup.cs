@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Http;
 using System.Timers;
 using Arashi.Aoi;
-using Arashi.Aoi.DNS;
 using Arashi.Aoi.Routes;
 using ArashiDNS.Tools;
 using AspNetCoreRateLimit;
@@ -34,7 +33,7 @@ namespace Arashi
                 MFaster.Init();
                 DNSChina.Init();
             }
-            if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable) GeoIP.Init();
+            if (Config.CacheEnable && Config.GeoCacheEnable /*|| Config.RankEnable*/) GeoIP.Init();
 
             if (File.Exists(SetupBasePath + "headers.list"))
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
@@ -42,11 +41,11 @@ namespace Arashi
 
             HeaderDict.Add("Access-Control-Allow-Origin", "*");
 
-            if (Config.RankEnable)
-            {
-                var timer = new Timer(600000) { Enabled = true, AutoReset = true };
-                timer.Elapsed += (_, _) => DNSRank.Database.Checkpoint();
-            }
+            //if (Config.RankEnable)
+            //{
+            //    var timer = new Timer(600000) { Enabled = true, AutoReset = true };
+            //    timer.Elapsed += (_, _) => DNSRank.Database.Checkpoint();
+            //}
 
             services.AddMemoryCache();
             services.Configure<IpRateLimitOptions>(new ConfigurationBuilder()

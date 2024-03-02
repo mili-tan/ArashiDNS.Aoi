@@ -18,7 +18,7 @@ namespace Arashi.Azure
         {
             Config = new AoiConfig
             {
-                RankEnable = true,
+                //RankEnable = true,
                 ChinaListEnable = true,
                 UseResolveRoute = true,
                 UseAdminRoute = true,
@@ -27,7 +27,7 @@ namespace Arashi.Azure
                 RateLimitingEnable = true
             };
 
-            if (Config.CacheEnable && Config.GeoCacheEnable || Config.RankEnable)
+            if (Config.CacheEnable && Config.GeoCacheEnable/* || Config.RankEnable*/)
             {
                 Console.WriteLine(
                     "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com");
