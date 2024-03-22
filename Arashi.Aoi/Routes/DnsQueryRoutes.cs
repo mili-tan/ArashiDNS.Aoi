@@ -44,18 +44,18 @@ namespace Arashi.Aoi.Routes
                 {
                     if (context.Request.Method == "POST")
                     {
-                        qMsg = await DNSParser.FromPostByteAsync(context);
                         returnMsg = true;
+                        qMsg = await DNSParser.FromPostByteAsync(context);
                     }
                     else if (queryDictionary.ContainsKey("dns"))
                     {
-                        qMsg = DNSParser.FromWebBase64(context);
                         returnMsg = true;
+                        qMsg = DNSParser.FromWebBase64(context);
                     }
                     else if (queryDictionary.ContainsKey("name"))
                     {
-                        qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
                         returnMsg = false;
+                        qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
                     }
                     else
                     {
