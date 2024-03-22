@@ -71,9 +71,10 @@ namespace Arashi.Aoi.Routes
                             IsRecursionDesired = true,
                             ReturnCode = ReturnCode.ServerFailure
                         };
+                        msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
                         msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
                             "Parse error or invalid query"));
-                        await ReturnContext(context, returnMsg, msg, new DnsMessage(),
+                        await ReturnContext(context, returnMsg, msg, null,
                             transIdEnable: GetIdEnable(context));
                         return;
                     }
@@ -86,9 +87,10 @@ namespace Arashi.Aoi.Routes
                         IsRecursionDesired = true,
                         ReturnCode = ReturnCode.ServerFailure
                     };
+                    msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
                     msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
                         "Fail parse query parameter"));
-                    await ReturnContext(context, returnMsg, msg, new DnsMessage(),
+                    await ReturnContext(context, returnMsg, msg, null,
                         transIdEnable: GetIdEnable(context));
                     Console.WriteLine(e);
                     return;
