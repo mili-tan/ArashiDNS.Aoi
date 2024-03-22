@@ -38,7 +38,7 @@ namespace Arashi.Aoi.Routes
                 var queryDictionary = context.Request.Query;
 
                 DnsMessage qMsg;
-                bool returnMsg;
+                bool returnMsg = true;
 
                 try
                 {
@@ -65,16 +65,32 @@ namespace Arashi.Aoi.Routes
 
                     if (qMsg == null || !qMsg.Questions.Any())
                     {
-                        await context.WriteResponseAsync("Parse error or invalid query",
-                            StatusCodes.Status500InternalServerError);
+                        var msg = new DnsMessage
+                        {
+                            IsRecursionAllowed = true,
+                            IsRecursionDesired = true,
+                            ReturnCode = ReturnCode.ServerFailure
+                        };
+                        msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
+                            "Parse error or invalid query"));
+                        await ReturnContext(context, returnMsg, msg, new DnsMessage(),
+                            transIdEnable: GetIdEnable(context));
                         return;
                     }
                 }
                 catch (Exception e)
                 {
+                    var msg = new DnsMessage
+                    {
+                        IsRecursionAllowed = true,
+                        IsRecursionDesired = true,
+                        ReturnCode = ReturnCode.ServerFailure
+                    };
+                    msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
+                        "Fail parse query parameter"));
+                    await ReturnContext(context, returnMsg, msg, new DnsMessage(),
+                        transIdEnable: GetIdEnable(context));
                     Console.WriteLine(e);
-                    await context.WriteResponseAsync("Fail parse query parameter",
-                        StatusCodes.Status500InternalServerError);
                     return;
                 }
 
@@ -123,9 +139,13 @@ namespace Arashi.Aoi.Routes
                 var pddingEnable = queryDictionary.ContainsKey("random_padding");
                 if (aMsg == null)
                 {
-                    await context.WriteResponseAsync("Remote DNS server timeout",
-                        StatusCodes.Status500InternalServerError);
-                    return;
+                    aMsg = qMsg.CreateResponseInstance();
+                    aMsg.ReturnCode = ReturnCode.ServerFailure;
+                    aMsg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
+                        "Remote DNS server timeout"));
+                    //await context.WriteResponseAsync("Remote DNS server timeout",
+                    //    StatusCodes.Status500InternalServerError);
+                    //return;
                 }
 
                 if (qMsg != null)
