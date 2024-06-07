@@ -13,6 +13,9 @@ namespace Arashi
             try
             {
                 var request = context.Request;
+                if (request.Headers.ContainsKey("Fastly-Client-IP"))
+                    return IPEndPoint.Parse(request.Headers["Fastly-Client-IP"].ToString().Split(',')
+                        .FirstOrDefault().Trim()).Address;
                 if (request.Headers.ContainsKey("X-Forwarded-For"))
                     return IPEndPoint.Parse(request.Headers["X-Forwarded-For"].ToString().Split(',')
                         .FirstOrDefault().Trim()).Address;
