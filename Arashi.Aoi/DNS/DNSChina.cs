@@ -90,17 +90,29 @@ namespace Arashi
             }
 
             if (string.IsNullOrWhiteSpace(dnsStr)) throw new TimeoutException();
-            var ttlTime = Convert.ToInt32(dnsStr.Split(',')[1]);
-            var dnsAnswerList = dnsStr.Split(',')[0].Split(';');
+
             var dnsAMessage = new DnsMessage
             {
                 IsRecursionAllowed = true,
                 IsRecursionDesired = true,
                 TransactionID = dnsMessage.TransactionID,
-                AnswerRecords = new List<DnsRecordBase>(dnsAnswerList
-                    .Select(item => new ARecord(DomainName.Parse(domainName), ttlTime, IPAddress.Parse(item)))
-                    .Cast<DnsRecordBase>().ToList())
             };
+
+            if (dnsStr.StartsWith("0,") || dnsStr.StartsWith("0.0.0.1,"))
+            {
+                dnsAMessage.AnswerRecords = new List<DnsRecordBase>();
+                dnsAMessage.ReturnCode = ReturnCode.NxDomain;
+            }
+            else
+            {
+                var ttlTime = Convert.ToInt32(dnsStr.Split(',')[1]);
+                var dnsAnswerList = dnsStr.Split(',')[0].Split(';');
+
+                dnsAMessage.AnswerRecords = new List<DnsRecordBase>(dnsAnswerList
+                    .Select(item => new ARecord(DomainName.Parse(domainName), ttlTime, IPAddress.Parse(item)))
+                    .Cast<DnsRecordBase>().ToList());
+            }
+
             dnsAMessage.Questions.AddRange(dnsMessage.Questions);
             try
             {
