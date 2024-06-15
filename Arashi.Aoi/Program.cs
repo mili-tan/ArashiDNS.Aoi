@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -248,7 +249,19 @@ namespace Arashi.Aoi
                         $"Access Get AdminToken : /dns-admin/set-token?t={Config.AdminToken}");
 
                 if (!OperatingSystem.IsWindows() && File.Exists("/tmp/arashi-a.sock") && udsOption.HasValue())
-                    File.Delete("/tmp/arashi-a.sock");
+                {
+                    try
+                    {
+                        File.Delete("/tmp/arashi-a.sock");
+                        File.Create("/tmp/arashi-a.sock").Close();
+                        ChMod.Set("/tmp/arashi-a.sock");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+
 
                 var host = new WebHostBuilder()
                     .UseKestrel()
@@ -367,6 +380,39 @@ namespace Arashi.Aoi
             Console.WriteLine($"Downloading {file}...");
             File.WriteAllBytes(setupBasePath + file, new HttpClient().GetByteArrayAsync(url).Result);
             Console.WriteLine(file + " Download Done");
+        }
+    }
+
+    public static class ChMod
+    {
+        [DllImport("libc", EntryPoint = "chmod", SetLastError = true)]
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "interop")]
+        public static extern int Chmod(string pathname, int mode);
+
+        // user permissions
+        const int S_IRUSR = 0x100;
+        const int S_IWUSR = 0x80;
+        const int S_IXUSR = 0x40;
+
+        // group permission
+        const int S_IRGRP = 0x20;
+        const int S_IWGRP = 0x10;
+        const int S_IXGRP = 0x8;
+
+        // other permissions
+        const int S_IROTH = 0x4;
+        const int S_IWOTH = 0x2;
+        const int S_IXOTH = 0x1;
+
+        public static void Set(string filename)
+        {
+            const int _0755 =
+                S_IRUSR | S_IXUSR | S_IWUSR
+                | S_IRGRP | S_IXGRP | S_IWGRP
+                | S_IROTH | S_IXOTH | S_IWOTH;
+
+            if (0 != Chmod(Path.GetFullPath(filename), (int)_0755))
+                throw new Exception("Could not set Unix socket permissions");
         }
     }
 }
