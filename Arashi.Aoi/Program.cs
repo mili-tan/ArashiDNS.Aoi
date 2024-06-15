@@ -252,9 +252,17 @@ namespace Arashi.Aoi
                 {
                     try
                     {
-                        File.Delete("/tmp/arashi-a.sock");
-                        File.Create("/tmp/arashi-a.sock").Close();
-                        ChMod.Set("/tmp/arashi-a.sock");
+                        File.Delete("/var/run/arashi-a.sock");
+                        Task.Factory.StartNew(async () =>
+                        {
+                            for (var i = 0; i < 10; i++)
+                            {
+                                await Task.Delay(10000);
+                                if (!File.Exists("/var/run/arashi-a.sock")) continue;
+                                ChMod.Set("/var/run/arashi-a.sock");
+                                break;
+                            }
+                        });
                     }
                     catch (Exception e)
                     {
@@ -288,7 +296,7 @@ namespace Arashi.Aoi
                                 listenOptions.UseHttps(X509Certificate2.CreateFromPem(
                                     File.ReadAllText(pemOption.Value()), File.ReadAllText(keyOption.Value())));
                         });
-                        if (!OperatingSystem.IsWindows() && udsOption.HasValue()) options.ListenUnixSocket("/tmp/arashi-a.sock");
+                        if (!OperatingSystem.IsWindows() && udsOption.HasValue()) options.ListenUnixSocket("/var/run/arashi-a.sock");
                     })
                     .UseStartup<Startup>()
                     .Build();
