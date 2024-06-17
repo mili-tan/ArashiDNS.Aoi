@@ -76,7 +76,6 @@ namespace Arashi
 
             if (Config.UseIpRoute) app.UseEndpoints(IPRoutes.GeoIPRoute);
             if (Config.UseAdminRoute) app.UseEndpoints(AdminRoutes.AdminRoute);
-            if (Config.UseResolveRoute) app.UseEndpoints(ResolveRoutes.ResolveRoute);
             if (Config.UseErikoRoute) app.UseEndpoints(ErikoRoutes.ErikoRoute);
         }
     }

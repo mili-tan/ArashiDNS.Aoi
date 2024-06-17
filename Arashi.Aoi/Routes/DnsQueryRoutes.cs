@@ -248,19 +248,19 @@ namespace Arashi.Aoi.Routes
             return res;
         }
 
-        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool isBack)
+        public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool isBackup)
         {
-            var client = isBack ? BackUpPool.Get() : UpPool.Get();
+            var client = isBackup ? BackUpPool.Get() : UpPool.Get();
             for (var i = 0; i < Config.Retries; i++)
             {
                 var aMessage = await client.SendMessageAsync(dnsMessage);
                 if (aMessage == null) continue;
-                if (isBack) BackUpPool.Return(client);
+                if (isBackup) BackUpPool.Return(client);
                 else UpPool.Return(client);
                 return aMessage;
             }
 
-            if (isBack) BackUpPool.Return(client);
+            if (isBackup) BackUpPool.Return(client);
             else UpPool.Return(client);
 
             return await new DnsClient(new[] {BackUpEndPoint.Address, UpEndPoint.Address},
