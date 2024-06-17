@@ -33,86 +33,8 @@ namespace Arashi.Aoi.Routes
 
         public static void DnsQueryRoute(IEndpointRouteBuilder endpoints)
         {
-            endpoints.Map(Config.QueryPerfix, async context =>
-            {
-                var queryDictionary = context.Request.Query;
-
-                DnsMessage qMsg;
-                bool returnMsg = true;
-
-                try
-                {
-                    if (context.Request.Method == "POST")
-                    {
-                        returnMsg = true;
-                        qMsg = await DNSParser.FromPostByteAsync(context);
-                    }
-                    else if (queryDictionary.ContainsKey("dns"))
-                    {
-                        returnMsg = true;
-                        qMsg = DNSParser.FromWebBase64(context);
-                    }
-                    else if (queryDictionary.ContainsKey("name"))
-                    {
-                        returnMsg = false;
-                        qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
-                    }
-                    else
-                    {
-                        await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
-                        return;
-                    }
-
-                    if (qMsg == null || !qMsg.Questions.Any())
-                    {
-                        var msg = new DnsMessage
-                        {
-                            IsRecursionAllowed = true,
-                            IsRecursionDesired = true,
-                            ReturnCode = ReturnCode.ServerFailure
-                        };
-                        msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
-                        msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
-                            "Parse error or invalid query"));
-                        await ReturnContext(context, returnMsg, msg, null,
-                            transIdEnable: GetIdEnable(context));
-                        return;
-                    }
-                }
-                catch (Exception e)
-                {
-                    var msg = new DnsMessage
-                    {
-                        IsRecursionAllowed = true,
-                        IsRecursionDesired = true,
-                        ReturnCode = ReturnCode.ServerFailure
-                    };
-                    msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
-                    msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
-                        "Fail parse query parameter"));
-                    await ReturnContext(context, returnMsg, msg, null,
-                        transIdEnable: GetIdEnable(context));
-                    Console.WriteLine(e);
-                    return;
-                }
-
-                if (qMsg.Questions.First().RecordType == RecordType.Any && !Config.AnyTypeEnable)
-                {
-                    var msg = qMsg.CreateResponseInstance();
-                    msg.IsRecursionAllowed = true;
-                    msg.IsRecursionDesired = true;
-                    msg.AnswerRecords.Add(
-                        new HInfoRecord(qMsg.Questions.First().Name, 3600, "ANY Obsoleted", "RFC8482"));
-
-                    await ReturnContext(context, returnMsg, msg, qMsg,
-                        transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
-                    return;
-                }
-
-                var aMsg = await DnsQuery(qMsg, context);
-                await ReturnContext(context, returnMsg, aMsg, qMsg,
-                    transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
-            });
+            endpoints.Map(Config.ReslovePerfix, async context => await MapDnsRoute(context));
+            endpoints.Map(Config.QueryPerfix, async context => await MapDnsRoute(context));
 
             endpoints.Map("/refresh-dns", async context =>
             {
@@ -129,6 +51,87 @@ namespace Arashi.Aoi.Routes
                 else
                     await context.WriteResponseAsync("Invalid query", StatusCodes.Status403Forbidden);
             });
+        }
+
+        public static async Task MapDnsRoute(HttpContext context)
+        {
+            var queryDictionary = context.Request.Query;
+            var returnMsg = true;
+
+            DnsMessage qMsg;
+
+            try
+            {
+                if (context.Request.Method == "POST")
+                {
+                    returnMsg = true;
+                    qMsg = await DNSParser.FromPostByteAsync(context);
+                }
+                else if (queryDictionary.ContainsKey("dns"))
+                {
+                    returnMsg = true;
+                    qMsg = DNSParser.FromWebBase64(context);
+                }
+                else if (queryDictionary.ContainsKey("name"))
+                {
+                    returnMsg = false;
+                    qMsg = DNSParser.FromDnsJson(context, EcsDefaultMask: Config.EcsDefaultMask);
+                }
+                else
+                {
+                    await context.WriteResponseAsync(Startup.IndexStr, type: "text/html");
+                    return;
+                }
+
+                if (qMsg == null || !qMsg.Questions.Any())
+                {
+                    var msg = new DnsMessage
+                    {
+                        IsRecursionAllowed = true,
+                        IsRecursionDesired = true,
+                        ReturnCode = ReturnCode.ServerFailure
+                    };
+                    msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
+                    msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
+                        "Parse error or invalid query"));
+                    await ReturnContext(context, returnMsg, msg, null,
+                        transIdEnable: GetIdEnable(context));
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                var msg = new DnsMessage
+                {
+                    IsRecursionAllowed = true,
+                    IsRecursionDesired = true,
+                    ReturnCode = ReturnCode.ServerFailure
+                };
+                msg.Questions.Add(new DnsQuestion(DomainName.Root, RecordType.A, RecordClass.INet));
+                msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
+                    "Fail parse query parameter"));
+                await ReturnContext(context, returnMsg, msg, null,
+                    transIdEnable: GetIdEnable(context));
+                Console.WriteLine(e);
+                return;
+            }
+
+            if (qMsg.Questions.First().RecordType == RecordType.Any && !Config.AnyTypeEnable)
+            {
+                var msg = qMsg.CreateResponseInstance();
+                msg.IsRecursionAllowed = true;
+                msg.IsRecursionDesired = true;
+                msg.AnswerRecords.Add(
+                    new HInfoRecord(qMsg.Questions.First().Name, 3600, "ANY Obsoleted", "RFC8482"));
+
+                await ReturnContext(context, returnMsg, msg, qMsg,
+                    transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
+                return;
+            }
+
+            var aMsg = await DnsQuery(qMsg, context);
+            await ReturnContext(context, returnMsg, aMsg, qMsg,
+                transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg,
@@ -279,7 +282,8 @@ namespace Arashi.Aoi.Routes
 
             var idEnable = Config.TransIdEnable;
             var noIdUaList = new List<string> {"intra", "chrome", "curl"};
-            var needIdUaList = new List<string> {"go-http-client", "dnscrypt-proxy", "dnscrypt"};
+            var needIdUaList = new List<string>
+                {"go-http-client", "dnscrypt", "dalvik", "ikuaios", "clash", "quic-go"};
 
             if (queryDictionary.TryGetValue("idEnable", out var str) && bool.TryParse(str, out var idResult))
                 idEnable = idResult;

@@ -8,6 +8,7 @@ namespace Arashi
         public string UpStream = "8.8.8.8";
         public string BackUpStream = "9.9.9.11";
         public string QueryPerfix = "/dns-query";
+        public string ReslovePerfix = "/reslove";
         public string AdminPerfix = "/dns-admin";
         public string IpPerfix = "/ip";
         public int Retries = 4;
