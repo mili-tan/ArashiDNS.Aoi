@@ -20,6 +20,7 @@ namespace Arashi.Aoi.Routes
     {
         public static IPEndPoint UpEndPoint = IPEndPoint.Parse(Config.UpStream);
         public static IPEndPoint BackUpEndPoint = IPEndPoint.Parse(Config.BackUpStream);
+        public static RecursiveDnsResolver RecursiveResolver = new RecursiveDnsResolver();
 
         public static DefaultObjectPool<DnsClient> UpPool = new(new DnsClientPooledObjectPolicy(
             new[]
@@ -250,6 +251,27 @@ namespace Arashi.Aoi.Routes
 
         public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, bool isBackup)
         {
+            if (Config.UseRecursive)
+            {
+                try
+                {
+                    var quest = dnsMessage.Questions.FirstOrDefault();
+                    var bases = await RecursiveResolver.ResolveAsync<DnsRecordBase>(quest.Name, quest.RecordType,
+                        quest.RecordClass);
+                    if (bases.Any())
+                    {
+                        var rMessage = dnsMessage.CreateResponseInstance();
+                        rMessage.ReturnCode = ReturnCode.NoError;
+                        rMessage.AnswerRecords.AddRange(bases);
+                        return rMessage;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
             var client = isBackup ? BackUpPool.Get() : UpPool.Get();
             for (var i = 0; i < Config.Retries; i++)
             {

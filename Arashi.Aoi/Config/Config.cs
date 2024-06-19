@@ -28,6 +28,7 @@ namespace Arashi
         public bool UseAdminRoute = false;
         public bool UseResolveRoute = false;
         public bool UseExceptionPage = true;
+        public bool UseRecursive = false;
         public bool GeoCacheEnable = true;
         public bool EcsEnable = true;
         public bool TransIdEnable = false;
