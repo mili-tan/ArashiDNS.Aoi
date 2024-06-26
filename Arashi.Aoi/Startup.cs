@@ -24,7 +24,7 @@ namespace Arashi
         public static HeaderDictionary HeaderDict = new();
         public static string IndexStr = File.Exists(SetupBasePath + "index.html")
             ? File.ReadAllText(SetupBasePath + "index.html")
-            : "Welcome to ArashiDNS.Aoi";
+            : "200 OK";
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -40,12 +40,6 @@ namespace Arashi
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
 
             HeaderDict.Add("Access-Control-Allow-Origin", "*");
-
-            //if (Config.RankEnable)
-            //{
-            //    var timer = new Timer(600000) { Enabled = true, AutoReset = true };
-            //    timer.Elapsed += (_, _) => DNSRank.Database.Checkpoint();
-            //}
 
             services.AddMemoryCache();
             services.Configure<IpRateLimitOptions>(new ConfigurationBuilder()
