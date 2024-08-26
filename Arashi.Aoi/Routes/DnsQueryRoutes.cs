@@ -303,8 +303,8 @@ namespace Arashi.Aoi.Routes
             var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
 
             var idEnable = Config.TransIdEnable;
-            var noIdUaList = new List<string> {"intra", "chrome", "curl"};
-            var needIdUaList = new List<string>
+            var noIdUaList = new HashSet<string> {"intra", "chrome", "curl"};
+            var needIdUaList = new HashSet<string>
                 {"go-http-client", "dnscrypt", "dalvik", "ikuaios", "clash", "quic-go"};
 
             if (queryDictionary.TryGetValue("idEnable", out var str) && bool.TryParse(str, out var idResult))
