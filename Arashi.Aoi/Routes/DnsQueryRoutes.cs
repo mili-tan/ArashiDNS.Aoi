@@ -58,6 +58,7 @@ namespace Arashi.Aoi.Routes
         {
             var queryDictionary = context.Request.Query;
             var returnMsg = true;
+            var idTe = GetIdTeEnable(context);
 
             DnsMessage qMsg;
 
@@ -96,7 +97,7 @@ namespace Arashi.Aoi.Routes
                     msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
                         "Parse error or invalid query"));
                     await ReturnContext(context, returnMsg, msg, null,
-                        transIdEnable: GetIdEnable(context));
+                        transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
                     return;
                 }
             }
@@ -112,7 +113,7 @@ namespace Arashi.Aoi.Routes
                 msg.AuthorityRecords.Add(new TxtRecord(DomainName.Parse("error.arashi-msg"), 0,
                     "Fail parse query parameter"));
                 await ReturnContext(context, returnMsg, msg, null,
-                    transIdEnable: GetIdEnable(context));
+                    transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
                 Console.WriteLine(e);
                 return;
             }
@@ -126,13 +127,13 @@ namespace Arashi.Aoi.Routes
                     new HInfoRecord(qMsg.Questions.First().Name, 3600, "ANY Obsoleted", "RFC8482"));
 
                 await ReturnContext(context, returnMsg, msg, qMsg,
-                    transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
+                    transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
                 return;
             }
 
             var aMsg = await DnsQuery(qMsg, context);
             await ReturnContext(context, returnMsg, aMsg, qMsg,
-                transIdEnable: GetIdEnable(context), id: qMsg.TransactionID);
+                transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
         }
 
         public static async Task ReturnContext(HttpContext context, bool returnMsg, DnsMessage aMsg,
@@ -298,29 +299,28 @@ namespace Arashi.Aoi.Routes
             return queryDictionary.ContainsKey("ct") && queryDictionary["ct"].ToString().Contains(key);
         }
 
-        public static bool GetIdEnable(HttpContext context)
+        public static (bool idEnable, bool teEnable) GetIdTeEnable(HttpContext context, bool forceId = false)
         {
-            var queryDictionary = context.Request.Query;
             var userAgent = context.Request.Headers.UserAgent.ToString().ToLower();
-
             var idEnable = Config.TransIdEnable;
+            var teEnable = Config.TrimEndEnable;
+            var needTeUaList = new HashSet<string> { "mikrotik" };
             var noIdUaList = new HashSet<string> { "intra", "chrome", "curl" };
             var needIdUaList = new HashSet<string>
                 {"go-http-client", "dnscrypt", "dalvik", "ikuaios", "clash", "mihomo", "quic-go"};
+            var noTeUaList = new HashSet<string>
+                {"dalvik", "dns-over-tls", "dns-over-quic", "quic-go", "quic-go", "sing-box"};
 
-            if (queryDictionary.TryGetValue("idEnable", out var str) && bool.TryParse(str, out var idResult))
-                idEnable = idResult;
-            else if (!string.IsNullOrWhiteSpace(userAgent))
-            {
-                if (noIdUaList.Any(item => userAgent.Contains(item)))
-                    idEnable = false;
-                else if (needIdUaList.Any(item => userAgent.Contains(item)))
-                    idEnable = true;
-            }
-            else
-                idEnable = true;
+            if (noTeUaList.Any(item => userAgent.Contains(item))) teEnable = false;
+            else if (needTeUaList.Any(item => userAgent.Contains(item))) teEnable = true;
 
-            return idEnable;
+            if (forceId) idEnable = true;
+
+            if (string.IsNullOrWhiteSpace(userAgent)) return (idEnable, teEnable);
+            if (noIdUaList.Any(item => userAgent.Contains(item))) idEnable = false;
+            else if (needIdUaList.Any(item => userAgent.Contains(item))) idEnable = true;
+
+            return (idEnable, teEnable);
         }
 
         public static void WriteLog(DnsMessage dnsMessage, HttpContext context = null)
