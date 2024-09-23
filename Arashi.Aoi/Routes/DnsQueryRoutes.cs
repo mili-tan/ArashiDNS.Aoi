@@ -188,7 +188,7 @@ namespace Arashi.Aoi.Routes
         }
 
         public static async Task<DnsMessage> DnsQuery(DnsMessage dnsMessage, HttpContext context,
-            bool cnDns = true, bool useCache = true, IPAddress ipAddress = null)
+            bool cnDns = true, bool useCache = true) //, IPAddress ipAddress = null
         {
             try
             {
@@ -219,11 +219,12 @@ namespace Arashi.Aoi.Routes
                 Console.WriteLine(e);
             }
 
-            if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
-                ipAddress = UpEndPoint.Address;
+            //if (ipAddress == null || IPAddress.Any.Equals(ipAddress)) //IPAddress.IsLoopback(ipAddress)
+            //    ipAddress = UpEndPoint.Address;
 
             var res = await DnsQuery(dnsMessage, false) ?? await DnsQuery(dnsMessage, true);
-            if (res.ReturnCode == ReturnCode.Refused) res = await DnsQuery(dnsMessage, true);
+            if (res == null || res.ReturnCode == ReturnCode.Refused || res.ReturnCode == ReturnCode.ServerFailure)
+                res = await DnsQuery(dnsMessage, true);
 
             WriteCache(res, context);
             return res;
