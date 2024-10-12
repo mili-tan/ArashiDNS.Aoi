@@ -118,6 +118,20 @@ namespace Arashi.Aoi.Routes
                 return;
             }
 
+            if (qMsg.Questions.First().RecordClass == RecordClass.Chaos && qMsg.Questions.First().RecordType == RecordType.Txt &&
+                qMsg.Questions.First().Name.IsEqualOrSubDomainOf(DomainName.Parse("version.bind")))
+            {
+                var msg = qMsg.CreateResponseInstance();
+                msg.IsRecursionAllowed = true;
+                msg.IsRecursionDesired = true;
+                msg.AnswerRecords.Add(
+                    new TxtRecord(qMsg.Questions.First().Name, 3600, "ArashiDNS.Aoi"));
+
+                await ReturnContext(context, returnMsg, msg, qMsg,
+                    transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
+                return;
+            }
+
             if (qMsg.Questions.First().RecordType == RecordType.Any && !Config.AnyTypeEnable)
             {
                 var msg = qMsg.CreateResponseInstance();
