@@ -46,14 +46,12 @@ namespace Arashi.Aoi.Routes
                         var res = await new HttpClient() {MaxResponseContentBufferSize = 1024000}.GetStringAsync(
                             "https://" +
                             context.GetRouteValue("path"));
-                        var sp = res.Split('\n').Where(x => !x.Trim().StartsWith("#") && !string.IsNullOrWhiteSpace(x))
-                            .ToList();
+                        var sp = res.Split('\n').Where(x => !x.Trim().StartsWith("#") && !string.IsNullOrWhiteSpace(x));
 
                         if (res.Contains("DOMAIN,"))
                             sp = sp.Where(x => x.StartsWith("DOMAIN,")).Select(x => x.Split(',').Last()).ToList();
 
-                        var str = sp.Aggregate(string.Empty,
-                            (current, item) => current + ("127.0.0.1 " + item + Environment.NewLine));
+                        var str = string.Join(Environment.NewLine, sp.Select(x => "127.0.0.1 " + x));
                         await context.WriteResponseAsync(str);
                     }
                     catch (Exception e)
