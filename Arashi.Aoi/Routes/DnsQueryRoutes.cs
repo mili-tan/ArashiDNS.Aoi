@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
@@ -36,6 +37,60 @@ namespace Arashi.Aoi.Routes
         {
             endpoints.Map(Config.ReslovePerfix, async context => await MapDnsRoute(context));
             endpoints.Map(Config.QueryPerfix, async context => await MapDnsRoute(context));
+
+            endpoints.Map("/ToHosts/{*path}",
+                async context =>
+                {
+                    try
+                    {
+                        var res = await new HttpClient() {MaxResponseContentBufferSize = 1024000}.GetStringAsync(
+                            "https://" +
+                            context.GetRouteValue("path"));
+                        var sp = res.Split('\n').Where(x => !x.Trim().StartsWith("#") && !string.IsNullOrWhiteSpace(x))
+                            .ToList();
+
+                        if (res.Contains("DOMAIN,"))
+                            sp = sp.Where(x => x.StartsWith("DOMAIN,")).Select(x => x.Split(',').Last()).ToList();
+
+                        var str = sp.Aggregate(string.Empty,
+                            (current, item) => current + ("127.0.0.1 " + item + Environment.NewLine));
+                        await context.WriteResponseAsync(str);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                });
+
+            endpoints.Map("/FilesToHosts/{files}/{*path}",
+                async context =>
+                {
+                    try
+                    {
+                        var str = string.Empty;
+                        foreach (var file in context.GetRouteValue("files").ToString().Split(',', '_'))
+                        {
+                            var res = await new HttpClient() {MaxResponseContentBufferSize = 10240}.GetStringAsync(
+                                "https://" +
+                                context.GetRouteValue("path") + "/" + file);
+                            var sp = res.Split('\n')
+                                .Where(x => !x.Trim().StartsWith("#") && !string.IsNullOrWhiteSpace(x))
+                                .ToList();
+
+                            if (res.Contains("DOMAIN,"))
+                                sp = sp.Where(x => x.StartsWith("DOMAIN,")).Select(x => x.Split(',').Last()).ToList();
+
+                            str += sp.Aggregate(string.Empty,
+                                (current, item) => current + ("127.0.0.1 " + item + Environment.NewLine));
+                        }
+
+                        await context.WriteResponseAsync(str);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                });
 
             endpoints.Map("/refresh-dns", async context =>
             {
