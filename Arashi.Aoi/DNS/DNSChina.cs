@@ -85,6 +85,14 @@ namespace Arashi
                         AoiConfig.Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
+                if (res == null || res.ReturnCode == ReturnCode.Refused || res.ReturnCode == ReturnCode.ServerFailure)
+                {
+                    dnsMessage.EDnsOptions.Options.Clear();
+                    res = await new ARSoft.Tools.Net.Dns.DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream),
+                            AoiConfig.Config.TimeOut)
+                        .SendMessageAsync(dnsMessage);
+                }
+
                 if (res != null && res.AnswerRecords.Any())
                     return res;
             }

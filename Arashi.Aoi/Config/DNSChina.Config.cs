@@ -11,7 +11,7 @@ namespace Arashi
     {
         public static DNSChinaConfig Config = new();
         public string ChinaListPath = AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "China_WhiteList.List";
-        public string ChinaUpStream = "119.29.29.29";
+        public string ChinaUpStream = "119.28.28.28";
         public string ChinaListUrl = "https://mili.one/china_whitelist_lite.txt";
         public bool UseHttpDns = true;
 

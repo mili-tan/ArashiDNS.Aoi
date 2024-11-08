@@ -292,7 +292,10 @@ namespace Arashi.Aoi.Routes
 
             var res = await DnsQuery(dnsMessage, false) ?? await DnsQuery(dnsMessage, true);
             if (res == null || res.ReturnCode == ReturnCode.Refused || res.ReturnCode == ReturnCode.ServerFailure)
+            {
+                dnsMessage.EDnsOptions.Options.Clear();
                 res = await DnsQuery(dnsMessage, true);
+            }
 
             WriteCache(res, context);
             return res;
