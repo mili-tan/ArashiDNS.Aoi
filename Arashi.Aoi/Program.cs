@@ -162,7 +162,6 @@ namespace Arashi.Aoi
                 if (upOption.HasValue()) Config.UpStream = upOption.Value();
                 if (buOption.HasValue()) Config.BackUpStream = buOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
-                if (retriesOption.HasValue()) Config.Retries = retriesOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();

@@ -11,7 +11,6 @@ namespace Arashi
         public string ReslovePerfix = "/reslove";
         public string AdminPerfix = "/dns-admin";
         public string IpPerfix = "/ip";
-        public int Retries = 4;
         public int TimeOut = 250;
         public int MaxTTL = 86400;
         public int MinTTL = 10;

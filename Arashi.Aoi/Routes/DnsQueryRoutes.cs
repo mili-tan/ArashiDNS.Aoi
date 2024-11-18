@@ -345,23 +345,19 @@ namespace Arashi.Aoi.Routes
             }
 
             var client = isBackup ? BackUpPool.Get() : UpPool.Get();
-            for (var i = 0; i < Config.Retries; i++)
-            {
-                var aMessage = await client.SendMessageAsync(dnsMessage);
-                if (aMessage == null) continue;
-                if (isBackup) BackUpPool.Return(client);
-                else UpPool.Return(client);
-                return aMessage;
-            }
 
+            var aMessage = await client.SendMessageAsync(dnsMessage);
             if (isBackup) BackUpPool.Return(client);
             else UpPool.Return(client);
 
-            return await new DnsClient(new[] {BackUpEndPoint.Address, UpEndPoint.Address},
-                    new IClientTransport[]
-                        {new TcpClientTransport(BackUpEndPoint.Port), new UdpClientTransport(BackUpEndPoint.Port)},
-                    false, Config.TimeOut)
-                .SendMessageAsync(dnsMessage);
+            //new UdpClientTransport(BackUpEndPoint.Port)
+            if (aMessage == null)
+                return await new DnsClient(new[] {BackUpEndPoint.Address, UpEndPoint.Address},
+                        [new TcpClientTransport(BackUpEndPoint.Port)],
+                        false, Config.TimeOut)
+                    .SendMessageAsync(dnsMessage);
+
+            return aMessage;
         }
 
         public static bool GetClientType(IQueryCollection queryDictionary, string key)
