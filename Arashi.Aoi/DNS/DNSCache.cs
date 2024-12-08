@@ -18,7 +18,7 @@ namespace Arashi
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
 
-            var ttl = record.TimeToLive;
+            var ttl = dnsMessage.AnswerRecords.Select(x => x.TimeToLive).Min();
             if (record.TimeToLive < AoiConfig.Config.MinTTL) return;
             if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
                 ttl = AoiConfig.Config.TargetTTL;
@@ -41,7 +41,7 @@ namespace Arashi
                 dnsMessage.ReturnCode == ReturnCode.NoError ? 180 : 90, IPAddress.Any);
             var quest = dnsMessage.Questions.First();
 
-            var ttl = record.TimeToLive;
+            var ttl = dnsMessage.AnswerRecords.Select(x => x.TimeToLive).Min();
             if (record.TimeToLive < 10) return;
             if (record.TimeToLive >= AoiConfig.Config.MaxTTL)
                 ttl = AoiConfig.Config.TargetTTL;
