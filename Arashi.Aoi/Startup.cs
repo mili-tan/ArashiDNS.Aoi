@@ -54,6 +54,12 @@ namespace Arashi
         {
             app.Use(async (context, next) =>
             {
+                if (!string.IsNullOrWhiteSpace(Config.HostName) && context.Request.Host.Host != Config.HostName)
+                    await context.WriteResponseAsync("Host Not Found", 404);
+                else await next(context);
+            });
+            app.Use(async (context, next) =>
+            {
                 context.Connection.RemoteIpAddress = RealIP.Get(context);
                 await next(context);
             });
