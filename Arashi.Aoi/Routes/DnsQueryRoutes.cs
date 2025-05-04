@@ -263,7 +263,6 @@ namespace Arashi.Aoi.Routes
                 var querys = context.Request.Query;
 
                 if (Config.ChinaListEnable && !querys.ContainsKey("no-cndns") && cnDns &&
-                    dnsMessage.Questions.FirstOrDefault()!.RecordType == RecordType.A &&
                     await DNSChina.IsChinaNameAsync(dnsMessage.Questions.FirstOrDefault().Name))
                 {
                     if (Config.GeoCacheEnable && DnsCache.Contains(dnsMessage, context, "CN"))
