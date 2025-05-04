@@ -61,8 +61,7 @@ namespace Arashi
 
         public static async Task<DnsMessage> ResolveOverChinaDns(DnsMessage dnsMessage)
         {
-
-            if (!DNSChinaConfig.Config.UseHttpDns)
+            if (!DNSChinaConfig.Config.UseHttpDns || dnsMessage.Questions.FirstOrDefault()!.RecordType != RecordType.A)
                 return await new DnsClient(IPAddress.Parse(DNSChinaConfig.Config.ChinaUpStream), AoiConfig.Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
