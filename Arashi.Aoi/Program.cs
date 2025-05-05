@@ -74,6 +74,7 @@ namespace Arashi.Aoi
             var loadcnOption = cmd.Option<string>("--loadcn:<FilePath>", "Load existing configuration from cnlist.json file [./cnlist.json]",
                 CommandOptionType.SingleOrNoValue);
             var testOption = cmd.Option("-e|--test", "Exit after passing the test", CommandOptionType.NoValue);
+            var hostOption = cmd.Option<string>("--host <HostName>", "Specifying allowed hostname", CommandOptionType.NoValue);
 
             var ipipOption = cmd.Option("--ipip", string.Empty, CommandOptionType.NoValue);
             var udsOption = cmd.Option("--uds", string.Empty, CommandOptionType.NoValue);
@@ -163,6 +164,7 @@ namespace Arashi.Aoi
                 if (buOption.HasValue()) Config.BackUpStream = buOption.Value();
                 if (timeoutOption.HasValue()) Config.TimeOut = timeoutOption.ParsedValue;
                 if (perfixOption.HasValue()) Config.QueryPerfix = "/" + perfixOption.Value().Trim('/').Trim('\\');
+                if (hostOption.HasValue()) Config.HostName = hostOption.Value();
                 Config.CacheEnable = cacheOption.HasValue();
                 Config.ChinaListEnable = chinaListOption.HasValue();
                 //Config.RankEnable = rankOption.HasValue();
