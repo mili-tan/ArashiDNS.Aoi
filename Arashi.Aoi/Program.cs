@@ -44,8 +44,8 @@ namespace Arashi.Aoi
                 CommandOptionType.SingleValue);
             var timeoutOption = cmd.Option<int>("-t|--timeout <Timeout(ms)>", "Set timeout for query to upstream DNS server <500>",
                 CommandOptionType.SingleValue);
-            var retriesOption = cmd.Option<int>("-r|--retries <Int>", "Set number of retries for query to upstream DNS server <5>",
-                CommandOptionType.SingleValue);
+            //var retriesOption = cmd.Option<int>("-r|--retries <Int>", "Set number of retries for query to upstream DNS server <5>",
+            //    CommandOptionType.SingleValue);
             var perfixOption = cmd.Option<string>("-p|--perfix <PerfixString>", "Set your DNS over HTTPS server query prefix </dns-query>",
                 CommandOptionType.SingleValue);
 
