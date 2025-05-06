@@ -60,25 +60,31 @@ namespace Arashi
 
         public static DnsMessage FromWebBase64(string base64) => DnsMessage.Parse(DecodeWebBase64(base64));
 
-        public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true, byte EcsDefaultMask = 24)
+        public static DnsMessage FromWebBase64(HttpContext context, bool ActiveEcs = true,
+            byte EcsDefaultMask = 24, byte EcsV6DefaultMask = 48)
+
         {
             var msg = FromWebBase64(context.Request.Query["dns"].ToString());
             if (!Config.EcsEnable || !ActiveEcs || context.Request.Query.ContainsKey("no-ecs")) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
-            msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
-                IPNetwork2.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
+            var mask = context.Connection.RemoteIpAddress.AddressFamily == AddressFamily.InterNetworkV6
+                ? EcsV6DefaultMask : EcsDefaultMask;
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(mask,
+                IPNetwork2.Parse(context.Connection.RemoteIpAddress.ToString(), mask).Network));
             return msg;
         }
 
         public static async Task<DnsMessage> FromPostByteAsync(HttpContext context, bool ActiveEcs = true,
-            byte EcsDefaultMask = 24)
+            byte EcsDefaultMask = 24, byte EcsV6DefaultMask = 48)
         {
             var msg = DnsMessage.Parse((await context.Request.BodyReader.ReadAsync()).Buffer.ToArray());
             if (!Config.EcsEnable || !ActiveEcs || context.Request.Query.ContainsKey("no-ecs")) return msg;
             if (IsEcsEnable(msg)) return msg;
             if (!msg.IsEDnsEnabled) msg.IsEDnsEnabled = true;
-            msg.EDnsOptions.Options.Add(new ClientSubnetOption(EcsDefaultMask,
+            var mask = context.Connection.RemoteIpAddress.AddressFamily == AddressFamily.InterNetworkV6
+                ? EcsV6DefaultMask : EcsDefaultMask;
+            msg.EDnsOptions.Options.Add(new ClientSubnetOption(mask,
                 IPNetwork2.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
             return msg;
         }
