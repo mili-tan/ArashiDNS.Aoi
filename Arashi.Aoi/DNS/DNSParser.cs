@@ -72,6 +72,7 @@ namespace Arashi
                 ? EcsV6DefaultMask : EcsDefaultMask;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(mask,
                 IPNetwork2.Parse(context.Connection.RemoteIpAddress.ToString(), mask).Network));
+            msg.EDnsOptions.Options.RemoveAll(x => x.Type == EDnsOptionType.Padding);
             return msg;
         }
 
@@ -86,6 +87,7 @@ namespace Arashi
                 ? EcsV6DefaultMask : EcsDefaultMask;
             msg.EDnsOptions.Options.Add(new ClientSubnetOption(mask,
                 IPNetwork2.Parse(context.Connection.RemoteIpAddress.ToString(), EcsDefaultMask).Network));
+            msg.EDnsOptions.Options.RemoveAll(x => x.Type == EDnsOptionType.Padding);
             return msg;
         }
 
