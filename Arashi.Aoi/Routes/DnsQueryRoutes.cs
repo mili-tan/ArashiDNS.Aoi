@@ -345,6 +345,10 @@ namespace Arashi.Aoi.Routes
 
             var client = isBackup ? BackUpPool.Get() : UpPool.Get();
 
+            if (Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.1.1.1")) ||
+                Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.0.0.1")))
+                dnsMessage.EDnsOptions.Options.RemoveAll(x => x.Type == EDnsOptionType.ClientSubnet);
+
             var aMessage = await client.SendMessageAsync(dnsMessage);
             if (isBackup) BackUpPool.Return(client);
             else UpPool.Return(client);
