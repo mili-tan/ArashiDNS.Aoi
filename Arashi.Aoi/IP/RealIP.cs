@@ -92,7 +92,8 @@ namespace Arashi
                 {
                     if (eDnsOptionBase is not ClientSubnetOption option) continue;
                     ipAddress = option.Address;
-                    return !Equals(option.Address, IPAddress.Any) && !Equals(option.Address, IPAddress.Loopback);
+                    //return !Equals(option.Address, IPAddress.Any) && !Equals(option.Address, IPAddress.Loopback);
+                    return true;
                 }
 
                 return false;

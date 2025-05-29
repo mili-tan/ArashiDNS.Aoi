@@ -360,6 +360,10 @@ namespace Arashi.Aoi.Routes
                         false, Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
+            //if (Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.1.1.1")) ||
+            //    Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.0.0.1")))
+            //    aMessage.EDnsOptions.Options.Add(new ClientSubnetOption(0, IPAddress.Broadcast));
+
             return aMessage;
         }
 
