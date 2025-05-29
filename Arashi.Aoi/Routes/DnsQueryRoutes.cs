@@ -345,9 +345,13 @@ namespace Arashi.Aoi.Routes
 
             var client = isBackup ? BackUpPool.Get() : UpPool.Get();
 
-            if (Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.1.1.1")) ||
-                Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.0.0.1")))
+            if (dnsMessage.IsEDnsEnabled &&
+                (Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.1.1.1")) ||
+                 Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.0.0.1"))))
+            {
                 dnsMessage.EDnsOptions.Options.RemoveAll(x => x.Type == EDnsOptionType.ClientSubnet);
+                dnsMessage.EDnsOptions.Options.Add(new ClientSubnetOption(0, IPAddress.Any));
+            }
 
             var aMessage = await client.SendMessageAsync(dnsMessage);
             if (isBackup) BackUpPool.Return(client);
@@ -360,9 +364,11 @@ namespace Arashi.Aoi.Routes
                         false, Config.TimeOut)
                     .SendMessageAsync(dnsMessage);
 
-            //if (Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.1.1.1")) ||
-            //    Equals(isBackup ? BackUpEndPoint.Address : UpEndPoint.Address, IPAddress.Parse("1.0.0.1")))
-            //    aMessage.EDnsOptions.Options.Add(new ClientSubnetOption(0, IPAddress.Broadcast));
+            if (Config.RetellEcsEnable && aMessage.IsEDnsEnabled && dnsMessage.IsEDnsEnabled &&
+                aMessage.EDnsOptions.Options.All(x => x.Type != EDnsOptionType.ClientSubnet) &&
+                dnsMessage.EDnsOptions.Options.Any(x => x.Type == EDnsOptionType.ClientSubnet))
+                aMessage.EDnsOptions.Options.Add(dnsMessage.EDnsOptions.Options.FirstOrDefault(x =>
+                    x.Type == EDnsOptionType.ClientSubnet));
 
             return aMessage;
         }
