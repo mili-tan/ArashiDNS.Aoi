@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using ARSoft.Tools.Net;
+﻿using ARSoft.Tools.Net;
 using ARSoft.Tools.Net.Dns;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -12,7 +6,15 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.Intrinsics.X86;
+using System.Threading.Tasks;
 using static Arashi.AoiConfig;
+using static System.Net.Mime.MediaTypeNames;
 using DnsClient = ARSoft.Tools.Net.Dns.DnsClient;
 
 namespace Arashi.Aoi.Routes
@@ -171,6 +173,8 @@ namespace Arashi.Aoi.Routes
                 return;
             }
 
+
+
             if (qMsg.Questions.First().RecordClass == RecordClass.Chaos && qMsg.Questions.First().RecordType == RecordType.Txt &&
                 qMsg.Questions.First().Name.IsEqualOrSubDomainOf(DomainName.Parse("version.bind")))
             {
@@ -180,6 +184,18 @@ namespace Arashi.Aoi.Routes
                 msg.AnswerRecords.Add(
                     new TxtRecord(qMsg.Questions.First().Name, 3600, "ArashiDNS.Aoi"));
 
+                await ReturnContext(context, returnMsg, msg, qMsg,
+                    transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
+                return;
+            }
+
+            if (qMsg.Questions.First().Name.IsEqualOrSubDomainOf(DomainName.Parse("use-application-dns.net")))
+            {
+                var msg = qMsg.CreateResponseInstance();
+                msg.IsRecursionAllowed = true;
+                msg.IsRecursionDesired = true;
+                msg.ReturnCode = ReturnCode.NoError;
+                msg.AnswerRecords = new List<DnsRecordBase>();
                 await ReturnContext(context, returnMsg, msg, qMsg,
                     transIdEnable: idTe.idEnable, trimEnable: idTe.teEnable);
                 return;
