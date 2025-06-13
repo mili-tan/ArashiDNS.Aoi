@@ -70,7 +70,7 @@ namespace Arashi.Aoi.Routes
                         var str = string.Empty;
                         foreach (var file in context.GetRouteValue("files").ToString().Split(',', '_'))
                         {
-                            var res = await new HttpClient() {MaxResponseContentBufferSize = 10240}.GetStringAsync(
+                            var res = await new HttpClient() {MaxResponseContentBufferSize = 1024000}.GetStringAsync(
                                 "https://" +
                                 context.GetRouteValue("path") + "/" + file);
                             var sp = res.Split('\n')
