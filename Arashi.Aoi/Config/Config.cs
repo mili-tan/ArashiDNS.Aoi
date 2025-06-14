@@ -14,7 +14,7 @@ namespace Arashi
         public string HostName = "";
         public int TimeOut = 250;
         public int MaxTTL = 86400;
-        public int MinTTL = 10;
+        public int MinTTL = 30;
         public int TargetTTL = 21600;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
