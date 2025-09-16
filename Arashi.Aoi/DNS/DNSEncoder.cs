@@ -7,7 +7,7 @@ namespace Arashi
 {
     public static class DnsEncoder {
 
-        public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = true,
+        public static byte[] Encode(DnsMessage dnsMsg, bool transIdEnable = false, bool trimEnable = false,
             ushort id = 0)
         {
             dnsMsg.IsRecursionAllowed = true;
