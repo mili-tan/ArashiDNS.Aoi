@@ -33,9 +33,10 @@ namespace Arashi
             {
                 if (!context.Response.Headers.Keys.Contains("X-Powered-By"))
                     context.Response.Headers.Add("X-Powered-By", "ArashiDNSP/Aoi");
+
                 context.Response.ContentType = type;
                 context.Response.StatusCode = status;
-                context.Response.Headers["Content-Length"] = bytes.Length.ToString();
+                context.Response.ContentLength = bytes.Length;
             }
             catch (Exception e)
             {
