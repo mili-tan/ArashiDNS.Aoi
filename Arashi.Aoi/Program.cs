@@ -205,7 +205,11 @@ namespace Arashi.Aoi
 
                     if (!noUpdateOption.HasValue())
                     {
-                        var timer = new Timer(100) {Enabled = true, AutoReset = true};
+                        Parallel.Invoke(
+                            () => GetFileUpdate("GeoLite2-ASN.mmdb", Config.MaxmindAsnDbUrl),
+                            () => GetFileUpdate("GeoLite2-City.mmdb", Config.MaxmindCityDbUrl));
+
+                        var timer = new Timer(1000) {Enabled = true, AutoReset = true};
                         timer.Elapsed += (_, _) =>
                         {
                             timer.Interval = 3600000 * 24;
