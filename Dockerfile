@@ -16,6 +16,8 @@ RUN dotnet publish "Arashi.Aoi.csproj" -c Release -o /app/publish /p:PublishSing
 
 FROM base AS final
 WORKDIR /app
+RUN apk update
+RUN apk add wget ca-certificates
 RUN wegt https://github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-City.mmdb
 RUN wegt https://github.com/mili-tan/maxmind-geoip/releases/latest/download/GeoLite2-ASN.mmdb
 COPY --from=publish /app/publish .
