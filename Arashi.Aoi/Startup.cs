@@ -39,8 +39,9 @@ namespace Arashi
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
 
-            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("INDEXURL")))
-                IndexStr = new HttpClient().GetStringAsync(Environment.GetEnvironmentVariable("INDEXURL")).Result;
+            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("USEINDEX")) &&
+                bool.Parse(Environment.GetEnvironmentVariable("USEINDEX")))
+                IndexStr = new HttpClient().GetStringAsync("https://mili.one/arashi/arashi").Result;
 
             HeaderDict.Add("Access-Control-Allow-Origin", "*");
 
