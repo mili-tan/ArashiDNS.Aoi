@@ -25,12 +25,12 @@
     <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
     <PackageReference Include="Kai.ARSoft.Tools.Net" Version="3.6.1.1" />
     <PackageReference Include="Kai.Jering.KeyValueStore" Version="1.1.9" />
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.0.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="5.0.1" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.2" />
-    <PackageReference Include="System.Runtime.Caching" Version="10.0.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.3" />
+    <PackageReference Include="System.Runtime.Caching" Version="10.0.3" />
     <PackageReference Include="IPNetwork2" Version="3.4.853" />
   </ItemGroup>
 
