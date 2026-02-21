@@ -312,6 +312,25 @@ namespace Arashi.Aoi.Routes
                 res = await DnsQuery(dnsMessage, true);
             }
 
+
+            if (res.AnswerRecords.Count > Config.MaxRecords)
+            {
+                var quest = dnsMessage.Questions.FirstOrDefault();
+                if (res.AnswerRecords.Any(x => x.RecordType == RecordType.CName) && res.AnswerRecords.Any(x => x.RecordType == quest.RecordType))
+                {
+                    var takes = res.AnswerRecords.Where(x => x.RecordType == quest.RecordType).Take(Config.MaxRecords).ToList();
+                    res.AnswerRecords.Clear();
+                    res.AnswerRecords.Add(new CNameRecord(quest.Name, 300, takes.LastOrDefault().Name));
+                    res.AnswerRecords.AddRange(takes);
+                }
+                else
+                {
+                    var takes = res.AnswerRecords.Take(Config.MaxRecords).ToList();
+                    res.AnswerRecords.Clear();
+                    res.AnswerRecords.AddRange(takes);
+                }
+            }
+
             WriteCache(res, context);
             return res;
         }

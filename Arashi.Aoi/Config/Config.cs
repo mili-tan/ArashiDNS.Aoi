@@ -16,6 +16,7 @@ namespace Arashi
         public int MaxTTL = 86400;
         public int MinTTL = 30;
         public int TargetTTL = 21600;
+        public int MaxRecords = 64;
         public byte EcsDefaultMask = 24;
         public bool CacheEnable = true;
         //public bool RankEnable = false;
