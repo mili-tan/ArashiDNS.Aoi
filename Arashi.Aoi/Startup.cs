@@ -39,6 +39,9 @@ namespace Arashi
                 foreach (var s in File.ReadAllText(SetupBasePath + "headers.list").Split(Environment.NewLine))
                     HeaderDict.Add(s.Split(':')[0], s.Split(':')[1]);
 
+            if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("INDEXURL")))
+                IndexStr = new HttpClient().GetStringAsync(Environment.GetEnvironmentVariable("INDEXURL")).Result;
+
             HeaderDict.Add("Access-Control-Allow-Origin", "*");
 
             services.AddMemoryCache();
